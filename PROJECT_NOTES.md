@@ -4,7 +4,8 @@
 and see the aircraft and satellites actually passing overhead, drawn where they really
 are in the sky.
 
-Status: **planning complete, scaffolding started — no working code yet.**
+Status: **aircraft pipeline written end to end, never compiled** — Unity has not opened
+the project yet.
 Last updated 2026-09-23.
 
 > **This plan replaces the 2026-08-03 plan**, which targeted a Quest 3 tabletop
@@ -296,8 +297,9 @@ build target is now an Android phone).
 
 ## 10. Current state of the repo
 
-**As of 2026-09-23, mid-renderer.** Steps 2 and the SGP4 harness are done; the
-renderer is partially written. See "Resume here" below.
+**As of 2026-09-23, aircraft pipeline complete on paper.** Every script needed for
+build-order step 2 exists and is wired by `AppBootstrap`; the SGP4 harness is done.
+None of it has been compiled. See "Resume here" below.
 
 ```
 VRAeroScan/
@@ -319,31 +321,52 @@ VRAeroScan/
         ├── DataFeeds/Aircraft.cs     ← DONE
         ├── DataFeeds/AircraftClassifier.cs ← DONE, validated
         ├── DataFeeds/AdsbService.cs  ← DONE (polling, dead reckoning, pruning)
-        └── Rendering/
-            ├── ArVisuals.cs          ← DONE (asset-free meshes/materials/font)
-            ├── FaceCamera.cs         ← DONE (billboard)
-            ├── SkyRig.cs             ← DONE (world-fixed frame, AR camera)
-            └── CardinalMarkers.cs    ← DONE (ghost N + guide + E/S/W)
+        ├── Rendering/
+        │   ├── ArVisuals.cs          ← DONE (asset-free meshes/materials/font)
+        │   ├── FaceCamera.cs         ← DONE (billboard)
+        │   ├── SkyRig.cs             ← DONE (world-fixed frame, AR camera)
+        │   ├── CardinalMarkers.cs    ← DONE (ghost N + guide + E/S/W)
+        │   └── SkyMarker.cs          ← DONE (outline + label, horizon fade, class colour)
+        ├── UI/TouchHorizonControl.cs ← DONE (drag sky; 2-finger/Shift fine; arrow keys)
+        └── App/AppBootstrap.cs       ← DONE (wiring, GPS, marker pool, debug HUD)
 ```
 
-### Resume here — next three files, in order
+### Resume here — first compile, then the desk test
 
-1. **`UI/TouchHorizonControl.cs` — NOT WRITTEN.** The point of the current work.
-   Drag the phone touchscreen horizontally to rotate the horizon until the ghost N
-   sits where north really is. Calls `CompassCalibration.Nudge(deltaDeg)` and
-   `CardinalMarkers.SetAdjusting(bool)` (both already exist and are waiting for it).
-   Should support mouse as well as touch so it works on the desktop, and a fine mode
-   (two-finger, or a modifier) because the last few degrees matter most.
-   **This promotes manual calibration from safety net to the primary interface**, which
-   is the right call given how unreliable a phone magnetometer is near electronics.
-2. **`Rendering/SkyMarker.cs` — NOT WRITTEN.** One aircraft or satellite: outline
-   billboard, label, fade below horizon, colour by class. `ArVisuals` already has
-   `SquareOutline` (aircraft) and `DiamondOutline` (satellites).
-3. **`App/AppBootstrap.cs` — NOT WRITTEN.** Wires tracker + calibration + `SkyRig` +
-   `CardinalMarkers` + `AdsbService` together and drives marker pooling. Until this
-   exists nothing runs.
+The code for build-order step 2 is complete. The next step is not more code, it is
+**opening it in Unity**:
 
-Then: the filter UI over `AircraftClass`, and the SGP4 decision (§7.1) for satellites.
+1. Install an editor with **Android Build Support**. Open `unity/VRAeroScan/`. Expect
+   and fix real compile errors — nothing here has seen a compiler.
+2. Player Settings → *Active Input Handling* must include the **legacy Input Manager**
+   ("Both" is fine). `MockHeadTracker`, `TouchHorizonControl` and `AppBootstrap` all
+   use `UnityEngine.Input`; newer Unity templates default to the Input System only,
+   which makes those calls throw.
+3. Empty scene, one empty GameObject, add **`AppBootstrap`**, press Play. Set the
+   manual observer lat/lon to where you actually are (default is downtown LA).
+4. **Desk test:** the mock tracker starts at yaw 137°, so north is deliberately wrong.
+   Left-drag until the ghost N sits on north, then check a marker against
+   flightradar24/adsb.lol for the same aircraft — bearing and elevation should agree.
+
+**How the pieces fit** (so nothing needs re-deriving):
+- `TouchHorizonControl` calls `CompassCalibration.Nudge(-skyDeg)`. The minus is
+  deliberate: the offset turns the *camera*, so moving the sky right with the finger
+  means shrinking it. If the sky moves *against* the finger on first run, this sign is
+  the one to look at. Coarse 90°/screen width, fine 10°. It sets
+  `Input.simulateMouseWithTouches = false` or every phone drag would count twice.
+- `AppBootstrap` uses any `IHeadTracker` already on its GameObject, else adds
+  `MockHeadTracker`. **That is the plug point for the Viture tracker** — add the
+  component, nothing else changes.
+- Markers are recomputed every frame via `Aircraft.PositionAt` (dead reckoning), and
+  labels only when `AdsbService` hands over a new `Aircraft` object (it replaces them
+  per poll). Pooled, not destroyed.
+- While dragging, aircraft dim to 35% so the ghost N is the brightest thing in view.
+- Debug HUD (OnGUI) is editor-only by default — on the glasses, text is light in
+  your eyes.
+
+Then: the filter UI over `AircraftClass`, the hardware spike (risks 2 and 3), and the
+SGP4 decision (§7.1) for satellites. Satellites will need their own marker pool —
+`AppBootstrap.Acquire` currently has one pool, and the outline mesh differs by kind.
 
 **Unity has not opened this project yet.** No editor is installed (Hub is present but
 empty), so there is no `ProjectSettings/` and no `.meta` files, and no code here has
