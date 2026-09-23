@@ -186,12 +186,11 @@ Both categories must be independently selectable — **some / all / none**:
 
 ## 7. Known risks — unresolved, in priority order
 
-1. **SGP4 is the piece not to write blind.** Satellite propagation is easy to get
-   subtly, silently wrong. Near-Earth SGP4 covers ISS and Starlink; GEO objects need
-   deep-space SDP4 terms. Two paths: port it and validate against a reference
-   implementation with real test vectors, or pull in a vetted C# library. **Decide
-   before writing it.** A hand-written, unvalidated propagator is the single most
-   likely source of "the app points at empty sky."
+1. **SGP4 — de-risked 2026-09-23, decision now cheap.** Satellite propagation is easy
+   to get subtly, silently wrong, and it was the single most likely source of "the app
+   points at empty sky." The insight that collapsed it: *the validation work is
+   identical whichever implementation is chosen*, so the harness was built first and
+   now decides. See §7.1.
 2. **Viture's *Unity XR* SDK appears aimed at their 6DoF Neckband**, not at
    phone-tethered Pro XR glasses. The real integration path may be the Viture
    **Android** SDK wrapped as a JNI/AAR plugin called from Unity. Verify against the
@@ -204,6 +203,39 @@ Both categories must be independently selectable — **some / all / none**:
 5. **46° FOV is small.** Only a narrow slice of sky is visible at once. Needs
    off-screen indicators ("ISS — 40° left, rising") and aggressive decluttering, or
    the app is a guessing game.
+
+### 7.1 SGP4 validation — built 2026-09-23
+
+`tools/validation/validate_sgp4.py`, with `sgp4_fixture.json` for the C# side.
+
+Why it exists: satellites broadcast nothing. CelesTrak gives *mean* orbital elements
+fitted by SGP4 itself, so they are only valid with SGP4 — feeding them to ordinary
+Keplerian math silently reintroduces the perturbations that were subtracted out. And
+unlike the aircraft path, the feed carries no ground truth to check against.
+
+Ground truth therefore comes from the published verification suite (`SGP4-VER.TLE` /
+`tcppver.out`, which ship inside the python-sgp4 package — no download). It is
+deliberately nasty: Lyddane fix regression, a 12-hour resonant Molniya orbit,
+deep-space cases, decayed satellites.
+
+| Check | Result |
+|---|---|
+| Oracle vs published vectors | 710 state vectors, **worst delta 0.117 mm** |
+| C# fixture emitted | 32 satellites, 354 state vectors, TEME / WGS72 |
+| Live ISS vs wheretheiss.at | **0.1 km** |
+
+**Model accuracy is not the constraint.** SGP4 is good to ~1 km near epoch; at the
+ISS's altitude that is ~0.14° of pointing error, invisible at 46° FOV. The entire risk
+was implementation correctness, which the harness now settles. What *does* matter more
+than expected is TLE freshness and clock accuracy: the ISS moves 7.7 km/s, so one
+second of clock error is ~1.1° — larger than the model's own error budget. Refetch
+elements often, especially for Starlink, which maneuvers constantly.
+
+**Still to decide** (but now cheap, since anything proposed either passes the fixture
+or does not): vendor a C# library, port Vallado's reference, or implement near-Earth
+only and treat GEO specially. Note that GEO is the one case needing deep-space SDP4 —
+and also the one where it matters least, since a GEO satellite is stationary in the sky
+by definition.
 
 ---
 
@@ -302,7 +334,9 @@ path (risk 2/3) is resolved. Do not let unresolved hardware block the math.
 
 ## 11. Open questions
 
-- [ ] SGP4: port-and-validate, or vendor a library? (risk 1 — decide first)
+- [ ] SGP4: vendor a C# library, port Vallado's reference, or near-Earth-only with GEO
+      treated specially? Harness now exists (§7.1), so any candidate can be judged
+      rather than argued about.
 - [ ] Does the Viture Unity XR SDK support phone-tethered Pro XR, or is the Android
       SDK + JNI the real path? (risk 2)
 - [ ] Which phone, and does it do DisplayPort Alt Mode? (risk 3)

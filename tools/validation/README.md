@@ -49,9 +49,53 @@ The unclassified remainder is mostly European light aircraft and gliders. Growin
 type tables is the fix; the tables are the first thing to check when something shows
 up unlabelled.
 
-## A note on what these do *not* cover
+## `validate_sgp4.py`
 
-Neither harness touches SGP4. Satellite propagation is the third piece that fails
-silently, and it has no equivalent free ground truth in the feed itself — validating
-it needs reference test vectors or a known-good implementation to compare against.
-That remains an open decision; see `PROJECT_NOTES.md` §7.
+Needs `pip install sgp4` (see `requirements.txt`); the other two need nothing.
+
+Satellite propagation is the third silent-failure piece, and the hardest to check,
+because the feed carries no ground truth: CelesTrak gives orbital *elements*, not
+positions. So the ground truth comes from the canonical verification suite instead.
+
+Three stages, in order:
+
+1. **Verify the oracle.** Runs python-sgp4 — which wraps Vallado's reference C++ —
+   against the published `SGP4-VER.TLE` / `tcppver.out` vectors, both of which ship
+   inside the package, so no download is needed. Result: **710 state vectors, worst
+   position delta 0.117 mm.**
+2. **Emit `sgp4_fixture.json`** (`--emit-fixture`), so whichever propagator VRAeroScan
+   ends up using can be checked against the same numbers from C#, with no Python in
+   the build. 32 satellites, 354 state vectors, TEME frame, WGS72 gravity model.
+3. **Live ISS cross-check.** The static vectors prove the arithmetic but cannot catch
+   mistakes *around* it — wrong elements, mishandled TLE epoch, confused time scales.
+   This does, and it most resembles what the app actually does. Current agreement:
+   **0.1 km.**
+
+The verification suite is deliberately nasty: it includes the Lyddane fix regression
+case, a 12-hour resonant Molniya orbit, deep-space cases and decayed satellites. An
+implementation that passes all of it is very unlikely to be subtly wrong.
+
+### Two bugs this found in itself, worth knowing about
+
+**Leading zeros.** `SGP4-VER.TLE` pads satellite numbers to five digits (`00005`)
+while `tcppver.out` does not (`5`). Comparing them as strings silently skipped six
+satellites — including the headline TEME example and the Lyddane-fix case, the two
+most valuable tests in the suite. The harness reported a clean pass on the remaining
+603 vectors. A validator that quietly tests less than it claims is worse than none,
+so it now reports what it *could not* check, and normalises to `int`.
+
+**Bad reference source.** The live check first used open-notify.org and disagreed by
+~4,900 km. That was not our bug: open-notify's reported position matched our own
+propagation at +13 minutes, meaning it serves stale data, and even at that offset
+left a 139 km residual. The same code agrees with wheretheiss.at to under 5 km.
+Recorded because "the reference must be wrong" is usually the wrong conclusion, and
+this is the uncommon case where it held — which is exactly why it was worth proving
+instead of assuming in either direction.
+
+## Why these exist at all
+
+All three cover failures that produce *plausible* output. Nothing here throws an
+exception when it is wrong; it just points at empty sky. That is the whole argument
+for checking against live data and published vectors rather than against assumptions —
+every real bug above was invisible to inspection and would have survived a unit test
+written from the same assumptions that produced the code.
