@@ -296,18 +296,60 @@ build target is now an Android phone).
 
 ## 10. Current state of the repo
 
+**As of 2026-09-23, mid-renderer.** Steps 2 and the SGP4 harness are done; the
+renderer is partially written. See "Resume here" below.
+
 ```
 VRAeroScan/
 ├── PROJECT_NOTES.md                  ← this file
-├── docs/archive/
-│   └── PROJECT_NOTES-2026-08-03-quest3-webxr.md   ← superseded plan
-└── unity/VRAeroScan/                 ← scaffolded, EMPTY
-    ├── Assets/Scripts/{Core,Tracking,DataFeeds,Satellites,Rendering,UI,App}/
-    ├── Packages/
-    └── ProjectSettings/
+├── docs/archive/PROJECT_NOTES-2026-08-03-quest3-webxr.md   ← superseded plan
+├── tools/validation/                 ← DONE, all passing
+│   ├── validate_geomath.py           ← 0.06° vs adsb.lol ground truth
+│   ├── validate_classifier.py        ← 2.7% unclassified over 892 aircraft
+│   ├── validate_sgp4.py              ← 0.117 mm vs published vectors
+│   ├── sgp4_fixture.json             ← 32 sats / 354 vectors, for the C# side
+│   └── requirements.txt              ← `sgp4`
+└── unity/VRAeroScan/
+    ├── Packages/manifest.json        ← Newtonsoft + modules. NO ProjectSettings yet.
+    └── Assets/Scripts/
+        ├── Core/GeoMath.cs           ← DONE, validated
+        ├── Core/CompassCalibration.cs ← DONE
+        ├── Tracking/IHeadTracker.cs  ← DONE
+        ├── Tracking/MockHeadTracker.cs ← DONE (mouse-look, desk testing)
+        ├── DataFeeds/Aircraft.cs     ← DONE
+        ├── DataFeeds/AircraftClassifier.cs ← DONE, validated
+        ├── DataFeeds/AdsbService.cs  ← DONE (polling, dead reckoning, pruning)
+        └── Rendering/
+            ├── ArVisuals.cs          ← DONE (asset-free meshes/materials/font)
+            ├── FaceCamera.cs         ← DONE (billboard)
+            ├── SkyRig.cs             ← DONE (world-fixed frame, AR camera)
+            └── CardinalMarkers.cs    ← DONE (ghost N + guide + E/S/W)
 ```
 
-`git init` has been run. Nothing committed yet. **No code has been written.**
+### Resume here — next three files, in order
+
+1. **`UI/TouchHorizonControl.cs` — NOT WRITTEN.** The point of the current work.
+   Drag the phone touchscreen horizontally to rotate the horizon until the ghost N
+   sits where north really is. Calls `CompassCalibration.Nudge(deltaDeg)` and
+   `CardinalMarkers.SetAdjusting(bool)` (both already exist and are waiting for it).
+   Should support mouse as well as touch so it works on the desktop, and a fine mode
+   (two-finger, or a modifier) because the last few degrees matter most.
+   **This promotes manual calibration from safety net to the primary interface**, which
+   is the right call given how unreliable a phone magnetometer is near electronics.
+2. **`Rendering/SkyMarker.cs` — NOT WRITTEN.** One aircraft or satellite: outline
+   billboard, label, fade below horizon, colour by class. `ArVisuals` already has
+   `SquareOutline` (aircraft) and `DiamondOutline` (satellites).
+3. **`App/AppBootstrap.cs` — NOT WRITTEN.** Wires tracker + calibration + `SkyRig` +
+   `CardinalMarkers` + `AdsbService` together and drives marker pooling. Until this
+   exists nothing runs.
+
+Then: the filter UI over `AircraftClass`, and the SGP4 decision (§7.1) for satellites.
+
+**Unity has not opened this project yet.** No editor is installed (Hub is present but
+empty), so there is no `ProjectSettings/` and no `.meta` files, and no code here has
+ever been compiled. Expect a first-open pass to fix real compile errors — the scripts
+are written carefully but have never seen a compiler. Install an editor with **Android
+Build Support** first.
 
 ### Planned script layout
 | Path | Responsibility |
