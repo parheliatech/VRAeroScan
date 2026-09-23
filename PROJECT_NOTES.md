@@ -214,7 +214,10 @@ Both categories must be independently selectable — **some / all / none**:
    phone-tethered Pro XR glasses. The real integration path is probably the Viture
    **Android** SDK, wrapped as a Godot Android plugin (v2, AAR). Verify against the
    actual hardware early — this is an architecture assumption, not a fact.
-3. **Phone → glasses display path unverified.** Requires DisplayPort Alt Mode on the
+3. **Phone → glasses display path — RESOLVED 2026-09-23 (native SBS from Godot, see §10).** Kendel's phone is a
+   **OnePlus 7 Pro (LTE)**, and Viture's SpaceWalker app drives the glasses from it
+   without problems. (Several web sources claim the 7 Pro has no DP Alt Mode; direct
+   observation beats them.) Still open: how a *Godot* app reaches the glasses. Requires DisplayPort Alt Mode on the
    phone. Godot likely cannot drive a *separate* external display, so expect the phone to
    mirror; check whether a mirrored side-by-side frame fills the glasses or letterboxes.
    Confirm the specific phone can do this *before* building anything on top of it.
@@ -365,8 +368,8 @@ for real — a crashed test once reported "0 failed".
 
 ### Resume here
 
-1. **Hardware spike (build-order step 1)** — now the top risk. Needs: the phone model
-   (does it do DisplayPort Alt Mode?), Godot Android export templates (~1.2 GB, from the
+1. **Hardware spike (build-order step 1)** — DISPLAY HALF PASSED (see below). Remaining:
+   read the glasses' IMU via the Viture SDK in a Godot Android plugin. Originally needed: Godot Android export templates (~1.2 GB, from the
    Godot editor's *Manage Export Templates*), and a debug keystore. Goal: a stereo test
    pattern on the glasses and IMU numbers printed, from a Godot APK. Answers risks 2
    and 3 — including whether mirroring fills the glasses or letterboxes.
@@ -377,6 +380,57 @@ for real — a crashed test once reported "0 failed".
    says what the glasses actually accept.
 4. Then satellites: the SGP4 decision (§7.1) — `sgp4_fixture.json` now checks a GDScript
    propagator exactly as it would have checked C#.
+
+### Viture SDK — found inside SpaceWalker (2026-09-23)
+Kendel's `~/Vibe/SpaceJumper/` has SpaceWalker 1.7.2.0 (Viture's official app) already
+decompiled (`apk_source/jadx`, `apk_source/apktool`). It bundles Viture's Android glasses
+SDK, which is what our plugin should wrap:
+
+- Java API: `viture.glasses.VitureGlassesProvider` — `initialize(int, String, int)`,
+  `openImu(int, int)`, `registerViturePoseCallback(Viture.Pose)` →
+  `onImuPoseData(float[], long)`, `registerVitureRawCallback`, `getImuPose(float[],
+  double)`, `resetPose()`, `setDisplayMode(int)` (likely the 2D / 3D-SBS switch),
+  `getWearStatus()`. Device types: GEN1=0, GEN2=1, CARINA=2.
+- JNI: `viture.glasses.jni.GlassesBridge` (static natives). JNI binds by class name, so a
+  plugin must declare that exact class and signatures.
+- Native: `libglasses-jni.so` → `libglasses-internal.so`, `libcarina_vio.so`,
+  `libcloud_protocol.so`; nothing else beyond Android system libs.
+- Display: SpaceWalker uses Android's `Presentation` API (`DisplayPresentationManager`),
+  so the phone exposes the glasses as a **separate display**, not only a mirror.
+- Not yet traced: the actual arguments to `initialize`/`openImu` (call sites obfuscated)
+  and the pose array layout.
+
+Local copies are in `vendor/viture/` (APK + the four `.so` files), **gitignored — this is
+Viture's proprietary code, used locally and never committed or redistributed.**
+
+### Display spike — PASSED 2026-09-23
+`godot/DisplaySpike/` (`display_spike.apk`, debug-signed arm64) on the OnePlus 7 Pro —
+which runs **Android 16** (custom ROM; OnePlus stopped at 12), `adb` serial `dee0f13e`,
+Wi-Fi adb at `192.168.86.114:5555`.
+
+| Test | Result |
+|---|---|
+| Glasses as an Android display | **Separate EXTERNAL display "VITURE"**, not just a mirror |
+| Normal launch (mirrored) | 1920×886 letterboxed inside 1920×1080 — wastes 18% of FOV |
+| `am start --display <id>` onto glasses, 2D | **1920×1080 native, 60 fps**, phone screen stays free |
+| Same, glasses in 3D mode | **3840×1080 SBS, 60 fps; Kendel confirmed L/R per eye and the horizon lines fuse** |
+| Phone gyro / accel / magnetometer in Godot | All live |
+
+Behaviours the app must handle (all observed in logs):
+- **2D↔3D is a display replug.** The glasses drop the 1920×1080 display and re-appear as
+  a *new* logical display at 3840×1080 (ids went 2 → 6). Android moves our activity back
+  to the phone. The app must detect the VITURE display and move onto it.
+- **Android 16 gates new displays** behind a "Mirror to external display?" prompt on the
+  phone; until answered the display is `mIsEnabled=false`, state OFF → black glasses.
+  Check how SpaceWalker avoids this (the SDK's `setDisplayMode` may, since it may not
+  replug). Otherwise the app must prompt the user.
+- Godot's `DisplayServer` only ever sees the display the activity is on
+  (`get_screen_count()` = 1), so choosing the display is the plugin's job, not Godot's.
+- Launch activity is `com.godot.game.GodotAppLauncher` (exported); `GodotApp` is not.
+- `adb exec-out screencap -p -d <physical id>` captures what is sent to the glasses —
+  useful for remote checks. Physical id of the glasses: `4615860159156968452`.
+
+`godot/DisplaySpike/launch_on_glasses.sh` finds the glasses display and launches onto it.
 
 Commands:
 ```
@@ -394,7 +448,7 @@ godot -e --path godot/VRAeroScan                                     # open the 
 - [ ] Can the Viture Android SDK be wrapped as a Godot Android plugin, and does it expose
       the Pro XR's IMU when phone-tethered? (risk 2)
 - [ ] GPS on Android from Godot: write a small plugin, or use an existing one?
-- [ ] Which phone, and does it do DisplayPort Alt Mode? (risk 3)
+- [x] Which phone, and does it do DisplayPort Alt Mode? — OnePlus 7 Pro; yes, SpaceWalker drives the glasses. (risk 3)
 - [ ] Magnetic declination source — bundled WMM coefficients, or an API?
 - [ ] Is the phone magnetometer accurate enough, or is a celestial fix needed? (§4.2)
 - [x] Marker rendering distance: fixed-radius dome (500 m), range shown in the label.

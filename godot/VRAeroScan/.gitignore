@@ -4,3 +4,4 @@
 *.apk
 *.aab
 export_credentials.cfg
+*.apk.idsig

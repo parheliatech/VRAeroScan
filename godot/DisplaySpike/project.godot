@@ -1,0 +1,35 @@
+; Engine configuration file.
+; Hardware spike for VRAeroScan: does a Godot APK reach the Viture glasses, how, and
+; at what resolution? See display_spike.gd.
+
+config_version=5
+
+[application]
+
+config/name="VRAeroScan Display Spike"
+run/main_scene="res://display_spike.tscn"
+config/features=PackedStringArray("4.7", "GL Compatibility")
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+; Landscape, and the window fills whatever the display actually is — the spike wants
+; to see the real resolution, not a scaled one.
+window/handheld/orientation=0
+window/stretch/mode="disabled"
+
+[input_devices]
+
+pointing/emulate_mouse_from_touch=false
+sensors/enable_accelerometer=true
+sensors/enable_gravity=true
+sensors/enable_gyroscope=true
+sensors/enable_magnetometer=true
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0, 0, 0, 1)
+textures/vram_compression/import_etc2_astc=true

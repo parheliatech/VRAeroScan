@@ -14,6 +14,11 @@ unity/VRAeroScan/[Rr]ecordings/
 unity/VRAeroScan/Assets/Viture/
 unity/VRAeroScan/Assets/Plugins/Viture/
 
+# Viture binaries, local only. vendor/viture/ holds SpaceWalker's APK and the glasses
+# libraries extracted from it (libglasses-jni.so, libglasses-internal.so) - Viture's
+# proprietary code, used locally to talk to the glasses and never redistributed.
+vendor/
+
 # Asset meta files for ignored directories
 unity/VRAeroScan/Assets/Viture.meta
 unity/VRAeroScan/Assets/Plugins/Viture.meta

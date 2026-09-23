@@ -1,0 +1,5 @@
+.godot/
+/android/
+*.apk
+*.aab
+*.apk.idsig
