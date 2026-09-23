@@ -27,9 +27,24 @@ max |gc dist    - api dst| = 0.020 nm
 If you change `GeoMath.cs`, re-run this. A regression here breaks the entire app in a
 way that looks like a calibration problem.
 
+**Correction, 2026-09-23, from a 72-aircraft rerun:** `dir` is a *spherical*
+great-circle bearing rounded to 0.1°. Great-circle bearing matches it to 0.049°, the
+rounding bound, with zero mean bias. The ENU azimuth the app actually points along is
+ellipsoidal (WGS84) and differs from `dir` by up to ~0.13° at mid-latitudes. That is
+correct, not an error — the 0.060° above was a lucky 7-aircraft sample. Compare
+great-circle to `dir`; never tighten a tolerance on ENU-vs-`dir`.
+
+## `export_geomath_fixture.py`
+
+Freezes this validated maths into `godot/VRAeroScan/tests/geomath_fixture.json`: 36
+cases chosen for the silent bugs (southern/western hemispheres, the antimeridian, high
+latitude, below-horizon, near-zenith). The Godot tests check the GDScript `GeoMath`
+against it to 1e-6°. `godot/VRAeroScan/tests/live_check.gd` is the live-data twin of
+`validate_geomath.py`, running the real GDScript request, parser and maths.
+
 ## `validate_classifier.py`
 
-Mirrors `Assets/Scripts/DataFeeds/AircraftClassifier.cs` and measures coverage across
+Mirrors `AircraftClassifier` (now `godot/VRAeroScan/scripts/data/aircraft_classifier.gd`; originally the Unity C#) and measures coverage across
 several busy metros, reporting what it could not classify.
 
 This is how the classifier's real bugs were found, and none of them would have shown
@@ -64,8 +79,8 @@ Three stages, in order:
    inside the package, so no download is needed. Result: **710 state vectors, worst
    position delta 0.117 mm.**
 2. **Emit `sgp4_fixture.json`** (`--emit-fixture`), so whichever propagator VRAeroScan
-   ends up using can be checked against the same numbers from C#, with no Python in
-   the build. 32 satellites, 354 state vectors, TEME frame, WGS72 gravity model.
+   ends up using can be checked against the same numbers from C# or GDScript, with no
+   Python in the build. 32 satellites, 354 state vectors, TEME frame, WGS72 gravity model.
 3. **Live ISS cross-check.** The static vectors prove the arithmetic but cannot catch
    mistakes *around* it — wrong elements, mishandled TLE epoch, confused time scales.
    This does, and it most resembles what the app actually does. Current agreement:

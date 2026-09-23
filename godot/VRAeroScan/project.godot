@@ -1,0 +1,33 @@
+; Engine configuration file.
+; Hand-written so the project runs without ever being opened in the editor.
+
+config_version=5
+
+[application]
+
+config/name="VRAeroScan"
+config/description="AR finder for the aircraft and satellites overhead, on Viture Pro XR glasses."
+run/main_scene="res://main.tscn"
+config/features=PackedStringArray("4.7", "GL Compatibility")
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/handheld/orientation=0
+
+[input_devices]
+
+; Touch is handled directly by TouchHorizonControl; fake mouse events from touches
+; would count every drag twice.
+pointing/emulate_mouse_from_touch=false
+
+[rendering]
+
+; Compatibility: unshaded additive lines and text need nothing more, and it has the
+; widest Android support and least overhead.
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+; Black is invisible on an additive see-through display. Anything else hazes the sky.
+environment/defaults/default_clear_color=Color(0, 0, 0, 1)
+textures/vram_compression/import_etc2_astc=true

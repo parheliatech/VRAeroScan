@@ -4,8 +4,8 @@
 and see the aircraft and satellites actually passing overhead, drawn where they really
 are in the sky.
 
-Status: **aircraft pipeline written end to end, never compiled** — Unity has not opened
-the project yet.
+Status: **aircraft pipeline running on the desktop in Godot**, with headless tests and a
+live-data check passing. Hardware (phone → glasses) not yet attempted.
 Last updated 2026-09-23.
 
 > **This plan replaces the 2026-08-03 plan**, which targeted a Quest 3 tabletop
@@ -48,9 +48,9 @@ the glasses are a stereo display plus an IMU on the end of a USB-C cable.
    │                                     az / el / range                        │
    │                                              │                             │
    │                                              ▼                             │
-   │                          world-fixed sky markers in Unity                  │
+   │                          world-fixed sky markers in Godot                  │
    │                                              │                             │
-   │   Unity stereo camera rig ◄── head orientation                             │
+   │   Godot stereo camera rig ◄── head orientation                             │
    │              │                                                             │
    └──────────────┼─────────────────────────────────────────────────────────────┘
                   │ USB-C: DisplayPort Alt Mode out, IMU in
@@ -67,12 +67,27 @@ the glasses are a stereo display plus an IMU on the end of a USB-C cable.
 rotates inside that frame, driven by the glasses' IMU. That is what makes a marker
 stay glued to the real aircraft as you turn your head.
 
-### Framework
-**Unity + Viture SDK**, building an Android APK. Chosen over native Kotlin because
-Viture ships Unity integration and Unity gives the stereo rig and 3D math for free;
-hand-rolling OpenGL stereo in Kotlin is more code for the same result.
+### Framework — Godot 4 (switched from Unity 2026-09-23)
+**Godot 4.7, GDScript**, exporting Android (and later Linux/macOS). Switched from Unity
+the same day, before Unity had ever opened the project, for three reasons:
 
----
+1. **Licensing.** Godot is MIT: no account, no seat licence, no future terms change to
+   worry about. This was Kendel's deciding reason.
+2. **Testable here.** Godot runs headless on the dev box, so the code is compiled and
+   tested on every change — the Unity C# had never seen a compiler.
+3. **The Unity advantage was probably illusory.** Viture's Unity SDK appears aimed at
+   the Neckband (risk 2); the phone-tethered path is likely their Android SDK, which
+   Godot can wrap as an Android plugin just as Unity would via JNI.
+
+**GDScript, not C#:** no .NET SDK needed, Godot's most mature Android export, and
+GDScript floats are 64-bit, which the geodesy wants. Cost: the C# was ported, not reused.
+
+**Known Godot gaps:** no built-in GPS on Android (needs a plugin — the same plugin can
+wrap the Viture SDK), and no obvious API for a *separate* image on an external display
+(the phone may simply mirror to the glasses; see risk 3). Neither is verified.
+
+The Unity C# remains in `unity/` for reference until the hardware spike settles the
+engine question for good. Do not develop it further.
 
 ## 3. Hardware
 
@@ -80,7 +95,7 @@ hand-rolling OpenGL stereo in Kotlin is more code for the same result.
 |---|---|---|
 | **Viture Pro XR** | **Display + head IMU** | Optical see-through. 3DoF only. 46° FOV. No GPS, no compass, no compute, no cameras. |
 | **Android phone** | **The entire computer** | Must support USB-C DisplayPort Alt Mode. Provides GPS + magnetometer. |
-| Linux box | Dev machine | Unity Hub installed at `/usr/bin/unityhub`; Android SDK at `~/Android/Sdk`; `adb` present. |
+| Linux box | Dev machine | Godot 4.7.2 at `~/.local/bin/godot` (→ `~/.local/opt/godot/`); Android SDK at `~/Android/Sdk`; `adb` present. Unity Hub also installed, unused. |
 | AeroScan Pi | *Not used in v1* | Kept as a future local-feed option, see §5. |
 
 ---
@@ -147,8 +162,11 @@ each aircraft carrying:
 | `gs`, `track` | Ground speed kt, track deg |
 | `dst`, `dir` | Distance nm and bearing from the query point |
 
-⚠️ `alt_baro` is **mixed-type** (number *or* `"ground"`). Unity's `JsonUtility` cannot
-handle that — use Newtonsoft (`com.unity.nuget.newtonsoft-json`).
+⚠️ `alt_baro` is **mixed-type** (number *or* `"ground"`). Check it with `typeof()`
+(Godot's JSON hands back a Variant); in the Unity version this forced Newtonsoft.
+
+⚠️ `dir` is a **spherical** great-circle bearing, rounded to 0.1°. The app's ellipsoidal
+azimuth differs from it by up to ~0.13° — correctly. Compare great-circle to `dir`.
 
 *Deferred:* the AeroScan Pi's own dump1090 feed as a local source. v1 uses the public
 API only; a local feed is a later option, not a v1 requirement.
@@ -193,11 +211,12 @@ Both categories must be independently selectable — **some / all / none**:
    identical whichever implementation is chosen*, so the harness was built first and
    now decides. See §7.1.
 2. **Viture's *Unity XR* SDK appears aimed at their 6DoF Neckband**, not at
-   phone-tethered Pro XR glasses. The real integration path may be the Viture
-   **Android** SDK wrapped as a JNI/AAR plugin called from Unity. Verify against the
+   phone-tethered Pro XR glasses. The real integration path is probably the Viture
+   **Android** SDK, wrapped as a Godot Android plugin (v2, AAR). Verify against the
    actual hardware early — this is an architecture assumption, not a fact.
 3. **Phone → glasses display path unverified.** Requires DisplayPort Alt Mode on the
-   phone, and Unity rendering to an external display on Android (Presentation API).
+   phone. Godot likely cannot drive a *separate* external display, so expect the phone to
+   mirror; check whether a mirrored side-by-side frame fills the glasses or letterboxes.
    Confirm the specific phone can do this *before* building anything on top of it.
 4. **Heading accuracy** (§4.2). A phone magnetometer may not be good enough. The
    nudge control is the safety net.
@@ -268,7 +287,7 @@ time, against an object you may not be able to see, is how this project stalls.
 |---|---|
 | Quest 3 primary, Viture secondary | **Viture Pro XR only**, Quest 3 dropped |
 | VR tabletop god-view of a coverage volume | **AR finder** — real sky, real directions, 1:1 |
-| three.js + 3DTilesRendererJS + WebXR | **Unity + Viture SDK**, Android APK |
+| three.js + 3DTilesRendererJS + WebXR | **Godot 4 + Viture Android SDK**, Android APK (briefly Unity) |
 | Streamed 3D Tiles terrain = the #1 risk | **No terrain at all** |
 | AeroScan Pi as the data source | **Public APIs** (adsb.lol, CelesTrak) |
 | Aircraft only | **Aircraft + satellites** |
@@ -297,119 +316,88 @@ build target is now an Android phone).
 
 ## 10. Current state of the repo
 
-**As of 2026-09-23, aircraft pipeline complete on paper.** Every script needed for
-build-order step 2 exists and is wired by `AppBootstrap`; the SGP4 harness is done.
-None of it has been compiled. See "Resume here" below.
+**As of 2026-09-23: aircraft pipeline runs on the desktop in Godot.** Build-order step 2
+works end to end against live adsb.lol traffic with the mouse mock tracker. Nothing has
+touched the phone or glasses yet.
 
 ```
 VRAeroScan/
 ├── PROJECT_NOTES.md                  ← this file
-├── docs/archive/PROJECT_NOTES-2026-08-03-quest3-webxr.md   ← superseded plan
-├── tools/validation/                 ← DONE, all passing
-│   ├── validate_geomath.py           ← 0.06° vs adsb.lol ground truth
+├── docs/archive/…                    ← superseded Quest 3 plan
+├── tools/validation/                 ← Python oracles, all passing
+│   ├── validate_geomath.py           ← look angles vs adsb.lol ground truth
+│   ├── export_geomath_fixture.py     ← freezes it → godot tests/geomath_fixture.json
 │   ├── validate_classifier.py        ← 2.7% unclassified over 892 aircraft
 │   ├── validate_sgp4.py              ← 0.117 mm vs published vectors
-│   ├── sgp4_fixture.json             ← 32 sats / 354 vectors, for the C# side
-│   └── requirements.txt              ← `sgp4`
-└── unity/VRAeroScan/
-    ├── Packages/manifest.json        ← Newtonsoft + modules. NO ProjectSettings yet.
-    └── Assets/Scripts/
-        ├── Core/GeoMath.cs           ← DONE, validated
-        ├── Core/CompassCalibration.cs ← DONE
-        ├── Tracking/IHeadTracker.cs  ← DONE
-        ├── Tracking/MockHeadTracker.cs ← DONE (mouse-look, desk testing)
-        ├── DataFeeds/Aircraft.cs     ← DONE
-        ├── DataFeeds/AircraftClassifier.cs ← DONE, validated
-        ├── DataFeeds/AdsbService.cs  ← DONE (polling, dead reckoning, pruning)
-        ├── Rendering/
-        │   ├── ArVisuals.cs          ← DONE (asset-free meshes/materials/font)
-        │   ├── FaceCamera.cs         ← DONE (billboard)
-        │   ├── SkyRig.cs             ← DONE (world-fixed frame, AR camera)
-        │   ├── CardinalMarkers.cs    ← DONE (ghost N + guide + E/S/W)
-        │   └── SkyMarker.cs          ← DONE (outline + label, horizon fade, class colour)
-        ├── UI/TouchHorizonControl.cs ← DONE (drag sky; 2-finger/Shift fine; arrow keys)
-        └── App/AppBootstrap.cs       ← DONE (wiring, GPS, marker pool, debug HUD)
+│   └── sgp4_fixture.json             ← 32 sats / 354 vectors, for the app side
+├── godot/VRAeroScan/                 ← THE APP
+│   ├── project.godot, main.tscn      ← hand-written; main.tscn is one node + AppBootstrap
+│   ├── scripts/core/                 ← geo_point, look_angles, geo_math, compass_calibration
+│   ├── scripts/tracking/             ← head_tracker (base), mock_head_tracker
+│   ├── scripts/data/                 ← aircraft, aircraft_classifier, adsb_service
+│   ├── scripts/rendering/            ← ar_visuals, sky_rig, cardinal_markers, sky_marker
+│   ├── scripts/ui/                   ← touch_horizon_control
+│   ├── scripts/app/                  ← app_bootstrap
+│   └── tests/                        ← run.sh (220 checks), live_check.gd, fixture
+└── unity/VRAeroScan/                 ← superseded C# version, reference only
 ```
 
-### Resume here — first compile, then the desk test
+### Conventions that are load-bearing (all pinned by tests)
+- **World frame: −Z = true north, +X = east, +Y = up.** An unrotated camera looks north.
+  This is *not* the Unity version's +Z-north — never copy signs across.
+- **Yaw is compass sense** (clockwise from above) everywhere in app code. The one
+  conversion to Godot's counter-clockwise rotation is in
+  `CompassCalibration.to_world_basis()`, which pre-multiplies (world-up rotation) so
+  pitch survives. A `HeadTracker` must return compass-sense `raw_yaw_deg()`.
+- **Drag sign:** `rotate_sky(+d)` moves the sky right, via `nudge(-d)`. A mutation test
+  confirmed flipping it fails the suite.
 
-The code for build-order step 2 is complete. The next step is not more code, it is
-**opening it in Unity**:
-
-1. Install an editor with **Android Build Support**. Open `unity/VRAeroScan/`. Expect
-   and fix real compile errors — nothing here has seen a compiler.
-2. Player Settings → *Active Input Handling* must include the **legacy Input Manager**
-   ("Both" is fine). `MockHeadTracker`, `TouchHorizonControl` and `AppBootstrap` all
-   use `UnityEngine.Input`; newer Unity templates default to the Input System only,
-   which makes those calls throw.
-3. Empty scene, one empty GameObject, add **`AppBootstrap`**, press Play. Set the
-   manual observer lat/lon to where you actually are (default is downtown LA).
-4. **Desk test:** the mock tracker starts at yaw 137°, so north is deliberately wrong.
-   Left-drag until the ghost N sits on north, then check a marker against
-   flightradar24/adsb.lol for the same aircraft — bearing and elevation should agree.
-
-**How the pieces fit** (so nothing needs re-deriving):
-- `TouchHorizonControl` calls `CompassCalibration.Nudge(-skyDeg)`. The minus is
-  deliberate: the offset turns the *camera*, so moving the sky right with the finger
-  means shrinking it. If the sky moves *against* the finger on first run, this sign is
-  the one to look at. Coarse 90°/screen width, fine 10°. It sets
-  `Input.simulateMouseWithTouches = false` or every phone drag would count twice.
-- `AppBootstrap` uses any `IHeadTracker` already on its GameObject, else adds
-  `MockHeadTracker`. **That is the plug point for the Viture tracker** — add the
-  component, nothing else changes.
-- Markers are recomputed every frame via `Aircraft.PositionAt` (dead reckoning), and
-  labels only when `AdsbService` hands over a new `Aircraft` object (it replaces them
-  per poll). Pooled, not destroyed.
-- While dragging, aircraft dim to 35% so the ghost N is the brightest thing in view.
-- Debug HUD (OnGUI) is editor-only by default — on the glasses, text is light in
-  your eyes.
-
-Then: the filter UI over `AircraftClass`, the hardware spike (risks 2 and 3), and the
-SGP4 decision (§7.1) for satellites. Satellites will need their own marker pool —
-`AppBootstrap.Acquire` currently has one pool, and the outline mesh differs by kind.
-
-**Unity has not opened this project yet.** No editor is installed (Hub is present but
-empty), so there is no `ProjectSettings/` and no `.meta` files, and no code here has
-ever been compiled. Expect a first-open pass to fix real compile errors — the scripts
-are written carefully but have never seen a compiler. Install an editor with **Android
-Build Support** first.
-
-### Planned script layout
-| Path | Responsibility |
+### Verified 2026-09-23
+| Check | Result |
 |---|---|
-| `Core/GeoMath.cs` | WGS84 geodetic↔ECEF, ENU, observer→target az/el/range |
-| `Core/CompassCalibration.cs` | Glasses-yaw → true-heading offset, declination, nudge |
-| `Tracking/IHeadTracker.cs` | Abstraction over the head IMU |
-| `Tracking/VitureHeadTracker.cs` | Real SDK binding (Unity XR *or* Android AAR — risk 2) |
-| `Tracking/MockHeadTracker.cs` | Mouse/keyboard look, for desk testing without hardware |
-| `DataFeeds/AdsbService.cs` | Poll adsb.lol, parse (Newtonsoft), dead-reckon between polls |
-| `DataFeeds/AircraftClassifier.cs` | Emitter category + type → filter classes |
-| `Satellites/ISatellitePropagator.cs` | Propagator abstraction (see risk 1) |
-| `Satellites/SatelliteService.cs` | CelesTrak fetch, TLE cache, propagate, filter |
-| `Rendering/SkyRig.cs` | World-fixed north-up frame; camera rotates inside it |
-| `Rendering/SkyMarker.cs` | One target's billboard + label |
-| `UI/FilterState.cs`, `UI/FilterPanel.cs` | Touchscreen filter controls on the phone |
-| `App/AppBootstrap.cs` | Wiring |
+| `tests/run.sh` (geometry vs fixture, frame, calibration, pitch, drag sign, parsing, classifier, whole-app marker placement) | **220 checks, 0 failed** |
+| `tests/live_check.gd`, 79 live aircraft near Seattle | great-circle vs `dir` **0.049°** (rounding bound), dst **0.096 nm** |
+| Rendered frames via `--write-movie` | 183 LA aircraft drawn; ghost N lands 5° left at heading 5° |
 
-**The `IHeadTracker` / `MockHeadTracker` split matters:** it lets the entire geometry
-and data pipeline be developed and debugged on the desktop, before the Viture display
-path (risk 2/3) is resolved. Do not let unresolved hardware block the math.
+**`run.sh`, not the bare script:** a GDScript runtime error aborts only its own function
+and Godot still exits 0, so run.sh fails the run on any `SCRIPT ERROR`. This was hit
+for real — a crashed test once reported "0 failed".
 
----
+### Resume here
+
+1. **Hardware spike (build-order step 1)** — now the top risk. Needs: the phone model
+   (does it do DisplayPort Alt Mode?), Godot Android export templates (~1.2 GB, from the
+   Godot editor's *Manage Export Templates*), and a debug keystore. Goal: a stereo test
+   pattern on the glasses and IMU numbers printed, from a Godot APK. Answers risks 2
+   and 3 — including whether mirroring fills the glasses or letterboxes.
+2. **Declutter + filter.** The LA render showed 183 aircraft piled along the horizon;
+   at 46° FOV this is essential, not polish. Filter UI over `AircraftClassifier` flags,
+   plus a max-range/min-elevation default. Labels could also shrink (~2× smaller).
+3. **Side-by-side stereo** in `SkyRig` (two cameras into SubViewports), once step 1
+   says what the glasses actually accept.
+4. Then satellites: the SGP4 decision (§7.1) — `sgp4_fixture.json` now checks a GDScript
+   propagator exactly as it would have checked C#.
+
+Commands:
+```
+godot/VRAeroScan/tests/run.sh                                        # unit + app tests
+godot --headless --path godot/VRAeroScan --script res://tests/live_check.gd   # live feed
+godot --path godot/VRAeroScan                                        # run it (desk)
+godot -e --path godot/VRAeroScan                                     # open the editor
+```
 
 ## 11. Open questions
 
 - [ ] SGP4: vendor a C# library, port Vallado's reference, or near-Earth-only with GEO
       treated specially? Harness now exists (§7.1), so any candidate can be judged
       rather than argued about.
-- [ ] Does the Viture Unity XR SDK support phone-tethered Pro XR, or is the Android
-      SDK + JNI the real path? (risk 2)
+- [ ] Can the Viture Android SDK be wrapped as a Godot Android plugin, and does it expose
+      the Pro XR's IMU when phone-tethered? (risk 2)
+- [ ] GPS on Android from Godot: write a small plugin, or use an existing one?
 - [ ] Which phone, and does it do DisplayPort Alt Mode? (risk 3)
 - [ ] Magnetic declination source — bundled WMM coefficients, or an API?
 - [ ] Is the phone magnetometer accurate enough, or is a celestial fix needed? (§4.2)
-- [ ] Marker rendering distance: fixed-radius dome with size-by-range, or true-scale
-      placement? (Fixed radius is almost certainly correct — true-scale makes a 737 at
-      30 nm sub-pixel.)
+- [x] Marker rendering distance: fixed-radius dome (500 m), range shown in the label.
 
 ---
 

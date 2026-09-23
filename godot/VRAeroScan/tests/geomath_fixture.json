@@ -1,0 +1,653 @@
+{
+ "source": "tools/validation/validate_geomath.py",
+ "cases": [
+  {
+   "name": "Seattle: north 30nm FL350",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "target": [
+    48.1,
+    -122.30000000000001,
+    10668.0
+   ],
+   "azimuth_deg": 359.99999999999795,
+   "elevation_deg": 10.504189413091684,
+   "range_m": 56635.20733587111,
+   "gc_distance_m": 55597.54011676653,
+   "gc_bearing_deg": 359.99999999999807
+  },
+  {
+   "name": "Seattle: east low",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "target": [
+    47.6,
+    -122.0,
+    1500.0
+   ],
+   "azimuth_deg": 89.88923158383992,
+   "elevation_deg": 3.449427118377555,
+   "range_m": 22606.30662514028,
+   "gc_distance_m": 22493.718414829375,
+   "gc_bearing_deg": 89.88923158384152
+  },
+  {
+   "name": "Seattle: south-west",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "target": [
+    47.2,
+    -122.89999999999998,
+    7000.0
+   ],
+   "azimuth_deg": 225.74473433322862,
+   "elevation_deg": 5.915490346109398,
+   "range_m": 63883.33090920049,
+   "gc_distance_m": 63384.52416373739,
+   "gc_bearing_deg": 225.65652175370954
+  },
+  {
+   "name": "Seattle: across the antimeridian",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "target": [
+    47.7,
+    -122.0,
+    9000.0
+   ],
+   "azimuth_deg": 63.63186748861586,
+   "elevation_deg": 19.375157744592165,
+   "range_m": 26677.982977240023,
+   "gc_distance_m": 25072.758452824797,
+   "gc_bearing_deg": 63.56248050355137
+  },
+  {
+   "name": "Seattle: far and low, below horizon",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "target": [
+    50.1,
+    -119.80000000000001,
+    300.0
+   ],
+   "azimuth_deg": 32.4876397365232,
+   "elevation_deg": -1.4618666479118698,
+   "range_m": 333031.6690396231,
+   "gc_distance_m": 332730.4165362919,
+   "gc_bearing_deg": 32.41095664878322
+  },
+  {
+   "name": "Seattle: nearly overhead",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "target": [
+    47.601,
+    -122.29899999999998,
+    11000.0
+   ],
+   "azimuth_deg": 34.07242433045387,
+   "elevation_deg": 89.29326186493353,
+   "range_m": 10900.827854452158,
+   "gc_distance_m": 134.11228527680598,
+   "gc_bearing_deg": 33.991258890089156
+  },
+  {
+   "name": "Los Angeles: north 30nm FL350",
+   "observer": [
+    34.0522,
+    -118.2437,
+    90.0
+   ],
+   "target": [
+    34.5522,
+    -118.24369999999999,
+    10668.0
+   ],
+   "azimuth_deg": 1.331918584135746e-13,
+   "elevation_deg": 10.538710675130897,
+   "range_m": 56509.54805248319,
+   "gc_distance_m": 55597.54011676653,
+   "gc_bearing_deg": 0.0
+  },
+  {
+   "name": "Los Angeles: east low",
+   "observer": [
+    34.0522,
+    -118.2437,
+    90.0
+   ],
+   "target": [
+    34.0522,
+    -117.94370000000004,
+    1500.0
+   ],
+   "azimuth_deg": 89.91600767190373,
+   "elevation_deg": 2.7895006668030704,
+   "range_m": 27737.748828526725,
+   "gc_distance_m": 27638.453633423964,
+   "gc_bearing_deg": 89.91600767190215
+  },
+  {
+   "name": "Los Angeles: south-west",
+   "observer": [
+    34.0522,
+    -118.2437,
+    90.0
+   ],
+   "target": [
+    33.6522,
+    -118.84370000000001,
+    7000.0
+   ],
+   "azimuth_deg": 231.54113560680497,
+   "elevation_deg": 5.230292722777968,
+   "range_m": 71449.28441569056,
+   "gc_distance_m": 71050.6323275702,
+   "gc_bearing_deg": 231.41163313574302
+  },
+  {
+   "name": "Los Angeles: across the antimeridian",
+   "observer": [
+    34.0522,
+    -118.2437,
+    90.0
+   ],
+   "target": [
+    34.1522,
+    -117.94370000000004,
+    9000.0
+   ],
+   "azimuth_deg": 68.07954673702008,
+   "elevation_deg": 16.489661625791214,
+   "range_m": 31144.798620421425,
+   "gc_distance_m": 29776.261652445308,
+   "gc_bearing_deg": 67.98832069971822
+  },
+  {
+   "name": "Los Angeles: far and low, below horizon",
+   "observer": [
+    34.0522,
+    -118.2437,
+    90.0
+   ],
+   "target": [
+    36.5522,
+    -115.74369999999999,
+    300.0
+   ],
+   "azimuth_deg": 38.62825340225647,
+   "elevation_deg": -1.5798628421227696,
+   "range_m": 358584.8056913451,
+   "gc_distance_m": 358781.2693644029,
+   "gc_bearing_deg": 38.50248457400247
+  },
+  {
+   "name": "Los Angeles: nearly overhead",
+   "observer": [
+    34.0522,
+    -118.2437,
+    90.0
+   ],
+   "target": [
+    34.0532,
+    -118.24270000000001,
+    11000.0
+   ],
+   "azimuth_deg": 39.77200029564927,
+   "elevation_deg": 89.24081084427895,
+   "range_m": 10910.956175654654,
+   "gc_distance_m": 144.40170759316337,
+   "gc_bearing_deg": 39.64224571395119
+  },
+  {
+   "name": "Sydney: north 30nm FL350",
+   "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "target": [
+    -33.3688,
+    151.20929999999998,
+    10668.0
+   ],
+   "azimuth_deg": 359.9999999999979,
+   "elevation_deg": 10.599691157667474,
+   "range_m": 56514.49615400173,
+   "gc_distance_m": 55597.54011676653,
+   "gc_bearing_deg": 359.99999999999756
+  },
+  {
+   "name": "Sydney: east low",
+   "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "target": [
+    -33.8688,
+    151.50930000000005,
+    1500.0
+   ],
+   "azimuth_deg": 90.08359408904042,
+   "elevation_deg": 2.9065106641032816,
+   "range_m": 27800.159236557327,
+   "gc_distance_m": 27698.102377477207,
+   "gc_bearing_deg": 90.08359408904126
+  },
+  {
+   "name": "Sydney: south-west",
+   "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "target": [
+    -34.2688,
+    150.60930000000008,
+    7000.0
+   ],
+   "azimuth_deg": 231.1341402644645,
+   "elevation_deg": 5.287215298777144,
+   "range_m": 71346.4692843418,
+   "gc_distance_m": 70940.81402840784,
+   "gc_bearing_deg": 231.00522246228803
+  },
+  {
+   "name": "Sydney: across the antimeridian",
+   "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "target": [
+    -33.7688,
+    151.50930000000005,
+    9000.0
+   ],
+   "azimuth_deg": 68.31356170098684,
+   "elevation_deg": 16.550063699778498,
+   "range_m": 31243.523337323546,
+   "gc_distance_m": 29861.785989872296,
+   "gc_bearing_deg": 68.22194917476199
+  },
+  {
+   "name": "Sydney: far and low, below horizon",
+   "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "target": [
+    -31.3688,
+    153.70929999999998,
+    300.0
+   ],
+   "azimuth_deg": 40.922109003745476,
+   "elevation_deg": -1.5914814125970342,
+   "range_m": 363133.6232060361,
+   "gc_distance_m": 363425.14873319236,
+   "gc_bearing_deg": 40.787380620469115
+  },
+  {
+   "name": "Sydney: nearly overhead",
+   "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "target": [
+    -33.8678,
+    151.21029999999996,
+    11000.0
+   ],
+   "azimuth_deg": 39.834200046417216,
+   "elevation_deg": 89.24430827386468,
+   "range_m": 10970.952586680189,
+   "gc_distance_m": 144.52933322871573,
+   "gc_bearing_deg": 39.703831199196465
+  },
+  {
+   "name": "Antimeridian Fiji: north 30nm FL350",
+   "observer": [
+    -17.7,
+    179.9,
+    10.0
+   ],
+   "target": [
+    -17.2,
+    179.89999999999998,
+    10668.0
+   ],
+   "azimuth_deg": 359.9999999999972,
+   "elevation_deg": 10.642733930048648,
+   "range_m": 56399.68827846418,
+   "gc_distance_m": 55597.54011676653,
+   "gc_bearing_deg": 359.9999999999972
+  },
+  {
+   "name": "Antimeridian Fiji: east low",
+   "observer": [
+    -17.7,
+    179.9,
+    10.0
+   ],
+   "target": [
+    -17.7,
+    -179.79999999999995,
+    1500.0
+   ],
+   "azimuth_deg": 90.04560505369831,
+   "elevation_deg": 2.537344122471273,
+   "range_m": 31863.371779152614,
+   "gc_distance_m": 31779.3775973911,
+   "gc_bearing_deg": 90.04560505369872
+  },
+  {
+   "name": "Antimeridian Fiji: south-west",
+   "observer": [
+    -17.7,
+    179.9,
+    10.0
+   ],
+   "target": [
+    -18.099999999999998,
+    179.29999999999995,
+    7000.0
+   ],
+   "azimuth_deg": 235.05730175872162,
+   "elevation_deg": 4.804039286981965,
+   "range_m": 77830.61564647019,
+   "gc_distance_m": 77517.36492684449,
+   "gc_bearing_deg": 234.89382940021534
+  },
+  {
+   "name": "Antimeridian Fiji: across the antimeridian",
+   "observer": [
+    -17.7,
+    179.9,
+    10.0
+   ],
+   "target": [
+    -17.599999999999998,
+    -179.79999999999995,
+    9000.0
+   ],
+   "azimuth_deg": 70.87424269371898,
+   "elevation_deg": 14.774043553907045,
+   "range_m": 34904.036445261605,
+   "gc_distance_m": 33676.903225898575,
+   "gc_bearing_deg": 70.76570435051698
+  },
+  {
+   "name": "Antimeridian Fiji: far and low, below horizon",
+   "observer": [
+    -17.7,
+    179.9,
+    10.0
+   ],
+   "target": [
+    -15.2,
+    -177.60000000000002,
+    300.0
+   ],
+   "azimuth_deg": 44.34092916970179,
+   "elevation_deg": -1.688594506794509,
+   "range_m": 384402.0813771997,
+   "gc_distance_m": 385152.34637272754,
+   "gc_bearing_deg": 44.16395666192947
+  },
+  {
+   "name": "Antimeridian Fiji: nearly overhead",
+   "observer": [
+    -17.7,
+    179.9,
+    10.0
+   ],
+   "target": [
+    -17.698999999999998,
+    179.90100000000007,
+    11000.0
+   ],
+   "azimuth_deg": 43.78568880081025,
+   "elevation_deg": 89.19941266669453,
+   "range_m": 10991.0710882538,
+   "gc_distance_m": 153.57682866568575,
+   "gc_bearing_deg": 43.61147785196216
+  },
+  {
+   "name": "Tromso: north 30nm FL350",
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "target": [
+    70.15,
+    18.960000000000036,
+    10668.0
+   ],
+   "azimuth_deg": 1.2833381082122465e-12,
+   "elevation_deg": 10.54837405804922,
+   "range_m": 56833.20456023461,
+   "gc_distance_m": 55597.54011676724,
+   "gc_bearing_deg": 1.3613467681803353e-12
+  },
+  {
+   "name": "Tromso: east low",
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "target": [
+    69.65,
+    19.25999999999999,
+    1500.0
+   ],
+   "azimuth_deg": 89.85936208828785,
+   "elevation_deg": 7.188300865824825,
+   "range_m": 11742.87103759612,
+   "gc_distance_m": 11600.547925460343,
+   "gc_bearing_deg": 89.85936208828461
+  },
+  {
+   "name": "Tromso: south-west",
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "target": [
+    69.25,
+    18.360000000000014,
+    7000.0
+   ],
+   "azimuth_deg": 208.06922746943218,
+   "elevation_deg": 7.648631759805313,
+   "range_m": 50946.11941904947,
+   "gc_distance_m": 50266.351618569504,
+   "gc_bearing_deg": 208.04963928266403
+  },
+  {
+   "name": "Tromso: across the antimeridian",
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "target": [
+    69.75,
+    19.25999999999999,
+    9000.0
+   ],
+   "azimuth_deg": 46.028068614638975,
+   "elevation_deg": 29.04884443848631,
+   "range_m": 18452.45259310448,
+   "gc_distance_m": 16049.385870332448,
+   "gc_bearing_deg": 46.00489068775884
+  },
+  {
+   "name": "Tromso: far and low, below horizon",
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "target": [
+    72.15,
+    21.460000000000036,
+    300.0
+   ],
+   "azimuth_deg": 16.953739714936646,
+   "elevation_deg": -1.260346944857378,
+   "range_m": 293427.3594972595,
+   "gc_distance_m": 292431.2202605071,
+   "gc_bearing_deg": 16.941566330785474
+  },
+  {
+   "name": "Tromso: nearly overhead",
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "target": [
+    69.65100000000001,
+    18.961000000000013,
+    11000.0
+   ],
+   "azimuth_deg": 19.188895662961823,
+   "elevation_deg": 89.38258642618548,
+   "range_m": 10980.636436439345,
+   "gc_distance_m": 117.72650877242155,
+   "gc_bearing_deg": 19.174435489362022
+  },
+  {
+   "name": "Quito: north 30nm FL350",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "target": [
+    0.32,
+    -78.47000000000003,
+    10668.0
+   ],
+   "azimuth_deg": 359.9999999999971,
+   "elevation_deg": 7.790156038231281,
+   "range_m": 55895.385737360826,
+   "gc_distance_m": 55597.54011676645,
+   "gc_bearing_deg": 359.9999999999971
+  },
+  {
+   "name": "Quito: east low",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "target": [
+    -0.18,
+    -78.17000000000002,
+    1500.0
+   ],
+   "azimuth_deg": 90.00047123919948,
+   "elevation_deg": -2.4640920196900735,
+   "range_m": 33434.29947137384,
+   "gc_distance_m": 33358.35945209911,
+   "gc_bearing_deg": 90.00047123919948
+  },
+  {
+   "name": "Quito: south-west",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "target": [
+    -0.5800000000000001,
+    -79.07,
+    7000.0
+   ],
+   "azimuth_deg": 236.48485191598743,
+   "elevation_deg": 2.6027093464449997,
+   "range_m": 80276.13710222182,
+   "gc_distance_m": 80182.57902995878,
+   "gc_bearing_deg": 236.30765654566585
+  },
+  {
+   "name": "Quito: across the antimeridian",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "target": [
+    -0.07999999999999999,
+    -78.17000000000002,
+    9000.0
+   ],
+   "azimuth_deg": 71.6803714263629,
+   "elevation_deg": 9.749158582378548,
+   "range_m": 35744.429701539244,
+   "gc_distance_m": 35162.8863383127,
+   "gc_bearing_deg": 71.5653887243941
+  },
+  {
+   "name": "Quito: far and low, below horizon",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "target": [
+    2.32,
+    -75.97000000000003,
+    300.0
+   ],
+   "azimuth_deg": 45.17090973705407,
+   "elevation_deg": -2.139837253340348,
+   "range_m": 392253.1315300993,
+   "gc_distance_m": 393084.08968836954,
+   "gc_bearing_deg": 44.97847069247961
+  },
+  {
+   "name": "Quito: nearly overhead",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "target": [
+    -0.179,
+    -78.469,
+    11000.0
+   ],
+   "azimuth_deg": 45.191949922513814,
+   "elevation_deg": 88.89517456514346,
+   "range_m": 8151.5134936959275,
+   "gc_distance_m": 157.25320468093332,
+   "gc_bearing_deg": 44.999860980220184
+  }
+ ]
+}
