@@ -468,8 +468,16 @@ Design points:
 - **Clock accuracy matters more than the model:** 1 s of clock error ≈ 1.1° at the ISS.
   The phone's network time is fine; the HUD shows median element age and flags >72 h.
 
-Not done: pass prediction ("ISS rises in 4 min, WSW"), and off-screen
-pointers — the last matters most for satellites, which you usually have to go looking for.
+- **Off-screen pointers** (`OffscreenPointers`, 2026-09-24): a chevron on the edge of the
+  view, aimed at each off-screen satellite of `pointer_types` (default Manned), labelled
+  with name and angle to turn, e.g. `ISS (ZARYA) 97°`. Nearest first, capped at 4. They
+  are 3D nodes on the camera, so they render in the eye viewport and work in SBS stereo
+  (checked in a rendered frame); a 2D CanvasLayer would have spanned both eyes. Targets
+  behind you point the short way round. Only satellites with a marker (above the horizon
+  and passing the filters) get one — a rising satellite is pass prediction's job.
+
+Not done: pass prediction ("ISS rises in 4 min, WSW") and pointers for aircraft
+(`OffscreenPointers` takes any world direction, so that is wiring, not new maths).
 
 Commands:
 ```

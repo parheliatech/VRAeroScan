@@ -33,6 +33,8 @@ func _initialize() -> void:
 	await test_app_places_marker_on_aircraft()
 	await test_app_places_marker_on_satellite()
 	await test_app_draws_eclipsed_satellite()
+	test_offscreen_pointer_placement()
+	await test_app_points_at_offscreen_station()
 	await test_side_by_side_stereo()
 
 	print("\n%d checks, %d failed" % [_checks, _failures])
@@ -567,6 +569,114 @@ func test_app_draws_eclipsed_satellite() -> void:
 	if marker != null:
 		near(marker._brightness, 1.0, 0.0, "shadowed ISS at full brightness")
 		check(marker._label.text.ends_with(" shadow"), "shadowed ISS labelled \"shadow\"")
+
+	app.queue_free()
+	await process_frame
+
+
+func test_offscreen_pointer_placement() -> void:
+	var P = OffscreenPointers
+	var th := tan(deg_to_rad(40.0) / 2.0)  # 40° x 23.5° view
+	var tv := tan(deg_to_rad(23.5) / 2.0)
+	var edge_x: float = th * OffscreenPointers.EDGE_INSET
+	var edge_y: float = tv * OffscreenPointers.EDGE_INSET
+	# Positions come back as Vector2, which is 32-bit: 1e-6 is float precision here, and
+	# still ~0.00006° on screen.
+
+	check(P.place(Vector3(0, 0, -1), th, tv).is_empty(), "straight ahead: no pointer")
+	check(P.place(Vector3(th * 0.9, tv * 0.9, -1), th, tv).is_empty(), "inside the corner: no pointer")
+	check(not P.place(Vector3(th * 1.02, 0, -1), th, tv).is_empty(), "just past the right edge: pointer")
+
+	var right := P.place(Vector3(1, 0, -0.2), th, tv)
+	near_vec(Vector3(right["position"].x, right["position"].y, 0), Vector3(edge_x, 0, 0), 1e-6, "right: on the right edge")
+	near(right["angle"], 0.0, 1e-6, "right: points right")
+
+	var up := P.place(Vector3(0, 1, -0.2), th, tv)
+	near_vec(Vector3(up["position"].x, up["position"].y, 0), Vector3(0, edge_y, 0), 1e-6, "up: on the top edge")
+	near(up["angle"], PI / 2.0, 1e-6, "up: points up")
+
+	# Behind and to the left: turn left, the short way round.
+	var behind_left := P.place(Vector3(-1, 0.1, 1), th, tv)
+	check(behind_left["position"].x < 0.0 and cos(behind_left["angle"]) < 0.0, "behind-left: left edge, pointing left")
+	var behind := P.place(Vector3(0, 0, 1), th, tv)
+	check(not behind.is_empty(), "directly behind: still a pointer")
+
+	# Always on the inset rectangle, whatever the direction.
+	for d: Vector3 in [Vector3(3, 2, -1), Vector3(-0.2, -5, -1), Vector3(0.7, -0.7, 0.1), Vector3(-2, 1, 0.5)]:
+		var w := P.place(d, th, tv)
+		var pos: Vector2 = w["position"]
+		check(absf(pos.x) <= edge_x + 1e-6 and absf(pos.y) <= edge_y + 1e-6, "%s: pointer inside the view" % d)
+		check(is_equal_approx(absf(pos.x), edge_x) or is_equal_approx(absf(pos.y), edge_y), "%s: pointer on the edge" % d)
+		# In front, the pointer lies on the line from centre to the target's projection.
+		if d.z < 0.0:
+			near(pos.angle(), Vector2(d.x, d.y).angle(), 1e-6, "%s: pointer aims at the target" % d)
+
+
+func test_app_points_at_offscreen_station() -> void:
+	var fixture: Dictionary = JSON.parse_string(
+			FileAccess.get_file_as_string("res://tests/satellite_fixture.json"))
+	var pass_: Dictionary = {}
+	for c: Dictionary in fixture["cases"]:
+		if c["observerName"] == "Tucson" and int(c["norad"]) == 25544 and c["elevationDeg"] > 10.0:
+			pass_ = c
+			break
+	check(not pass_.is_empty(), "fixture has the ISS up over Tucson")
+	if pass_.is_empty():
+		return
+
+	var app: AppBootstrap = load("res://main.tscn").instantiate()
+	app.start_feed = false
+	app.start_satellites = false
+	app.show_debug_hud = false
+	app.latitude_deg = 32.2226
+	app.longitude_deg = -110.9747
+	app.altitude_m = 730.0
+	app.fixed_unix_time = pass_["unix"]
+	root.add_child(app)
+	await process_frame
+	var list: Array[Satellite] = []
+	list.assign(_fixture_satellites(fixture).values())
+	app.satellite_sky.set_catalogue(list, app.observer, app.unix_now())
+
+	check(app.pointers.get_parent() == app.rig.camera, "pointers ride on the camera")
+
+	# Face directly away from the ISS, level.
+	var mock: MockHeadTracker = app.rig.tracker
+	mock._yaw = fposmod(pass_["azimuthDeg"] + 180.0, 360.0)
+	mock._pitch = 0.0
+	await process_frame
+	await process_frame
+
+	var texts := []
+	for i in app.pointers.active_count():
+		texts.append((app.pointers.pointer(i).get_child(1) as Label3D).text)
+	check(texts.size() == 1 and texts[0].begins_with("ISS (ZARYA) "),
+			"one pointer, for the ISS only (got %s)" % [texts])
+	if texts.size() == 1:
+		# Straight behind and up by the pass elevation: 180 - elevation degrees of turn.
+		var want := roundi(180.0 - pass_["elevationDeg"])
+		check(absi(texts[0].trim_prefix("ISS (ZARYA) ").trim_suffix("°").to_int() - want) <= 1,
+				"pointer says %s, want ~%d°" % [texts[0], want])
+		var p := app.pointers.pointer(0)
+		check(p.visible and p.position.z < 0.0, "pointer drawn in front of the camera")
+		check(p.position.y > 0.0, "pointer on the upper side: the ISS is above the horizon")
+
+	# Turn to face the ISS: the marker is on screen, the pointer goes.
+	mock._yaw = pass_["azimuthDeg"]
+	mock._pitch = pass_["elevationDeg"]
+	await process_frame
+	await process_frame
+	check(app.pointers.active_count() == 0, "facing the ISS: no pointer")
+	check(not app.pointers.pointer(0).visible, "pointer hidden once on screen")
+
+	# Kinds outside pointer_types get none: with every kind on, more pointers appear.
+	app.pointer_types = Satellite.ALL_CATEGORIES
+	mock._yaw = fposmod(pass_["azimuthDeg"] + 180.0, 360.0)
+	mock._pitch = 0.0
+	await process_frame
+	await process_frame
+	check(app.pointers.active_count() > 1, "all kinds: more than the ISS pointed at (%d)" % app.pointers.active_count())
+	check(app.pointers.active_count() <= app.pointers.max_pointers, "capped at max_pointers")
 
 	app.queue_free()
 	await process_frame

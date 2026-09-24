@@ -40,6 +40,10 @@ extends Node3D
 @export_flags("Manned", "Starlink", "LEO", "MEO / HEO", "GEO") var satellite_types := Satellite.ALL_CATEGORIES
 ## Off lets tests drive the app without touching the network.
 @export var start_satellites := true
+## Kinds that get an edge-of-view pointer when off screen. Manned by default: the
+## stations are what people go looking for, and pointing at every satellite would line
+## the edge of the view. See OffscreenPointers.
+@export_flags("Manned", "Starlink", "LEO", "MEO / HEO", "GEO") var pointer_types := Satellite.MANNED
 
 @export_group("Debug")
 ## On-screen readout of calibration, heading and feed. Off on the phone: on the
@@ -54,6 +58,7 @@ var horizon_control: TouchHorizonControl
 var adsb: AdsbService
 var celestrak: CelestrakService
 var satellite_sky: SatelliteSky
+var pointers: OffscreenPointers
 ## Tests pin the clock here so satellite positions are deterministic. NAN = real time.
 var fixed_unix_time := NAN
 
@@ -97,6 +102,9 @@ func _ready() -> void:
 	cardinals.name = "Cardinals"
 	rig.add_child(cardinals)
 	cardinals.initialize(rig)
+
+	pointers = OffscreenPointers.new()
+	pointers.initialize(rig.camera)
 
 	horizon_control = TouchHorizonControl.new()
 	horizon_control.name = "TouchHorizonControl"
@@ -205,6 +213,7 @@ func _process(delta: float) -> void:
 
 	update_aircraft_markers()
 	update_satellite_markers()
+	update_satellite_pointers()
 	if _hud != null:
 		_hud.text = _hud_text()
 
@@ -268,6 +277,23 @@ func update_aircraft_markers() -> void:
 ## the ISS moves 1.1° of sky per second of clock error at 400 km range.
 func unix_now() -> float:
 	return fixed_unix_time if not is_nan(fixed_unix_time) else Time.get_unix_time_from_system()
+
+
+## Pointers for drawn satellites of pointer_types that are off screen. Only those with
+## a marker, so a pointer never leads to a satellite the filters would not draw — or
+## one below the horizon, which is pass prediction's job, not this.
+func update_satellite_pointers() -> void:
+	var targets: Array[OffscreenPointers.Target] = []
+	for id: int in active_satellite_markers:
+		var sat: Satellite = satellite_sky.near.get(id)
+		if sat == null or not (sat.category & pointer_types):
+			continue
+		var marker: SkyMarker = active_satellite_markers[id]
+		if not marker.visible:
+			continue  # fading out below the horizon
+		targets.append(OffscreenPointers.Target.new(marker.position.normalized(), sat.name,
+				SkyMarker.color_for_satellite(sat.category)))
+	pointers.update_targets(targets, 0.35 if horizon_control.is_adjusting() else 1.0)
 
 
 func update_satellite_markers() -> void:
