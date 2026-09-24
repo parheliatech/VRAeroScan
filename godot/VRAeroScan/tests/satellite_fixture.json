@@ -234,6 +234,44 @@
   {
    "norad": 25544,
    "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "observerName": "Tucson",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 31.669312100553565,
+   "elevationDeg": 13.291471806319453,
+   "rangeKm": 1305.373383900152,
+   "subLatDeg": 41.20118876040334,
+   "subLonDeg": -103.49320686802302,
+   "altitudeKm": 420.81921023594816,
+   "sunlit": true,
+   "sunAzimuthDeg": 278.117737526087,
+   "sunElevationDeg": -14.835364258705518
+  },
+  {
+   "norad": 25544,
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "observerName": "Tucson",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 39.8739113637895,
+   "elevationDeg": 34.31628591747354,
+   "rangeKm": 698.5916960277224,
+   "subLatDeg": 35.91420889915061,
+   "subLonDeg": -107.12601956470063,
+   "altitudeKm": 419.1411869923401,
+   "sunlit": false,
+   "sunAzimuthDeg": 294.1238236027186,
+   "sunElevationDeg": -33.67499093348374
+  },
+  {
+   "norad": 25544,
+   "observer": [
     -33.8688,
     151.2093,
     30.0
@@ -310,6 +348,44 @@
   {
    "norad": 25544,
    "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "observerName": "Sydney",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 59.35535309071519,
+   "elevationDeg": -60.074489189749826,
+   "rangeKm": 11512.094268395891,
+   "subLatDeg": 41.20118876040334,
+   "subLonDeg": -103.49320686802302,
+   "altitudeKm": 420.81921023594816,
+   "sunlit": true,
+   "sunAzimuthDeg": 343.62955904350537,
+   "sunElevationDeg": 56.263399312599766
+  },
+  {
+   "norad": 25544,
+   "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "observerName": "Sydney",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 63.82725624512842,
+   "elevationDeg": -57.68411985740715,
+   "rangeKm": 11249.519500431788,
+   "subLatDeg": 35.91420889915061,
+   "subLonDeg": -107.12601956470063,
+   "altitudeKm": 419.1411869923401,
+   "sunlit": false,
+   "sunAzimuthDeg": 310.4976825125477,
+   "sunElevationDeg": 44.63712708674626
+  },
+  {
+   "norad": 25544,
+   "observer": [
     69.65,
     18.96,
     20.0
@@ -382,6 +458,44 @@
    "sunlit": true,
    "sunAzimuthDeg": 316.2479411654975,
    "sunElevationDeg": -15.330255356980036
+  },
+  {
+   "norad": 25544,
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "observerName": "Tromso",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 313.77086224222035,
+   "elevationDeg": -27.656871004110585,
+   "rangeKm": 6758.133642005432,
+   "subLatDeg": 41.20118876040334,
+   "subLonDeg": -103.49320686802302,
+   "altitudeKm": 420.81921023594816,
+   "sunlit": true,
+   "sunAzimuthDeg": 58.7935325344499,
+   "sunElevationDeg": -12.1423487145458
+  },
+  {
+   "norad": 25544,
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "observerName": "Tromso",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 314.89054974039976,
+   "elevationDeg": -30.947165338898923,
+   "rangeKm": 7329.906687635653,
+   "subLatDeg": 35.91420889915061,
+   "subLonDeg": -107.12601956470063,
+   "altitudeKm": 419.1411869923401,
+   "sunlit": false,
+   "sunAzimuthDeg": 81.24765417518151,
+   "sunElevationDeg": -3.7141202603750627
   },
   {
    "norad": 48274,
@@ -462,6 +576,44 @@
   {
    "norad": 48274,
    "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "observerName": "Tucson",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 108.95872086146916,
+   "elevationDeg": -56.049405371821166,
+   "rangeKm": 11033.629660850615,
+   "subLatDeg": -28.302961703188437,
+   "subLonDeg": -8.64400184958159,
+   "altitudeKm": 392.4107338883804,
+   "sunlit": false,
+   "sunAzimuthDeg": 278.117737526087,
+   "sunElevationDeg": -14.835364258705518
+  },
+  {
+   "norad": 48274,
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "observerName": "Tucson",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 178.69339954435145,
+   "elevationDeg": -31.03649573374295,
+   "rangeKm": 7253.109461457586,
+   "subLatDeg": -35.034589186062604,
+   "subLonDeg": -109.51226613415855,
+   "altitudeKm": 396.2061735712136,
+   "sunlit": false,
+   "sunAzimuthDeg": 294.1238236027186,
+   "sunElevationDeg": -33.67499093348374
+  },
+  {
+   "norad": 48274,
+   "observer": [
     -33.8688,
     151.2093,
     30.0
@@ -538,6 +690,44 @@
   {
    "norad": 48274,
    "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "observerName": "Sydney",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 199.533452486769,
+   "elevationDeg": -56.38193441040595,
+   "rangeKm": 11098.989342720708,
+   "subLatDeg": -28.302961703188437,
+   "subLonDeg": -8.64400184958159,
+   "altitudeKm": 392.4107338883804,
+   "sunlit": false,
+   "sunAzimuthDeg": 343.62955904350537,
+   "sunElevationDeg": 56.263399312599766
+  },
+  {
+   "norad": 48274,
+   "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "observerName": "Sydney",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 124.2468054387437,
+   "elevationDeg": -36.79780572983594,
+   "rangeKm": 8278.929520919692,
+   "subLatDeg": -35.034589186062604,
+   "subLonDeg": -109.51226613415855,
+   "altitudeKm": 396.2061735712136,
+   "sunlit": false,
+   "sunAzimuthDeg": 310.4976825125477,
+   "sunElevationDeg": 44.63712708674626
+  },
+  {
+   "norad": 48274,
+   "observer": [
     69.65,
     18.96,
     20.0
@@ -610,6 +800,44 @@
    "sunlit": true,
    "sunAzimuthDeg": 316.2479411654975,
    "sunElevationDeg": -15.330255356980036
+  },
+  {
+   "norad": 48274,
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "observerName": "Tromso",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 204.54551909684162,
+   "elevationDeg": -48.47412997503271,
+   "rangeKm": 10036.567796873289,
+   "subLatDeg": -28.302961703188437,
+   "subLonDeg": -8.64400184958159,
+   "altitudeKm": 392.4107338883804,
+   "sunlit": false,
+   "sunAzimuthDeg": 58.7935325344499,
+   "sunElevationDeg": -12.1423487145458
+  },
+  {
+   "norad": 48274,
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "observerName": "Tromso",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 293.69207893326154,
+   "elevationDeg": -67.00679007915075,
+   "rangeKm": 12153.252239933057,
+   "subLatDeg": -35.034589186062604,
+   "subLonDeg": -109.51226613415855,
+   "altitudeKm": 396.2061735712136,
+   "sunlit": false,
+   "sunAzimuthDeg": 81.24765417518151,
+   "sunElevationDeg": -3.7141202603750627
   },
   {
    "norad": 20580,
@@ -690,6 +918,44 @@
   {
    "norad": 20580,
    "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "observerName": "Tucson",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 344.1426871075717,
+   "elevationDeg": -70.07105980377965,
+   "rangeKm": 12497.056884991707,
+   "subLatDeg": 4.920491601778607,
+   "subLonDeg": 78.84804150235874,
+   "altitudeKm": 469.4582124816167,
+   "sunlit": true,
+   "sunAzimuthDeg": 278.117737526087,
+   "sunElevationDeg": -14.835364258705518
+  },
+  {
+   "norad": 20580,
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "observerName": "Tucson",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 274.62899939750343,
+   "elevationDeg": -21.607608890142735,
+   "rangeKm": 5772.171987104269,
+   "subLatDeg": 22.592041312014775,
+   "subLonDeg": -168.7445173346603,
+   "altitudeKm": 467.675752503923,
+   "sunlit": true,
+   "sunAzimuthDeg": 294.1238236027186,
+   "sunElevationDeg": -33.67499093348374
+  },
+  {
+   "norad": 20580,
+   "observer": [
     -33.8688,
     151.2093,
     30.0
@@ -766,6 +1032,44 @@
   {
    "norad": 20580,
    "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "observerName": "Sydney",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 283.96599664854716,
+   "elevationDeg": -36.62518113730937,
+   "rangeKm": 8348.102878380429,
+   "subLatDeg": 4.920491601778607,
+   "subLonDeg": 78.84804150235874,
+   "altitudeKm": 469.4582124816167,
+   "sunlit": true,
+   "sunAzimuthDeg": 343.62955904350537,
+   "sunElevationDeg": 56.263399312599766
+  },
+  {
+   "norad": 20580,
+   "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "observerName": "Sydney",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 39.99810658338063,
+   "elevationDeg": -31.04050567600648,
+   "rangeKm": 7387.6053793344045,
+   "subLatDeg": 22.592041312014775,
+   "subLonDeg": -168.7445173346603,
+   "altitudeKm": 467.675752503923,
+   "sunlit": true,
+   "sunAzimuthDeg": 310.4976825125477,
+   "sunElevationDeg": 44.63712708674626
+  },
+  {
+   "norad": 20580,
+   "observer": [
     69.65,
     18.96,
     20.0
@@ -838,6 +1142,44 @@
    "sunlit": true,
    "sunAzimuthDeg": 316.2479411654975,
    "sunElevationDeg": -15.330255356980036
+  },
+  {
+   "norad": 20580,
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "observerName": "Tromso",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 116.88510046463657,
+   "elevationDeg": -34.93337514029735,
+   "rangeKm": 8071.289144929987,
+   "subLatDeg": 4.920491601778607,
+   "subLonDeg": 78.84804150235874,
+   "altitudeKm": 469.4582124816167,
+   "sunlit": true,
+   "sunAzimuthDeg": 58.7935325344499,
+   "sunElevationDeg": -12.1423487145458
+  },
+  {
+   "norad": 20580,
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "observerName": "Tromso",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 7.10788177799195,
+   "elevationDeg": -41.61991801046802,
+   "rangeKm": 9164.53870501512,
+   "subLatDeg": 22.592041312014775,
+   "subLonDeg": -168.7445173346603,
+   "altitudeKm": 467.675752503923,
+   "sunlit": true,
+   "sunAzimuthDeg": 81.24765417518151,
+   "sunElevationDeg": -3.7141202603750627
   },
   {
    "norad": 44714,
@@ -918,6 +1260,44 @@
   {
    "norad": 44714,
    "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "observerName": "Tucson",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 356.472537210037,
+   "elevationDeg": -68.16566364550293,
+   "rangeKm": 12249.59220195198,
+   "subLatDeg": 10.005915394588047,
+   "subLonDeg": 71.44168138395324,
+   "altitudeKm": 372.46281345538875,
+   "sunlit": true,
+   "sunAzimuthDeg": 278.117737526087,
+   "sunElevationDeg": -14.835364258705518
+  },
+  {
+   "norad": 44714,
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "observerName": "Tucson",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 54.511384718628015,
+   "elevationDeg": -15.389637491494568,
+   "rangeKm": 4484.222901582264,
+   "subLatDeg": 46.4346885372199,
+   "subLonDeg": -61.94094952407416,
+   "altitudeKm": 375.20722622503337,
+   "sunlit": false,
+   "sunAzimuthDeg": 294.1238236027186,
+   "sunElevationDeg": -33.67499093348374
+  },
+  {
+   "norad": 44714,
+   "observer": [
     -33.8688,
     151.2093,
     30.0
@@ -994,6 +1374,44 @@
   {
    "norad": 44714,
    "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "observerName": "Sydney",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 283.7931450050446,
+   "elevationDeg": -41.87936377592075,
+   "rangeKm": 9048.51837935403,
+   "subLatDeg": 10.005915394588047,
+   "subLonDeg": 71.44168138395324,
+   "altitudeKm": 372.46281345538875,
+   "sunlit": true,
+   "sunAzimuthDeg": 343.62955904350537,
+   "sunElevationDeg": 56.263399312599766
+  },
+  {
+   "norad": 44714,
+   "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "observerName": "Sydney",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 54.046292454163975,
+   "elevationDeg": -75.66821126439318,
+   "rangeKm": 12722.719527595184,
+   "subLatDeg": 46.4346885372199,
+   "subLonDeg": -61.94094952407416,
+   "altitudeKm": 375.20722622503337,
+   "sunlit": false,
+   "sunAzimuthDeg": 310.4976825125477,
+   "sunElevationDeg": 44.63712708674626
+  },
+  {
+   "norad": 44714,
+   "observer": [
     69.65,
     18.96,
     20.0
@@ -1066,6 +1484,44 @@
    "sunlit": true,
    "sunAzimuthDeg": 316.2479411654975,
    "sunElevationDeg": -15.330255356980036
+  },
+  {
+   "norad": 44714,
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "observerName": "Tromso",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 122.63537601432111,
+   "elevationDeg": -31.639876300913567,
+   "rangeKm": 7355.283240915864,
+   "subLatDeg": 10.005915394588047,
+   "subLonDeg": 71.44168138395324,
+   "altitudeKm": 372.46281345538875,
+   "sunlit": true,
+   "sunAzimuthDeg": 58.7935325344499,
+   "sunElevationDeg": -12.1423487145458
+  },
+  {
+   "norad": 44714,
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "observerName": "Tromso",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 282.45173039939425,
+   "elevationDeg": -18.051283695557185,
+   "rangeKm": 4958.294812143039,
+   "subLatDeg": 46.4346885372199,
+   "subLonDeg": -61.94094952407416,
+   "altitudeKm": 375.20722622503337,
+   "sunlit": false,
+   "sunAzimuthDeg": 81.24765417518151,
+   "sunElevationDeg": -3.7141202603750627
   },
   {
    "norad": 694,
@@ -1146,6 +1602,44 @@
   {
    "norad": 694,
    "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "observerName": "Tucson",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 109.13187001372835,
+   "elevationDeg": -46.379158372745316,
+   "rangeKm": 10832.780864072756,
+   "subLatDeg": -22.245179079427185,
+   "subLonDeg": -21.569540962013566,
+   "altitudeKm": 1247.5441189561047,
+   "sunlit": false,
+   "sunAzimuthDeg": 278.117737526087,
+   "sunElevationDeg": -14.835364258705518
+  },
+  {
+   "norad": 694,
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "observerName": "Tucson",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 276.55098869636095,
+   "elevationDeg": -7.642765392695962,
+   "rangeKm": 4064.168505753403,
+   "subLatDeg": 29.579232201285087,
+   "subLonDeg": -151.39160334079602,
+   "altitudeKm": 713.8899433055865,
+   "sunlit": true,
+   "sunAzimuthDeg": 294.1238236027186,
+   "sunElevationDeg": -33.67499093348374
+  },
+  {
+   "norad": 694,
+   "observer": [
     -33.8688,
     151.2093,
     30.0
@@ -1222,6 +1716,44 @@
   {
    "norad": 694,
    "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "observerName": "Sydney",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 188.00899236171335,
+   "elevationDeg": -58.96536362649602,
+   "rangeKm": 12356.096396498602,
+   "subLatDeg": -22.245179079427185,
+   "subLonDeg": -21.569540962013566,
+   "altitudeKm": 1247.5441189561047,
+   "sunlit": false,
+   "sunAzimuthDeg": 343.62955904350537,
+   "sunElevationDeg": 56.263399312599766
+  },
+  {
+   "norad": 694,
+   "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "observerName": "Sydney",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 47.73943495113977,
+   "elevationDeg": -38.31134883188464,
+   "rangeKm": 8954.095227422971,
+   "subLatDeg": 29.579232201285087,
+   "subLonDeg": -151.39160334079602,
+   "altitudeKm": 713.8899433055865,
+   "sunlit": true,
+   "sunAzimuthDeg": 310.4976825125477,
+   "sunElevationDeg": 44.63712708674626
+  },
+  {
+   "norad": 694,
+   "observer": [
     69.65,
     18.96,
     20.0
@@ -1294,6 +1826,44 @@
    "sunlit": false,
    "sunAzimuthDeg": 316.2479411654975,
    "sunElevationDeg": -15.330255356980036
+  },
+  {
+   "norad": 694,
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "observerName": "Tromso",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 217.33056363815228,
+   "elevationDeg": -43.520638711241226,
+   "rangeKm": 10434.88965502536,
+   "subLatDeg": -22.245179079427185,
+   "subLonDeg": -21.569540962013566,
+   "altitudeKm": 1247.5441189561047,
+   "sunlit": false,
+   "sunAzimuthDeg": 58.7935325344499,
+   "sunElevationDeg": -12.1423487145458
+  },
+  {
+   "norad": 694,
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "observerName": "Tromso",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 351.5099530894351,
+   "elevationDeg": -36.63527908175244,
+   "rangeKm": 8731.896359025466,
+   "subLatDeg": 29.579232201285087,
+   "subLonDeg": -151.39160334079602,
+   "altitudeKm": 713.8899433055865,
+   "sunlit": true,
+   "sunAzimuthDeg": 81.24765417518151,
+   "sunElevationDeg": -3.7141202603750627
   },
   {
    "norad": 39166,
@@ -1374,6 +1944,44 @@
   {
    "norad": 39166,
    "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "observerName": "Tucson",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 41.88895568763679,
+   "elevationDeg": -31.51061474996715,
+   "rangeKm": 29390.328013856662,
+   "subLatDeg": 24.387420789964587,
+   "subLonDeg": 25.378747711360678,
+   "altitudeKm": 20231.879105220396,
+   "sunlit": true,
+   "sunAzimuthDeg": 278.117737526087,
+   "sunElevationDeg": -14.835364258705518
+  },
+  {
+   "norad": 39166,
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "observerName": "Tucson",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 67.6671188578784,
+   "elevationDeg": -55.554112453373705,
+   "rangeKm": 31874.20004897336,
+   "subLatDeg": -10.394716164614065,
+   "subLonDeg": 29.881219931944056,
+   "altitudeKm": 20479.407826287705,
+   "sunlit": true,
+   "sunAzimuthDeg": 294.1238236027186,
+   "sunElevationDeg": -33.67499093348374
+  },
+  {
+   "norad": 39166,
+   "observer": [
     -33.8688,
     151.2093,
     30.0
@@ -1450,6 +2058,44 @@
   {
    "norad": 39166,
    "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "observerName": "Sydney",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 273.44271724951204,
+   "elevationDeg": -50.948599788953985,
+   "rangeKm": 31248.937903718783,
+   "subLatDeg": 24.387420789964587,
+   "subLonDeg": 25.378747711360678,
+   "altitudeKm": 20231.879105220396,
+   "sunlit": true,
+   "sunAzimuthDeg": 343.62955904350537,
+   "sunElevationDeg": 56.263399312599766
+  },
+  {
+   "norad": 39166,
+   "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "observerName": "Sydney",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 242.6106167119407,
+   "elevationDeg": -30.682798499140198,
+   "rangeKm": 29551.999939697398,
+   "subLatDeg": -10.394716164614065,
+   "subLonDeg": 29.881219931944056,
+   "altitudeKm": 20479.407826287705,
+   "sunlit": true,
+   "sunAzimuthDeg": 310.4976825125477,
+   "sunElevationDeg": 44.63712708674626
+  },
+  {
+   "norad": 39166,
+   "observer": [
     69.65,
     18.96,
     20.0
@@ -1522,6 +2168,44 @@
    "sunlit": true,
    "sunAzimuthDeg": 316.2479411654975,
    "sunElevationDeg": -15.330255356980036
+  },
+  {
+   "norad": 39166,
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "observerName": "Tromso",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 171.778383195611,
+   "elevationDeg": 32.99522999254028,
+   "rangeKm": 22593.118754234165,
+   "subLatDeg": 24.387420789964587,
+   "subLonDeg": 25.378747711360678,
+   "altitudeKm": 20231.879105220396,
+   "sunlit": true,
+   "sunAzimuthDeg": 58.7935325344499,
+   "sunElevationDeg": -12.1423487145458
+  },
+  {
+   "norad": 39166,
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "observerName": "Tromso",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 169.09912767451237,
+   "elevationDeg": -4.052970439195359,
+   "rangeKm": 26532.51265708612,
+   "subLatDeg": -10.394716164614065,
+   "subLonDeg": 29.881219931944056,
+   "altitudeKm": 20479.407826287705,
+   "sunlit": true,
+   "sunAzimuthDeg": 81.24765417518151,
+   "sunElevationDeg": -3.7141202603750627
   },
   {
    "norad": 41866,
@@ -1602,6 +2286,44 @@
   {
    "norad": 41866,
    "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "observerName": "Tucson",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 168.38070378145423,
+   "elevationDeg": 51.5878572472051,
+   "rangeKm": 36972.64528005762,
+   "subLatDeg": -0.28068657964371535,
+   "subLonDeg": -104.67468164729586,
+   "altitudeKm": 35784.65695825537,
+   "sunlit": true,
+   "sunAzimuthDeg": 278.117737526087,
+   "sunElevationDeg": -14.835364258705518
+  },
+  {
+   "norad": 41866,
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "observerName": "Tucson",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 168.42419072634632,
+   "elevationDeg": 51.397212884660576,
+   "rangeKm": 36987.23311567195,
+   "subLatDeg": -0.45077058427455824,
+   "subLonDeg": -104.6694536446074,
+   "altitudeKm": 35787.647026156425,
+   "sunlit": true,
+   "sunAzimuthDeg": 294.1238236027186,
+   "sunElevationDeg": -33.67499093348374
+  },
+  {
+   "norad": 41866,
+   "observer": [
     -33.8688,
     151.2093,
     30.0
@@ -1678,6 +2400,44 @@
   {
    "norad": 41866,
    "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "observerName": "Sydney",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 98.24038481861636,
+   "elevationDeg": -19.701650670663664,
+   "rangeKm": 43884.68979062692,
+   "subLatDeg": -0.28068657964371535,
+   "subLonDeg": -104.67468164729586,
+   "altitudeKm": 35784.65695825537,
+   "sunlit": true,
+   "sunAzimuthDeg": 343.62955904350537,
+   "sunElevationDeg": 56.263399312599766
+  },
+  {
+   "norad": 41866,
+   "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "observerName": "Sydney",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 98.3858638076408,
+   "elevationDeg": -19.613050492014732,
+   "rangeKm": 43878.00492764241,
+   "subLatDeg": -0.45077058427455824,
+   "subLonDeg": -104.6694536446074,
+   "altitudeKm": 35787.647026156425,
+   "sunlit": true,
+   "sunAzimuthDeg": 310.4976825125477,
+   "sunElevationDeg": 44.63712708674626
+  },
+  {
+   "norad": 41866,
+   "observer": [
     69.65,
     18.96,
     20.0
@@ -1750,6 +2510,44 @@
    "sunlit": true,
    "sunAzimuthDeg": 316.2479411654975,
    "sunElevationDeg": -15.330255356980036
+  },
+  {
+   "norad": 41866,
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "observerName": "Tromso",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 301.8858484856053,
+   "elevationDeg": -19.541940351397265,
+   "rangeKm": 43869.18216148549,
+   "subLatDeg": -0.28068657964371535,
+   "subLonDeg": -104.67468164729586,
+   "altitudeKm": 35784.65695825537,
+   "sunlit": true,
+   "sunAzimuthDeg": 58.7935325344499,
+   "sunElevationDeg": -12.1423487145458
+  },
+  {
+   "norad": 41866,
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "observerName": "Tromso",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 301.82955400159034,
+   "elevationDeg": -19.694325369073475,
+   "rangeKm": 43888.93291829027,
+   "subLatDeg": -0.45077058427455824,
+   "subLonDeg": -104.6694536446074,
+   "altitudeKm": 35787.647026156425,
+   "sunlit": true,
+   "sunAzimuthDeg": 81.24765417518151,
+   "sunElevationDeg": -3.7141202603750627
   },
   {
    "norad": 40296,
@@ -1830,6 +2628,44 @@
   {
    "norad": 40296,
    "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "observerName": "Tucson",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 3.5918760560200287,
+   "elevationDeg": 53.73773119173985,
+   "rangeKm": 38814.583643826,
+   "subLatDeg": 63.472886561835516,
+   "subLonDeg": -106.79061101929143,
+   "altitudeKm": 37743.37962889428,
+   "sunlit": true,
+   "sunAzimuthDeg": 278.117737526087,
+   "sunElevationDeg": -14.835364258705518
+  },
+  {
+   "norad": 40296,
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "observerName": "Tucson",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 8.109898954172,
+   "elevationDeg": 55.546065113682715,
+   "rangeKm": 37059.89630545471,
+   "subLatDeg": 61.30577727495658,
+   "subLonDeg": -102.63875961496807,
+   "altitudeKm": 36096.988891827365,
+   "sunlit": true,
+   "sunAzimuthDeg": 294.1238236027186,
+   "sunElevationDeg": -33.67499093348374
+  },
+  {
+   "norad": 40296,
+   "observer": [
     -33.8688,
     151.2093,
     30.0
@@ -1906,6 +2742,44 @@
   {
    "norad": 40296,
    "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "observerName": "Sydney",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 32.33979886808478,
+   "elevationDeg": -41.38478965718704,
+   "rangeKm": 48043.12014917734,
+   "subLatDeg": 63.472886561835516,
+   "subLonDeg": -106.79061101929143,
+   "altitudeKm": 37743.37962889428,
+   "sunlit": true,
+   "sunAzimuthDeg": 343.62955904350537,
+   "sunElevationDeg": 56.263399312599766
+  },
+  {
+   "norad": 40296,
+   "observer": [
+    -33.8688,
+    151.2093,
+    30.0
+   ],
+   "observerName": "Sydney",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 35.24358808435766,
+   "elevationDeg": -43.15086579917316,
+   "rangeKm": 46548.086682316476,
+   "subLatDeg": 61.30577727495658,
+   "subLonDeg": -102.63875961496807,
+   "altitudeKm": 36096.988891827365,
+   "sunlit": true,
+   "sunAzimuthDeg": 310.4976825125477,
+   "sunElevationDeg": 44.63712708674626
+  },
+  {
+   "norad": 40296,
+   "observer": [
     69.65,
     18.96,
     20.0
@@ -1978,6 +2852,44 @@
    "sunlit": false,
    "sunAzimuthDeg": 316.2479411654975,
    "sunElevationDeg": -15.330255356980036
+  },
+  {
+   "norad": 40296,
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "observerName": "Tromso",
+   "unix": 1790389359.388229,
+   "azimuthDeg": 326.89038097945485,
+   "elevationDeg": 42.27422350610966,
+   "rangeKm": 39582.6669919042,
+   "subLatDeg": 63.472886561835516,
+   "subLonDeg": -106.79061101929143,
+   "altitudeKm": 37743.37962889428,
+   "sunlit": true,
+   "sunAzimuthDeg": 58.7935325344499,
+   "sunElevationDeg": -12.1423487145458
+  },
+  {
+   "norad": 40296,
+   "observer": [
+    69.65,
+    18.96,
+    20.0
+   ],
+   "observerName": "Tromso",
+   "unix": 1790222300.088493,
+   "azimuthDeg": 322.91092918788206,
+   "elevationDeg": 40.757555174597464,
+   "rangeKm": 38040.37296469349,
+   "subLatDeg": 61.30577727495658,
+   "subLonDeg": -102.63875961496807,
+   "altitudeKm": 36096.988891827365,
+   "sunlit": true,
+   "sunAzimuthDeg": 81.24765417518151,
+   "sunElevationDeg": -3.7141202603750627
   }
  ]
 }

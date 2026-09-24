@@ -32,6 +32,7 @@ func _initialize() -> void:
 	test_satellite_sky_scheduling()
 	await test_app_places_marker_on_aircraft()
 	await test_app_places_marker_on_satellite()
+	await test_app_draws_eclipsed_satellite()
 	await test_side_by_side_stereo()
 
 	print("\n%d checks, %d failed" % [_checks, _failures])
@@ -525,6 +526,47 @@ func test_app_places_marker_on_satellite() -> void:
 	await process_frame
 	check(not app.active_satellite_markers.has(norad), "filtered-out kind loses its marker")
 	check(marker != null and not marker.visible, "released satellite marker hidden")
+
+	app.queue_free()
+	await process_frame
+
+
+func test_app_draws_eclipsed_satellite() -> void:
+	# Showing what the eye cannot see is the point of the app: a satellite in Earth's
+	# shadow is drawn exactly like a lit one, just labelled "shadow".
+	var fixture: Dictionary = JSON.parse_string(
+			FileAccess.get_file_as_string("res://tests/satellite_fixture.json"))
+	var eclipsed: Dictionary = {}
+	for c: Dictionary in fixture["cases"]:
+		if c["observerName"] == "Tucson" and int(c["norad"]) == 25544 and c["elevationDeg"] > 10.0 \
+				and not c["sunlit"]:
+			eclipsed = c
+			break
+	check(not eclipsed.is_empty(), "fixture has the ISS up over Tucson in Earth's shadow")
+	if eclipsed.is_empty():
+		return
+
+	var app: AppBootstrap = load("res://main.tscn").instantiate()
+	app.start_feed = false
+	app.start_satellites = false
+	app.show_debug_hud = false
+	app.latitude_deg = 32.2226
+	app.longitude_deg = -110.9747
+	app.altitude_m = 730.0
+	app.fixed_unix_time = eclipsed["unix"]
+	root.add_child(app)
+	await process_frame
+
+	var list: Array[Satellite] = []
+	list.assign(_fixture_satellites(fixture).values())
+	app.satellite_sky.set_catalogue(list, app.observer, app.unix_now())
+	app.update_satellite_markers()
+
+	var marker: SkyMarker = app.active_satellite_markers.get(25544)
+	check(marker != null and marker.visible, "ISS in Earth's shadow is drawn")
+	if marker != null:
+		near(marker._brightness, 1.0, 0.0, "shadowed ISS at full brightness")
+		check(marker._label.text.ends_with(" shadow"), "shadowed ISS labelled \"shadow\"")
 
 	app.queue_free()
 	await process_frame

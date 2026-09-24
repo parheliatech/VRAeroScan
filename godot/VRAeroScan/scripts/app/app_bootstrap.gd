@@ -316,9 +316,9 @@ func update_satellite_markers() -> void:
 					SkyMarker.label_for_satellite(sat, look))
 			_satellite_labelled_at[sat.norad_id] = sat.sampled_unix
 
-		# One in Earth's shadow cannot be seen, so it recedes rather than vanishing:
-		# you may still want to know where it is.
-		marker.set_brightness(brightness * (1.0 if sat.sunlit else 0.4))
+		# Never dimmed or hidden for being invisible to the eye (Earth's shadow, daylight):
+		# showing what you cannot see is the point. The label says "shadow" instead.
+		marker.set_brightness(brightness)
 		marker.set_look(look)
 
 	for key: int in active_satellite_markers.keys():

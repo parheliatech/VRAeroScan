@@ -158,9 +158,9 @@ static func color_for_satellite(category: int) -> Color:
 	return Color(0.75, 0.95, 0.95)  # LEO: pale cyan
 
 
-## Name, then altitude and range. "shadow" when the satellite is in Earth's shadow and
-## so invisible to the eye however dark your sky is — the thing a finder most needs to
-## say, since otherwise you search empty sky for it.
+## Name, then altitude and range. "shadow" when the satellite is in Earth's shadow, so
+## anyone trying to spot it by eye knows not to bother. Information only: the marker is
+## drawn the same either way.
 static func label_for_satellite(sat: Satellite, angles: LookAngles) -> String:
 	return "%s\n%dkm up %dkm%s" % [sat.name, roundi(sat.altitude_km()),
 			roundi(angles.range_m / 1000.0), "" if sat.sunlit else " shadow"]

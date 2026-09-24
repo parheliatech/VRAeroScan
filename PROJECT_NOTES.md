@@ -197,8 +197,10 @@ Both categories must be independently selectable — **some / all / none**:
   designator. Military identification is *heuristic* — ADS-B does not carry a
   "military" flag. Best-effort from type designators and callsign patterns; a proper
   job would need an aircraft metadata database, which is a later refinement.
-- **Satellites:** Starlink, LEO, GEO, manned, plus "visible now" as the most useful
-  filter of all.
+- **Satellites:** Starlink, LEO, GEO, manned.
+  **No "visible now" filter — decided 2026-09-24.** The app is for situational awareness
+  of what is overhead, *including what the naked eye cannot see*, so sun position never
+  hides or dims a satellite. Earth's shadow is shown as a `shadow` label only.
 
 ---
 
@@ -437,13 +439,13 @@ Behaviours the app must handle (all observed in logs):
 ### Satellites — working on the desktop 2026-09-23
 CelesTrak OMM → SGP4 → TEME→ECEF (GMST) → look angles → diamond markers, in the same
 world frame as the aircraft. Labels read `NAME / 420km up 1034km`, with `shadow`
-appended when the satellite is in Earth's shadow (invisible however dark your sky);
-eclipsed markers are drawn at 40% brightness rather than hidden.
+appended when the satellite is in Earth's shadow. That is information only: shadowed
+satellites are drawn exactly like lit ones (see §6).
 
 | Check | Result |
 |---|---|
 | GDScript SGP4 vs Vallado suite (32 sats, 354 vectors, deep space, resonances) | **0.03 mm** |
-| Whole chain vs Skyfield (8 sats × 3 observers × 4 times, frozen live elements) | az **0.0006°**, el **0.0004°**, range 40 m, sun 0.007°, shadow **96/96** |
+| Whole chain vs Skyfield (8 sats × 3 observers × 6 times, frozen live elements) | az **0.0006°**, el **0.0004°**, range 40 m, sun 0.007°, shadow **144/144** |
 | Mutation tests: GMST sign, ω×r sign, shadow off, docking dedupe off | each fails the suite |
 | `live_satellite_check.gd`, ISS vs wheretheiss.at | **0.8 km**, shadow state agrees |
 | Rendered frame, Tucson | rocket body at az 227.5 el 37.6 drawn 4° left / 2° up at heading 231.5 |
@@ -466,8 +468,7 @@ Design points:
 - **Clock accuracy matters more than the model:** 1 s of clock error ≈ 1.1° at the ISS.
   The phone's network time is fine; the HUD shows median element age and flags >72 h.
 
-Not done: a "visible now" filter (the sunlit and dark-sky data is there: `Satellite.sunlit`,
-`Solar.sun_look_angles`), pass prediction ("ISS rises in 4 min, WSW"), and off-screen
+Not done: pass prediction ("ISS rises in 4 min, WSW"), and off-screen
 pointers — the last matters most for satellites, which you usually have to go looking for.
 
 Commands:

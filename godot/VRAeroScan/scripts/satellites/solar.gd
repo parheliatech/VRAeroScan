@@ -2,10 +2,10 @@ class_name Solar
 extends RefCounted
 ## Where the sun is, and whether a satellite is in Earth's shadow.
 ##
-## This is what decides whether you can actually SEE a satellite. Satellites shine only
-## by reflected sunlight, so one is visible to the eye when it is sunlit AND your sky is
-## dark — the hour or two after dusk and before dawn. The rest of the night, low
-## satellites are in Earth's shadow: still there, invisible.
+## Information for the label only. Satellites shine by reflected sunlight, so one in
+## Earth's shadow cannot be seen however dark your sky. The app still draws it exactly as
+## it draws a lit one: it is for awareness of what is overhead, seen or not, so eye
+## visibility never hides or dims a marker.
 ##
 ## Deliberately low-precision. The sun direction is the Astronomical Almanac's short
 ## series, good to ~0.01°, and the shadow is a cylinder with no penumbra. Both are far
@@ -14,9 +14,6 @@ extends RefCounted
 
 ## Mean equatorial radius, km. The shadow cylinder's radius.
 const EARTH_RADIUS_KM := 6378.137
-
-## Sun below this and the sky is dark enough for satellites to show (civil twilight).
-const DARK_SKY_SUN_ELEVATION_DEG := -6.0
 
 
 ## Unit vector toward the sun in the true-of-date equatorial frame, which is TEME to far
