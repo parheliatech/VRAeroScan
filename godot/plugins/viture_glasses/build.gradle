@@ -1,0 +1,43 @@
+// Godot Android plugin (v2) wrapping Viture's glasses SDK: USB connection, head pose,
+// display mode. Builds an AAR that addon/ hands to Godot's Gradle export.
+//
+//   ./build.sh            (sets JAVA_HOME, builds, installs the addon into a project)
+//
+// The Viture native libraries are NOT in this repository. They are Viture's proprietary
+// code, extracted locally from their SpaceWalker app into vendor/viture/lib/ (gitignored)
+// - see PROJECT_NOTES.md. They are packaged into the AAR only on this machine.
+
+plugins {
+    id 'com.android.library' version '8.6.1'
+}
+
+def vitureLibDir = file("${rootDir}/../../../vendor/viture/lib")
+if (!new File(vitureLibDir, "arm64-v8a/libglasses-jni.so").exists()) {
+    throw new GradleException("Viture native libraries not found in ${vitureLibDir}. " +
+            "Extract them from SpaceWalker's APK first; see PROJECT_NOTES.md.")
+}
+
+android {
+    namespace 'org.vraeroscan.viture'
+    compileSdk 36
+
+    defaultConfig {
+        minSdk 24
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = [vitureLibDir]
+        }
+    }
+}
+
+dependencies {
+    // Provided at runtime by the Godot app itself; must match the engine version exactly.
+    compileOnly 'org.godotengine:godot:4.7.2.stable'
+}

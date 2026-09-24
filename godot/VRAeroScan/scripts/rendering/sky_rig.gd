@@ -17,7 +17,11 @@ extends Node3D
 ## A large radius also means near-zero stereo disparity, which is correct: distant sky
 ## objects should converge at infinity, not fight the Viture's fixed focal plane.
 ##
-## Mono for now. Side-by-side stereo for the glasses is the hardware spike's job.
+## STEREO. In 3D mode the Viture glasses take one 3840x1080 frame, left eye on the left
+## half. Every marker is on a 500 m dome, where a 64 mm eye separation is 0.007° of
+## disparity — far below a pixel — so both eyes need the same image. The sky is therefore
+## rendered ONCE into a per-eye SubViewport and shown in both halves: half the GPU cost,
+## and optically correct, since sky objects should converge at infinity.
 
 ## Radius of the marker dome, metres.
 @export var sky_radius := 500.0
@@ -29,6 +33,11 @@ extends Node3D
 ## Faint horizon ring. Useful on the desktop, usually noise in AR.
 @export var show_horizon_ring := false
 
+enum Stereo { AUTO, MONO, SIDE_BY_SIDE }
+## AUTO picks side-by-side when the window is 3:1 or wider — the glasses' 3D mode is
+## 32:9 — and mono otherwise (the glasses' 2D mode, a desktop monitor).
+@export var stereo := Stereo.AUTO
+
 var tracker: HeadTracker
 var calibration: CompassCalibration
 var camera: Camera3D
@@ -36,6 +45,8 @@ var camera: Camera3D
 var marker_root: Node3D
 
 var _billboard := Basis.IDENTITY
+var _eye_viewport: SubViewport
+var _eye_views: Array[TextureRect] = []
 
 
 func _init() -> void:
@@ -56,7 +67,11 @@ func _ready() -> void:
 	camera.fov = vertical_fov_deg
 	camera.near = 0.1
 	camera.far = sky_radius * 2.0
-	add_child(camera)
+
+	if is_side_by_side():
+		_build_side_by_side()
+	else:
+		add_child(camera)
 	camera.make_current()
 
 	# Black is invisible on the additive display. The project default is black too;
@@ -85,6 +100,63 @@ func _process(delta: float) -> void:
 		camera.basis = calibration.to_world_basis(tracker.raw_basis())
 
 	_billboard = _face_camera_basis()
+
+
+## Change the rendered vertical FOV. It must equal the glasses' real optical FOV, or
+## everything off-centre is scaled: too large and markers crowd toward the middle (the sky
+## looks compressed), too small and they spread out. Either way they swim against the
+## real world as you nod. Tune it by nodding until markers stay glued to real objects.
+func set_vertical_fov(degrees: float) -> void:
+	vertical_fov_deg = clampf(degrees, 10.0, 60.0)
+	camera.fov = vertical_fov_deg
+
+
+## Whether this rig renders a side-by-side stereo frame.
+func is_side_by_side() -> bool:
+	match stereo:
+		Stereo.SIDE_BY_SIDE:
+			return true
+		Stereo.MONO:
+			return false
+	var size := get_viewport().get_visible_rect().size
+	return size.y > 0.0 and size.x / size.y >= 3.0
+
+
+## The camera renders into one eye-sized SubViewport, which shares this world (a
+## SubViewport does unless told otherwise). Two TextureRects then show that single image
+## in the left and right halves of the real window.
+func _build_side_by_side() -> void:
+	_eye_viewport = SubViewport.new()
+	_eye_viewport.name = "EyeViewport"
+	_eye_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	add_child(_eye_viewport)
+	# Inside a SubViewport (not a Node3D) the camera's transform is effectively global,
+	# so _process can keep setting its basis exactly as in mono.
+	_eye_viewport.add_child(camera)
+
+	var layer := CanvasLayer.new()
+	layer.name = "StereoLayer"
+	layer.layer = -1  # beneath any HUD
+	add_child(layer)
+	for i in 2:
+		var view := TextureRect.new()
+		view.name = "LeftEye" if i == 0 else "RightEye"
+		view.texture = _eye_viewport.get_texture()
+		view.stretch_mode = TextureRect.STRETCH_SCALE
+		layer.add_child(view)
+		_eye_views.append(view)
+
+	get_viewport().size_changed.connect(_layout_side_by_side)
+	_layout_side_by_side()
+
+
+func _layout_side_by_side() -> void:
+	var size := get_viewport().get_visible_rect().size
+	var eye := Vector2(size.x / 2.0, size.y)
+	_eye_viewport.size = Vector2i(eye)
+	for i in 2:
+		_eye_views[i].position = Vector2(eye.x * i, 0.0)
+		_eye_views[i].size = eye
 
 
 ## Where the user is facing, degrees true. Meaningless until calibrated.

@@ -12,6 +12,10 @@ extends Control
 ##      one onto the other may leave bars; the green border shows exactly where the app's
 ##      frame ends.
 ##
+##   5. With the VitureGlasses plugin present: does the glasses' own IMU stream head pose?
+##      The pose array layout is undocumented; it is shown raw so it can be read off while
+##      turning your head, and a marker moves with the first three values.
+##
 ## Everything reported on screen is also printed with a "SPIKE" prefix, so it can be
 ## read over adb without anyone copying numbers off the glasses:
 ##   adb logcat -s godot | grep SPIKE
@@ -28,6 +32,10 @@ var _touch_count := 0
 var _last_screen_count := -1
 var _t := 0.0
 var _log_timer := 0.0
+var _glasses: Object
+var _glasses_text := "VitureGlasses plugin: not present"
+var _last_pose_count := 0
+var _pose_rate := 0.0
 
 
 func _ready() -> void:
@@ -35,6 +43,13 @@ func _ready() -> void:
 	DisplayServer.screen_set_keep_on(true)
 	get_viewport().size_changed.connect(_report)
 	_report()
+
+	if Engine.has_singleton("VitureGlasses"):
+		_glasses = Engine.get_singleton("VitureGlasses")
+		_glasses.status_changed.connect(func(s: String) -> void: print("SPIKE glasses status: ", s))
+		_glasses.glasses_state_changed.connect(
+				func(id: int, value: int) -> void: print("SPIKE glasses state %d = %d" % [id, value]))
+		_glasses.startGlasses()
 
 
 func _process(delta: float) -> void:
@@ -50,7 +65,18 @@ func _process(delta: float) -> void:
 		_v(Input.get_gyroscope()), _v(Input.get_accelerometer()),
 		_v(Input.get_magnetometer()), _v(Input.get_gravity()),
 		Engine.get_frames_per_second(), _touch_count]
+	if _glasses != null:
+		var pose: PackedFloat32Array = _glasses.getPose()
+		_glasses_text = "glasses: %s  type %d  display mode %d\npose[%d] %s\nsamples %d (%.0f/s)" % [
+			_glasses.getStatus(), _glasses.getDeviceType(), _glasses.getDisplayMode(), pose.size(),
+			_fmt(pose), _glasses.getPoseCount(), _pose_rate]
+
 	if _log_timer >= 2.0:
+		if _glasses != null:
+			var count: int = _glasses.getPoseCount()
+			_pose_rate = (count - _last_pose_count) / _log_timer
+			_last_pose_count = count
+			print("SPIKE ", _glasses_text.replace("\n", " | "))
 		_log_timer = 0.0
 		print("SPIKE sensors: ", _sensors.replace("\n", " | "))
 
@@ -109,18 +135,38 @@ func _draw_eye(r: Rect2, letter: String, color: Color) -> void:
 		var x := r.position.x + r.size.x * i / 10.0
 		draw_line(Vector2(x, r.end.y - 50), Vector2(x, r.end.y - 20), Color(color, 0.7), 2.0)
 
+	# Head pose marker, assuming SpaceWalker's reading of data[0..2] as roll, pitch, yaw:
+	# offset by yaw and pitch, with a spoke at the roll angle. If turning your head moves
+	# it along the wrong axis, that assumption is what is wrong. Scale is a guess until the
+	# units (degrees?) are confirmed.
+	if _glasses != null:
+		var pose: PackedFloat32Array = _glasses.getPose()
+		if pose.size() >= 3:
+			var p := c + Vector2(pose[2], -pose[1]) * 4.0
+			draw_arc(p, 30.0, 0.0, TAU, 32, Color(1, 1, 0.4), 3.0)
+			draw_line(p, p + Vector2(cos(deg_to_rad(pose[0])), sin(deg_to_rad(pose[0]))) * 30.0,
+					Color(1, 1, 0.4), 3.0)
+
 	# A dot orbiting the crosshair: smoothness and frame pacing at a glance.
 	draw_circle(c + Vector2(cos(_t * 2.0), sin(_t * 2.0)) * 90.0, 8.0, color)
 
 	draw_string(_font, c + Vector2(-40, -110), letter, HORIZONTAL_ALIGNMENT_LEFT, -1, 120, color)
 	_draw_text(r.position + Vector2(28, 44), _info, 22)
 	_draw_text(r.position + Vector2(28, r.size.y - 210), _sensors, 22)
+	_draw_text(r.position + Vector2(28, r.size.y - 330), _glasses_text, 22)
 
 
 func _draw_text(pos: Vector2, text: String, font_size: int) -> void:
 	for i in text.split("\n").size():
 		draw_string(_font, pos + Vector2(0, i * (font_size + 6)), text.split("\n")[i],
 				HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, INFO)
+
+
+static func _fmt(a: PackedFloat32Array) -> String:
+	var parts: PackedStringArray = []
+	for x in a:
+		parts.append("%.2f" % x)
+	return "[" + ", ".join(parts) + "]"
 
 
 static func _v(v: Vector3) -> String:

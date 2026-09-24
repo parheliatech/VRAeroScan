@@ -15,10 +15,16 @@ extends Node3D
 
 ## Show E, S and W as well as N, more faintly.
 @export var show_all_cardinals := true
-## Degrees above the horizon to place the letters.
-@export var label_elevation_deg := 3.0
+## Elevation of the cardinal bars. 0 = the true, level horizon, and it must stay 0: the
+## bar reads as "the horizon", so anywhere else makes every low aircraft look misplaced.
+## (It was 3° once, and aircraft between 0° and 3° appeared to sit below the horizon.)
+## The letter is drawn above the bar, not by raising the bar.
+@export var horizon_elevation_deg := 0.0
 ## Dashed vertical line at due north, so north stays findable when looking up.
 @export var show_north_guide := true
+## Labelled ticks at fixed elevations up the north guide, so the vertical angular scale
+## is visible — needed to check the display is 1:1 with the real sky.
+@export var elevation_ladder_deg: PackedFloat32Array = [10.0, 20.0, 30.0, 45.0, 60.0]
 ## How far up the north guide climbs, degrees. 90 reaches the zenith.
 @export_range(10.0, 90.0) var north_guide_elevation_deg := 75.0
 
@@ -78,13 +84,14 @@ func _build() -> void:
 		_build_cardinal("W", 270.0, other_color, _other_materials, _other_labels, 0.7)
 	if show_north_guide:
 		_build_north_guide()
+		_build_elevation_ladder()
 
 
 func _build_cardinal(letter: String, azimuth_deg: float, color: Color,
 		materials: Array[StandardMaterial3D], labels: Array[Label3D], scale_factor: float) -> void:
 	var root := Node3D.new()
 	root.name = "Cardinal_" + letter
-	root.position = _rig.position_for(azimuth_deg, label_elevation_deg)
+	root.position = _rig.position_for(azimuth_deg, horizon_elevation_deg)
 	add_child(root)
 	_billboards.append(root)
 
@@ -112,8 +119,8 @@ func _build_north_guide() -> void:
 	for i in DASHES:
 		var t0 := float(i) / DASHES
 		var t1 := t0 + 0.55 / DASHES
-		pairs.append(_rig.position_for(0.0, lerpf(label_elevation_deg, north_guide_elevation_deg, t0)))
-		pairs.append(_rig.position_for(0.0, lerpf(label_elevation_deg, north_guide_elevation_deg, t1)))
+		pairs.append(_rig.position_for(0.0, lerpf(horizon_elevation_deg, north_guide_elevation_deg, t0)))
+		pairs.append(_rig.position_for(0.0, lerpf(horizon_elevation_deg, north_guide_elevation_deg, t1)))
 
 	var guide := MeshInstance3D.new()
 	guide.name = "NorthGuide"
@@ -122,6 +129,31 @@ func _build_north_guide() -> void:
 	guide.material_override = material
 	add_child(guide)
 	_north_materials.append(material)
+
+
+## A short horizontal tick and a "30°"-style label at each ladder elevation on the north
+## guide. Ticks are part of the north set, so they brighten while adjusting like the N.
+func _build_elevation_ladder() -> void:
+	var tick_half := _rig.sky_radius * 0.02
+	for elevation in elevation_ladder_deg:
+		var root := Node3D.new()
+		root.name = "Ladder_%d" % roundi(elevation)
+		root.position = _rig.position_for(0.0, elevation)
+		add_child(root)
+		_billboards.append(root)
+
+		var tick := MeshInstance3D.new()
+		tick.mesh = ArVisuals.line_mesh(PackedVector3Array([
+			Vector3(-tick_half, 0, 0), Vector3(tick_half, 0, 0)]))
+		var material := ArVisuals.additive_material(north_color)
+		tick.material_override = material
+		root.add_child(tick)
+		_north_materials.append(material)
+
+		var label := ArVisuals.create_label(root, "%d°" % roundi(elevation), tick_half * 0.9,
+				north_color, HORIZONTAL_ALIGNMENT_LEFT)
+		label.position = Vector3(tick_half * 1.3, 0, 0)
+		_north_labels.append(label)
 
 
 func _apply_alpha(alpha: float) -> void:

@@ -1,0 +1,53 @@
+{
+ "source": "Viture Pro XR on OnePlus 7 Pro, recorded 2026-09-23 by wearing the glasses; values as logged (2 dp). Layout: [roll, pitch, yaw] degrees, then quaternion (w, x, y, z) in an x-forward, y-left, z-up frame.",
+ "samples": {
+  "straight": {
+   "time": "11:06:50",
+   "pose": [
+    1.31,
+    -1.57,
+    -1.8,
+    1.0,
+    0.01,
+    -0.01,
+    -0.02
+   ]
+  },
+  "turned_right": {
+   "time": "11:06:46",
+   "pose": [
+    -0.27,
+    -0.41,
+    -59.53,
+    0.87,
+    -0.0,
+    -0.0,
+    -0.5
+   ]
+  },
+  "looked_up": {
+   "time": "11:06:54",
+   "pose": [
+    7.16,
+    -50.24,
+    7.68,
+    0.9,
+    0.08,
+    -0.42,
+    0.03
+   ]
+  },
+  "right_ear_down": {
+   "time": "11:07:06",
+   "pose": [
+    53.13,
+    -5.23,
+    28.88,
+    0.87,
+    0.44,
+    0.07,
+    0.2
+   ]
+  }
+ }
+}

@@ -1,0 +1,5 @@
+.gradle/
+build/
+local.properties
+# Built AARs bundle Viture's proprietary native libraries - never commit.
+addon/bin/

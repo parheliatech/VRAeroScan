@@ -4,3 +4,7 @@
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1")
+; Tucson, AZ - Kendel's testing location until the phone's GPS is wired in.
+latitude_deg = 32.2226
+longitude_deg = -110.9747
+altitude_m = 730.0

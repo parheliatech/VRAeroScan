@@ -24,7 +24,9 @@ func _initialize() -> void:
 	test_destination_point_round_trip()
 	test_aircraft_parsing_mixed_altitude()
 	test_classifier()
+	test_viture_pose_mapping()
 	await test_app_places_marker_on_aircraft()
+	await test_side_by_side_stereo()
 
 	print("\n%d checks, %d failed" % [_checks, _failures])
 	quit(1 if _failures > 0 else 0)
@@ -195,6 +197,44 @@ func test_classifier() -> void:
 	check(_classify("ZZZZ", "") == C.UNKNOWN, "unmatched stays unknown")
 
 
+# --- Viture head pose -------------------------------------------------------------
+
+func test_viture_pose_mapping() -> void:
+	# Real samples, recorded wearing the glasses. These pin the SDK-to-Godot axis map,
+	# which is exactly the kind of sign error that fails silently.
+	var fixture: Dictionary = JSON.parse_string(
+			FileAccess.get_file_as_string("res://tests/viture_pose_fixture.json"))
+	var samples: Dictionary = fixture["samples"]
+	var pose := func(label: String) -> PackedFloat32Array:
+		return PackedFloat32Array(samples[label]["pose"])
+
+	var straight := VitureHeadTracker.basis_from_sample(pose.call("straight"))
+	var right := VitureHeadTracker.basis_from_sample(pose.call("turned_right"))
+	var up := VitureHeadTracker.basis_from_sample(pose.call("looked_up"))
+	var tilted := VitureHeadTracker.basis_from_sample(pose.call("right_ear_down"))
+
+	# Turning right must INCREASE compass yaw (clockwise), by the ~58° actually turned.
+	var turned := GeoMath.bearing_delta(VitureHeadTracker.yaw_from_basis(right),
+			VitureHeadTracker.yaw_from_basis(straight))
+	near(turned, 57.7, 1.5, "turning right increases compass yaw")
+
+	# Looking up must raise the gaze by the ~50° logged.
+	near(rad_to_deg(asin((-up.z).y)), 50.2, 2.0, "looking up raises gaze elevation")
+	near(rad_to_deg(asin((-straight.z).y)), 1.6, 1.0, "straight ahead is level")
+
+	# Right ear down: the head's right axis points down by the ~53° roll.
+	near(tilted.x.y, -sin(deg_to_rad(53.1)), 0.05, "right ear down tips the right axis down")
+
+	# Compass yaw from the quaternion must agree with the SDK's own Euler yaw (negated).
+	for label: String in samples:
+		var p: PackedFloat32Array = pose.call(label)
+		if label == "looked_up" or label == "right_ear_down":
+			continue  # Euler yaw is entangled with large pitch/roll; compare level poses only.
+		near(GeoMath.bearing_delta(VitureHeadTracker.yaw_from_basis(
+				VitureHeadTracker.basis_from_sample(p)), -p[2]), 0.0, 1.0,
+				"%s: quaternion yaw matches SDK euler yaw" % label)
+
+
 # --- Whole app ----------------------------------------------------------------------
 
 func test_app_places_marker_on_aircraft() -> void:
@@ -231,6 +271,37 @@ func test_app_places_marker_on_aircraft() -> void:
 				"marker sits at the aircraft's look angle")
 		check(marker.visible, "marker above horizon is visible")
 
+	# The cardinal bars read as "the horizon", so they must sit at exactly 0° elevation.
+	var n_bar: Node3D = app.cardinals.find_child("Cardinal_N", false, false)
+	check(n_bar != null, "cardinal N exists")
+	if n_bar != null:
+		near(rad_to_deg(asin(n_bar.position.normalized().y)), 0.0, 1e-4, "N bar is on the true horizon")
+
+	# Phone location: a good fix becomes the observer; coarse or malformed ones do not.
+	var manual := app.observer
+	check(not app.apply_location_fix(PackedFloat64Array([1.0, 2.0])), "short fix rejected")
+	check(not app.apply_location_fix(PackedFloat64Array([32.3, -110.9, 800.0, 1500.0, 1.0])),
+			"1.5 km cell fix rejected")
+	check(app.observer == manual, "rejected fixes leave the manual observer")
+	check(app.apply_location_fix(PackedFloat64Array([32.3, -110.9, 800.0, 6.0, 1.0])), "6 m GPS fix accepted")
+	near(app.observer.latitude_deg, 32.3, 1e-9, "GPS fix becomes the observer")
+	app.observer = manual  # the marker checks below were computed for the manual position
+
+	# The N key declares "facing north now": heading must read 0 afterwards.
+	var press := InputEventKey.new()
+	press.keycode = KEY_N
+	press.pressed = true
+	app._unhandled_input(press)
+	near(GeoMath.bearing_delta(app.rig.current_heading_deg(), 0.0), 0.0, 1e-6, "N key calibrates to north")
+	check(app.calibration.is_calibrated, "N key marks calibration taken")
+
+	var bracket := InputEventKey.new()
+	bracket.keycode = KEY_BRACKETRIGHT
+	bracket.pressed = true
+	var fov_before := app.rig.vertical_fov_deg
+	app._unhandled_input(bracket)
+	near(app.rig.camera.fov, fov_before + 0.5, 1e-6, "] widens the rendered FOV by 0.5°")
+
 	# Aircraft leaves the feed: marker goes back to the pool.
 	app.adsb.aircraft.clear()
 	await process_frame
@@ -238,4 +309,31 @@ func test_app_places_marker_on_aircraft() -> void:
 	check(marker != null and not marker.visible, "released marker hidden")
 
 	app.queue_free()
+	await process_frame
+
+
+func test_side_by_side_stereo() -> void:
+	var rig := SkyRig.new()
+	rig.stereo = SkyRig.Stereo.SIDE_BY_SIDE
+	root.add_child(rig)
+	await process_frame
+
+	check(rig.is_side_by_side(), "forced side-by-side is honoured")
+	check(rig.camera.get_parent() is SubViewport, "camera renders into the eye viewport")
+	var views := rig.find_children("*Eye", "TextureRect", true, false)
+	check(views.size() == 2, "two eye views (got %d)" % views.size())
+	if views.size() == 2:
+		var l: TextureRect = views[0]
+		var r: TextureRect = views[1]
+		check(l.texture == r.texture, "both eyes show the same rendered sky")
+		near(r.position.x, l.size.x, 0.5, "right eye starts where the left ends")
+
+	var mono := SkyRig.new()
+	mono.stereo = SkyRig.Stereo.MONO
+	root.add_child(mono)
+	await process_frame
+	check(mono.camera.get_parent() == mono, "mono camera sits directly in the rig")
+
+	rig.queue_free()
+	mono.queue_free()
 	await process_frame

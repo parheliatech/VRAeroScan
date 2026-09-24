@@ -12,12 +12,16 @@ extends Node3D
 ## because a nearby aircraft's look angle changes by degrees per second.
 
 @export_group("Observer")
-## Where you are. Set this to your real position: markers can only be checked against
-## real aircraft if the observer is real. Godot has no built-in GPS on Android, so on
-## the phone this is also the position until a location plugin exists.
+## Where you are, when the phone cannot say: the fallback until a GPS fix arrives, and
+## the position on the desktop. On the phone, the VitureGlasses plugin's location wins as
+## soon as it has a fix within max_fix_accuracy_m.
 @export var latitude_deg := 34.0522
 @export var longitude_deg := -118.2437
 @export var altitude_m := 90.0
+
+## Ignore phone fixes worse than this, metres. At 1 nm an observer error of 100 m is
+## already 3° of pointing error, so a coarse cell-tower fix is worse than a good manual one.
+@export var max_fix_accuracy_m := 100.0
 
 @export_group("Aircraft")
 ## Hide aircraft reporting on the ground. Almost always below the local horizon anyway.
@@ -47,6 +51,10 @@ var _labelled_as: Dictionary = {}
 var _pool: Array[SkyMarker] = []
 var _last_error := ""
 var _hud: Label
+var _status_log_timer := 0.0
+var _android: Object
+var _observer_source := "manual"
+var _location_poll_timer := 0.0
 
 
 func _ready() -> void:
@@ -79,16 +87,45 @@ func _ready() -> void:
 	if start_feed:
 		adsb.start_polling(func() -> GeoPoint: return observer)
 
+
+	if Engine.has_singleton("VitureGlasses"):
+		_android = Engine.get_singleton("VitureGlasses")
+		_android.startLocation()
+
 	if show_debug_hud:
 		_build_hud()
 
 
-## Prefer a real tracker if one was added as a child; fall back to the mock so nothing
-## about the hardware blocks work on the pipeline.
+## Take a phone fix [lat, lon, alt m, accuracy m, age s] as the observer if it is usable.
+## Returns whether it was applied.
+func apply_location_fix(fix: PackedFloat64Array) -> bool:
+	if fix.size() < 5:
+		return false
+	var accuracy := fix[3]
+	if accuracy <= 0.0 or accuracy > max_fix_accuracy_m:
+		_observer_source = "manual (GPS ±%dm too coarse)" % roundi(accuracy)
+		return false
+	var first := not _observer_source.begins_with("GPS")
+	observer = GeoPoint.new(fix[0], fix[1], fix[2])
+	_observer_source = "GPS ±%dm, %ds old" % [roundi(accuracy), roundi(fix[4])]
+	if first:
+		print("VRAEROSCAN observer from GPS: %s (±%dm)" % [observer, roundi(accuracy)])
+	return true
+
+
+## Prefer a real tracker: one added as a child, else the Viture glasses when the Android
+## plugin is present. Fall back to the mock so nothing about the hardware blocks work on
+## the pipeline.
 func _find_tracker() -> HeadTracker:
 	for child in get_children():
 		if child is HeadTracker and not child is MockHeadTracker:
 			return child
+
+	if VitureHeadTracker.is_supported():
+		var viture := VitureHeadTracker.new()
+		viture.name = "VitureHeadTracker"
+		add_child(viture)
+		return viture
 
 	if OS.has_feature("mobile"):
 		push_warning("[AppBootstrap] No head tracker; using the mouse mock. " +
@@ -100,10 +137,49 @@ func _find_tracker() -> HeadTracker:
 	return mock
 
 
-func _process(_delta: float) -> void:
+## N: "I am facing true north right now." A one-step landmark fix — look at something
+## you know is due north and press it (or send it: adb shell input keyevent KEYCODE_N).
+## Crude but honest, and better than a phone magnetometer near electronics; the drag
+## control then trims it.
+func _unhandled_input(event: InputEvent) -> void:
+	var key := event as InputEventKey
+	if key == null or not key.pressed:
+		return
+	match key.keycode:
+		KEY_N:
+			if not key.echo:
+				calibrate_facing_north()
+		# [ and ]: step the rendered FOV, to match the glasses' optics by the nod test.
+		KEY_BRACKETLEFT, KEY_BRACKETRIGHT:
+			var step := 0.5 if key.keycode == KEY_BRACKETRIGHT else -0.5
+			rig.set_vertical_fov(rig.vertical_fov_deg + step)
+			print("VRAEROSCAN vertical FOV %.1f°" % rig.vertical_fov_deg)
+
+
+func calibrate_facing_north() -> void:
+	calibration.calibrate_from_known_bearing(0.0, rig.tracker.raw_yaw_deg())
+	print("VRAEROSCAN calibrated: facing north, offset %.1f°" % calibration.heading_offset_deg)
+
+
+func _process(delta: float) -> void:
+	# The feed reads the observer through a callable, so a new fix moves the query too.
+	if _android != null:
+		_location_poll_timer += delta
+		if _location_poll_timer >= 2.0:
+			_location_poll_timer = 0.0
+			apply_location_fix(_android.getLocation())
+
 	update_aircraft_markers()
 	if _hud != null:
 		_hud.text = _hud_text()
+
+	# On the phone there is no HUD, so report to the log instead:
+	#   adb logcat -s godot | grep VRAEROSCAN
+	if OS.has_feature("mobile"):
+		_status_log_timer += delta
+		if _status_log_timer >= 5.0:
+			_status_log_timer = 0.0
+			print("VRAEROSCAN ", _hud_text().replace("\n", " | "))
 
 
 func update_aircraft_markers() -> void:
@@ -188,6 +264,11 @@ func _hud_text() -> String:
 		else:
 			feed = "waiting for first poll" if start_feed else "feed off"
 
-	return "Heading %.1f°   offset %.1f°\nCalibration: %s\nObserver: %s (manual)\nFeed: %s\n%s" % [
-		rig.current_heading_deg(), calibration.heading_offset_deg, cal, observer, feed,
+	var tracker := rig.tracker
+	var head := "%s%s" % [tracker.name, " (" + (tracker as VitureHeadTracker).status() + ")"
+			if tracker is VitureHeadTracker else ""]
+
+	return "Heading %.1f°   offset %.1f°   vfov %.1f°   tracker %s\nCalibration: %s\nObserver: %s (%s)\nFeed: %s\n%s" % [
+		rig.current_heading_deg(), calibration.heading_offset_deg, rig.vertical_fov_deg, head, cal,
+		observer, _observer_source, feed,
 		"Right-drag look · Left-drag turn sky (Shift = fine) · ←/→ nudge"]
