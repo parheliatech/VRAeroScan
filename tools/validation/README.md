@@ -78,9 +78,10 @@ Three stages, in order:
    against the published `SGP4-VER.TLE` / `tcppver.out` vectors, both of which ship
    inside the package, so no download is needed. Result: **710 state vectors, worst
    position delta 0.117 mm.**
-2. **Emit `sgp4_fixture.json`** (`--emit-fixture`), so whichever propagator VRAeroScan
-   ends up using can be checked against the same numbers from C# or GDScript, with no
-   Python in the build. 32 satellites, 354 state vectors, TEME frame, WGS72 gravity model.
+2. **Emit `godot/VRAeroScan/tests/sgp4_fixture.json`** (`--emit-fixture`), which the
+   GDScript port (`scripts/satellites/sgp4.gd`) is tested against with no Python in the
+   build. 32 satellites, 354 state vectors, TEME frame, WGS72 gravity model. The port
+   matches to **0.03 mm** — the fixture's own rounding.
 3. **Live ISS cross-check.** The static vectors prove the arithmetic but cannot catch
    mistakes *around* it — wrong elements, mishandled TLE epoch, confused time scales.
    This does, and it most resembles what the app actually does. Current agreement:
@@ -106,6 +107,27 @@ left a 139 km residual. The same code agrees with wheretheiss.at to under 5 km.
 Recorded because "the reference must be wrong" is usually the wrong conclusion, and
 this is the uncommon case where it held — which is exactly why it was worth proving
 instead of assuming in either direction.
+
+## `export_satellite_fixture.py`
+
+Needs `pip install sgp4 skyfield`; downloads JPL's `de421.bsp` (17 MB) on first run.
+
+`sgp4_fixture.json` proves the propagator's arithmetic in TEME, and nothing after it.
+This covers the rest of the satellite chain end to end: CelesTrak's OMM JSON (units,
+epoch format), TEME to Earth-fixed via sidereal time, the observer's sky, the sun, and
+whether the satellite is in Earth's shadow. Skyfield does all of that independently
+(IAU 2000 frames, IERS UT1, DE421), so agreement also checks the app's shortcuts.
+
+It fetches live elements for eight satellites chosen to cover every orbit class the app
+distinguishes and both SDP4 resonance paths (ISS, CSS, Hubble, a Starlink, an eccentric
+rocket body, GPS, GOES 16, and the Molniya-orbit Meridian 7), then **freezes** them into
+`godot/VRAeroScan/tests/satellite_fixture.json` with Skyfield's answers from three
+observers at four times — one of them the next ISS pass over Tucson, so LEO is covered
+above the horizon too. The Godot test is then offline and deterministic.
+
+Result on 2026-09-23, 96 cases: azimuth **0.0006°**, elevation **0.0004°**, range
+**40 m**, sun **0.007°**, sunlit-or-shadow **96/96**. The live counterpart is
+`godot/VRAeroScan/tests/live_satellite_check.gd` (ISS vs wheretheiss.at: **0.8 km**).
 
 ## Why these exist at all
 

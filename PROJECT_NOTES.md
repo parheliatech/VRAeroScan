@@ -4,9 +4,8 @@
 and see the aircraft and satellites actually passing overhead, drawn where they really
 are in the sky.
 
-Status: **aircraft pipeline running on the desktop in Godot**, with headless tests and a
-live-data check passing. Hardware (phone → glasses) not yet attempted.
-Last updated 2026-09-23.
+Status: **aircraft and satellites running on the desktop in Godot**, with headless tests
+and live-data checks passing. Display spike passed on the phone and glasses.
 
 > **This plan replaces the 2026-08-03 plan**, which targeted a Quest 3 tabletop
 > terrain god-view in WebXR. That plan is archived at
@@ -254,11 +253,12 @@ than expected is TLE freshness and clock accuracy: the ISS moves 7.7 km/s, so on
 second of clock error is ~1.1° — larger than the model's own error budget. Refetch
 elements often, especially for Starlink, which maneuvers constantly.
 
-**Still to decide** (but now cheap, since anything proposed either passes the fixture
-or does not): vendor a C# library, port Vallado's reference, or implement near-Earth
-only and treat GEO specially. Note that GEO is the one case needing deep-space SDP4 —
-and also the one where it matters least, since a GEO satellite is stationary in the sky
-by definition.
+**Decided 2026-09-23: port Vallado, deep space included.** `scripts/satellites/sgp4.gd`
+is a line-for-line GDScript port of python-sgp4's `propagation.py` (MIT), SDP4 and both
+resonances included, so GEO, GPS and Molniya orbits work. It matches the fixture to
+**0.03 mm** (the fixture's own rounding) at ~4.5 µs per propagation. The rest of the
+chain (OMM parsing, TEME to ECEF, look angles, sun, shadow) is checked end to end against
+Skyfield by `satellite_fixture.json`; see §10.
 
 ---
 
@@ -332,12 +332,14 @@ VRAeroScan/
 │   ├── export_geomath_fixture.py     ← freezes it → godot tests/geomath_fixture.json
 │   ├── validate_classifier.py        ← 2.7% unclassified over 892 aircraft
 │   ├── validate_sgp4.py              ← 0.117 mm vs published vectors
-│   └── sgp4_fixture.json             ← 32 sats / 354 vectors, for the app side
+│   └── export_satellite_fixture.py   ← Skyfield → godot tests/satellite_fixture.json
 ├── godot/VRAeroScan/                 ← THE APP
 │   ├── project.godot, main.tscn      ← hand-written; main.tscn is one node + AppBootstrap
 │   ├── scripts/core/                 ← geo_point, look_angles, geo_math, compass_calibration
 │   ├── scripts/tracking/             ← head_tracker (base), mock_head_tracker
-│   ├── scripts/data/                 ← aircraft, aircraft_classifier, adsb_service
+│   ├── scripts/data/                 ← aircraft, aircraft_classifier, adsb_service,
+│   │                                    celestrak_service (OMM fetch + user:// cache)
+│   ├── scripts/satellites/           ← sgp4, satellite, satellite_sky (budgeted), solar
 │   ├── scripts/rendering/            ← ar_visuals, sky_rig, cardinal_markers, sky_marker
 │   ├── scripts/ui/                   ← touch_horizon_control
 │   ├── scripts/app/                  ← app_bootstrap
@@ -378,7 +380,7 @@ for real — a crashed test once reported "0 failed".
    plus a max-range/min-elevation default. Labels could also shrink (~2× smaller).
 3. **Side-by-side stereo** in `SkyRig` (two cameras into SubViewports), once step 1
    says what the glasses actually accept.
-4. Then satellites: the SGP4 decision (§7.1) — `sgp4_fixture.json` now checks a GDScript
+4. ~~Then satellites~~ — DONE, see "Satellites" below. Was: the SGP4 decision (§7.1) — `sgp4_fixture.json` now checks a GDScript
    propagator exactly as it would have checked C#.
 
 ### Viture SDK — found inside SpaceWalker (2026-09-23)
@@ -432,19 +434,54 @@ Behaviours the app must handle (all observed in logs):
 
 `godot/DisplaySpike/launch_on_glasses.sh` finds the glasses display and launches onto it.
 
+### Satellites — working on the desktop 2026-09-23
+CelesTrak OMM → SGP4 → TEME→ECEF (GMST) → look angles → diamond markers, in the same
+world frame as the aircraft. Labels read `NAME / 420km up 1034km`, with `shadow`
+appended when the satellite is in Earth's shadow (invisible however dark your sky);
+eclipsed markers are drawn at 40% brightness rather than hidden.
+
+| Check | Result |
+|---|---|
+| GDScript SGP4 vs Vallado suite (32 sats, 354 vectors, deep space, resonances) | **0.03 mm** |
+| Whole chain vs Skyfield (8 sats × 3 observers × 4 times, frozen live elements) | az **0.0006°**, el **0.0004°**, range 40 m, sun 0.007°, shadow **96/96** |
+| Mutation tests: GMST sign, ω×r sign, shadow off, docking dedupe off | each fails the suite |
+| `live_satellite_check.gd`, ISS vs wheretheiss.at | **0.8 km**, shadow state agrees |
+| Rendered frame, Tucson | rocket body at az 227.5 el 37.6 drawn 4° left / 2° up at heading 231.5 |
+
+Design points:
+- **Groups** default to `stations` + `visual` (175 objects). `starlink` (~11,100) and
+  `geo` are opt-in via `AppBootstrap.satellite_groups`. Kinds (Manned / Starlink / LEO /
+  MEO-HEO / GEO) are one per satellite and filtered by `satellite_types` bitmask.
+- **CelesTrak etiquette:** each group is cached in `user://celestrak/` and refetched only
+  after `refresh_hours` (≥2, default 4). The cache is used at start, so it works offline.
+  CelesTrak throttles clients that download unchanged data too often (HTTP 403).
+- **Docked vehicles and station modules** (ISS, POISK, NAUKA, Dragon, Soyuz…) share a
+  position; MANNED satellites within 5 km collapse to the lowest catalogue number.
+- **Budget:** `SatelliteSky` resamples satellites within 10° of the horizon at ~1 Hz
+  (staggered), extrapolates them per frame (<10 m error), and round-robins the rest of the
+  catalogue every 10 s. Markers more than 45° off gaze refresh at 5 Hz.
+  Desktop cost per frame: **0.15 ms** default, **~3.3 ms with Starlink** (~550 drawn over
+  Tucson, ~100 in view). Not yet profiled on the phone. Starlink really needs declutter
+  (item 2), not more optimisation.
+- **Clock accuracy matters more than the model:** 1 s of clock error ≈ 1.1° at the ISS.
+  The phone's network time is fine; the HUD shows median element age and flags >72 h.
+
+Not done: a "visible now" filter (the sunlit and dark-sky data is there: `Satellite.sunlit`,
+`Solar.sun_look_angles`), pass prediction ("ISS rises in 4 min, WSW"), and off-screen
+pointers — the last matters most for satellites, which you usually have to go looking for.
+
 Commands:
 ```
 godot/VRAeroScan/tests/run.sh                                        # unit + app tests
 godot --headless --path godot/VRAeroScan --script res://tests/live_check.gd   # live feed
+godot --headless --path godot/VRAeroScan --script res://tests/live_satellite_check.gd  # ISS vs wheretheiss.at
 godot --path godot/VRAeroScan                                        # run it (desk)
 godot -e --path godot/VRAeroScan                                     # open the editor
 ```
 
 ## 11. Open questions
 
-- [ ] SGP4: vendor a C# library, port Vallado's reference, or near-Earth-only with GEO
-      treated specially? Harness now exists (§7.1), so any candidate can be judged
-      rather than argued about.
+- [x] SGP4: ported Vallado (via python-sgp4) to GDScript, deep space included (§7.1).
 - [ ] Can the Viture Android SDK be wrapped as a Godot Android plugin, and does it expose
       the Pro XR's IMU when phone-tethered? (risk 2)
 - [ ] GPS on Android from Godot: write a small plugin, or use an existing one?

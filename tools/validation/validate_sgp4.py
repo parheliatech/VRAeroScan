@@ -14,8 +14,9 @@ What this does, in order:
   1. Verifies the ORACLE. Runs python-sgp4 (which wraps Vallado's reference C++)
      against the published SGP4-VER.TLE / tcppver.out vectors. If this disagrees,
      nothing below it can be trusted.
-  2. Emits a fixture for the C# side, so whatever propagator VRAeroScan ends up using
-     can be checked against the same numbers without needing Python at build time.
+  2. Emits a fixture for the app (godot/VRAeroScan/tests/sgp4_fixture.json), so the
+     GDScript port in scripts/satellites/sgp4.gd is checked against the same numbers
+     without needing Python at test time.
   3. Cross-checks a live ISS position against an independent public tracker, which
      catches whole-pipeline mistakes the static vectors cannot: wrong epoch handling,
      UTC/TAI confusion, stale elements.
@@ -26,7 +27,7 @@ An implementation that passes all of it is very unlikely to be subtly wrong.
 
 Usage:
     python3 validate_sgp4.py                 # verify oracle + live ISS check
-    python3 validate_sgp4.py --emit-fixture  # also write sgp4_fixture.json
+    python3 validate_sgp4.py --emit-fixture  # also write the app's sgp4_fixture.json
 
 Requires:  pip install sgp4
 """
@@ -188,10 +189,10 @@ def verify_oracle():
     return ok
 
 
-# ------------------------------------------------------------------------- C# fixture
+# ------------------------------------------------------------------------ app fixture
 
 def emit_fixture(path, max_rows_per_sat=12):
-    """Write a compact fixture the C# test can consume without Python.
+    """Write a compact fixture the Godot tests can consume without Python.
 
     TEME position/velocity is what SGP4 natively produces, so that is what gets
     compared. Converting to look angles happens downstream in GeoMath, which is
@@ -366,7 +367,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--emit-fixture", action="store_true",
-                    help="write sgp4_fixture.json for the C# test to consume")
+                    help="write the Godot tests' sgp4_fixture.json")
     ap.add_argument("--skip-live", action="store_true",
                     help="skip the network-dependent ISS cross-check")
     args = ap.parse_args()
@@ -378,7 +379,8 @@ def main():
 
     if args.emit_fixture:
         here = os.path.dirname(os.path.abspath(__file__))
-        emit_fixture(os.path.join(here, "sgp4_fixture.json"))
+        emit_fixture(os.path.join(here, "..", "..", "godot", "VRAeroScan", "tests",
+                                  "sgp4_fixture.json"))
 
     if not args.skip_live:
         ok = live_iss_check() and ok

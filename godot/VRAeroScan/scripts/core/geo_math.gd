@@ -47,24 +47,8 @@ static func geodetic_to_ecef(p: GeoPoint) -> PackedFloat64Array:
 
 ## The observer-to-target vector in the observer's local frame, as [east, north, up].
 static func to_enu(observer: GeoPoint, target: GeoPoint) -> PackedFloat64Array:
-	var o := geodetic_to_ecef(observer)
 	var t := geodetic_to_ecef(target)
-	var dx := t[0] - o[0]
-	var dy := t[1] - o[1]
-	var dz := t[2] - o[2]
-
-	var lat := deg_to_rad(observer.latitude_deg)
-	var lon := deg_to_rad(observer.longitude_deg)
-	var sin_lat := sin(lat)
-	var cos_lat := cos(lat)
-	var sin_lon := sin(lon)
-	var cos_lon := cos(lon)
-
-	return PackedFloat64Array([
-		-sin_lon * dx + cos_lon * dy,
-		-sin_lat * cos_lon * dx - sin_lat * sin_lon * dy + cos_lat * dz,
-		cos_lat * cos_lon * dx + cos_lat * sin_lon * dy + sin_lat * dz,
-	])
+	return enu_in_frame(local_frame(observer), t[0], t[1], t[2])
 
 
 ## Where to look to see target from observer.
@@ -73,7 +57,44 @@ static func to_enu(observer: GeoPoint, target: GeoPoint) -> PackedFloat64Array:
 ## local tangent frame, a distant low target falls below the horizon on its own. No
 ## fudge factor is needed or wanted.
 static func to_look_angles(observer: GeoPoint, target: GeoPoint) -> LookAngles:
-	var enu := to_enu(observer, target)
+	var t := geodetic_to_ecef(target)
+	return look_angles_in_frame(local_frame(observer), t[0], t[1], t[2])
+
+
+## The observer's local tangent frame, precomputed so that many targets given in ECEF —
+## a satellite catalogue — cost a subtraction and nine multiplies each rather than a
+## round of trig. Layout: [ox, oy, oz, east xyz, north xyz, up xyz].
+static func local_frame(observer: GeoPoint) -> PackedFloat64Array:
+	var o := geodetic_to_ecef(observer)
+	var lat := deg_to_rad(observer.latitude_deg)
+	var lon := deg_to_rad(observer.longitude_deg)
+	var sin_lat := sin(lat)
+	var cos_lat := cos(lat)
+	var sin_lon := sin(lon)
+	var cos_lon := cos(lon)
+	return PackedFloat64Array([
+		o[0], o[1], o[2],
+		-sin_lon, cos_lon, 0.0,
+		-sin_lat * cos_lon, -sin_lat * sin_lon, cos_lat,
+		cos_lat * cos_lon, cos_lat * sin_lon, sin_lat,
+	])
+
+
+## ECEF metres -> [east, north, up] metres from the frame's observer.
+static func enu_in_frame(f: PackedFloat64Array, x: float, y: float, z: float) -> PackedFloat64Array:
+	var dx := x - f[0]
+	var dy := y - f[1]
+	var dz := z - f[2]
+	return PackedFloat64Array([
+		f[3] * dx + f[4] * dy + f[5] * dz,
+		f[6] * dx + f[7] * dy + f[8] * dz,
+		f[9] * dx + f[10] * dy + f[11] * dz,
+	])
+
+
+## ECEF metres -> look angles from the frame's observer.
+static func look_angles_in_frame(f: PackedFloat64Array, x: float, y: float, z: float) -> LookAngles:
+	var enu := enu_in_frame(f, x, y, z)
 	var e := enu[0]
 	var n := enu[1]
 	var u := enu[2]
@@ -84,6 +105,38 @@ static func to_look_angles(observer: GeoPoint, target: GeoPoint) -> LookAngles:
 		azimuth += 360.0
 
 	return LookAngles.new(azimuth, rad_to_deg(atan2(u, horizontal)), sqrt(e * e + n * n + u * u))
+
+
+## Direction only, for things effectively at infinity (the sun): the observer's
+## position drops out, so this takes an ECEF unit vector rather than a point.
+static func direction_look_angles(f: PackedFloat64Array, dx: float, dy: float, dz: float) -> LookAngles:
+	return look_angles_in_frame(f, f[0] + dx, f[1] + dy, f[2] + dz)
+
+
+## ECEF metres -> WGS84 geodetic. Bowring's method, iterated, which is
+## sub-millimetre from the ground to beyond GEO.
+static func ecef_to_geodetic(x: float, y: float, z: float) -> GeoPoint:
+	var a := SEMI_MAJOR_AXIS
+	var b := a * (1.0 - FLATTENING)
+	var ep2 := (a * a - b * b) / (b * b)
+	var p := sqrt(x * x + y * y)
+	var lon := atan2(y, x)
+
+	# beta is the parametric latitude; each pass refines it from the latest estimate.
+	var beta := atan2(z * a, p * b)
+	var lat := 0.0
+	for i in 3:
+		lat = atan2(z + ep2 * b * pow(sin(beta), 3.0), p - ECCENTRICITY_SQ * a * pow(cos(beta), 3.0))
+		beta = atan2((1.0 - FLATTENING) * sin(lat), cos(lat))
+
+	var sin_lat := sin(lat)
+	var n := a / sqrt(1.0 - ECCENTRICITY_SQ * sin_lat * sin_lat)
+	var alt: float
+	if absf(cos(lat)) > 1e-9:
+		alt = p / cos(lat) - n
+	else:
+		alt = absf(z) - b
+	return GeoPoint.new(rad_to_deg(lat), rad_to_deg(lon), alt)
 
 
 ## Unit direction in the world frame: -Z north, +X east, +Y up.

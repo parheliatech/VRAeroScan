@@ -2,14 +2,15 @@ class_name AppBootstrap
 extends Node3D
 ## The whole app, wired from one script on one node (main.tscn's root).
 ##
-## Builds the sky rig, the ghost cardinals, the touch calibration, the aircraft feed
-## and the marker pool, and picks a head tracker: any HeadTracker child already present
+## Builds the sky rig, the ghost cardinals, the touch calibration, the aircraft and
+## satellite feeds and the marker pools, and picks a head tracker: any HeadTracker child already present
 ## wins (that is where the Viture binding will go), otherwise MockHeadTracker is added
 ## so the pipeline runs at a desk.
 ##
 ## Each frame it dead-reckons every aircraft to now, turns that into look angles from
 ## the observer, and places a pooled marker there. Per frame rather than per poll,
-## because a nearby aircraft's look angle changes by degrees per second.
+## because a nearby aircraft's look angle changes by degrees per second. Satellites
+## likewise, via SatelliteSky, which keeps a whole catalogue current on a budget.
 
 @export_group("Observer")
 ## Where you are, when the phone cannot say: the fallback until a GPS fix arrives, and
@@ -32,6 +33,14 @@ extends Node3D
 ## Off lets tests drive the app without touching the network.
 @export var start_feed := true
 
+@export_group("Satellites")
+## CelesTrak groups to load; see CelestrakService. Add "starlink" or "geo" for those.
+@export var satellite_groups := PackedStringArray(["stations", "visual"])
+## Which kinds to draw. Each satellite has exactly one kind: see Satellite.
+@export_flags("Manned", "Starlink", "LEO", "MEO / HEO", "GEO") var satellite_types := Satellite.ALL_CATEGORIES
+## Off lets tests drive the app without touching the network.
+@export var start_satellites := true
+
 @export_group("Debug")
 ## On-screen readout of calibration, heading and feed. Off on the phone: on the
 ## glasses, text is light in your eyes.
@@ -43,12 +52,27 @@ var rig: SkyRig
 var cardinals: CardinalMarkers
 var horizon_control: TouchHorizonControl
 var adsb: AdsbService
+var celestrak: CelestrakService
+var satellite_sky: SatelliteSky
+## Tests pin the clock here so satellite positions are deterministic. NAN = real time.
+var fixed_unix_time := NAN
 
 ## icao24 -> SkyMarker currently in use.
 var active_markers: Dictionary = {}
 ## icao24 -> the Aircraft object the marker's label was built from.
 var _labelled_as: Dictionary = {}
-var _pool: Array[SkyMarker] = []
+## norad_id -> SkyMarker currently in use.
+var active_satellite_markers: Dictionary = {}
+## norad_id -> the sample time the marker's label was built from.
+var _satellite_labelled_at: Dictionary = {}
+## One pool per marker kind, since the outline differs.
+var _pools := {SkyMarker.Kind.AIRCRAFT: [], SkyMarker.Kind.SATELLITE: []}
+var _satellite_error := ""
+
+## See update_satellite_markers(): off-view markers refresh every this many frames...
+const OFF_VIEW_REFRESH_FRAMES := 12
+## ...where off-view means more than 45° from where you are looking.
+const IN_VIEW_COS := 0.7071
 var _last_error := ""
 var _hud: Label
 var _status_log_timer := 0.0
@@ -87,6 +111,16 @@ func _ready() -> void:
 	if start_feed:
 		adsb.start_polling(func() -> GeoPoint: return observer)
 
+	satellite_sky = SatelliteSky.new()
+	celestrak = CelestrakService.new()
+	celestrak.name = "CelestrakService"
+	celestrak.groups = satellite_groups
+	add_child(celestrak)
+	celestrak.fetch_failed.connect(func(message: String) -> void: _satellite_error = message)
+	celestrak.catalogue_updated.connect(func(list: Array[Satellite]) -> void:
+		satellite_sky.set_catalogue(list, observer, unix_now()))
+	if start_satellites:
+		celestrak.start()
 
 	if Engine.has_singleton("VitureGlasses"):
 		_android = Engine.get_singleton("VitureGlasses")
@@ -170,6 +204,7 @@ func _process(delta: float) -> void:
 			apply_location_fix(_android.getLocation())
 
 	update_aircraft_markers()
+	update_satellite_markers()
 	if _hud != null:
 		_hud.text = _hud_text()
 
@@ -229,16 +264,80 @@ func update_aircraft_markers() -> void:
 			_labelled_as.erase(key)
 
 
+## UTC now, in Unix seconds. Satellites need the real wall clock, and an accurate one:
+## the ISS moves 1.1° of sky per second of clock error at 400 km range.
+func unix_now() -> float:
+	return fixed_unix_time if not is_nan(fixed_unix_time) else Time.get_unix_time_from_system()
+
+
+func update_satellite_markers() -> void:
+	var now := unix_now()
+	satellite_sky.update(observer, now)
+	var brightness := 0.35 if horizon_control.is_adjusting() else 1.0
+
+	# Markers well outside the view are refreshed at ~5 Hz instead of every frame: with
+	# Starlink loaded there are hundreds, placing one costs ~10 µs of GDScript, and nobody
+	# sees a marker behind them. The cone is the 46° diagonal FOV plus a wide margin, so a
+	# fast head turn still finds markers fresh by the time they are on screen.
+	var forward := -rig.camera.global_basis.z
+	var in_view := IN_VIEW_COS * rig.sky_radius  # markers sit on the dome: no normalize
+	var frame := Engine.get_process_frames()
+
+	var seen := {}
+	for sat: Satellite in satellite_sky.near.values():
+		if not (sat.category & satellite_types):
+			continue
+		# NEAR includes the 10° band below the horizon; most of those need nothing this
+		# frame. The 1 Hz sample's elevation settles it: nothing climbs a degree a second.
+		if sat.sampled_elevation_deg < -3.0:
+			continue
+
+		var marker: SkyMarker = active_satellite_markers.get(sat.norad_id)
+		if marker != null and (sat.norad_id + frame) % OFF_VIEW_REFRESH_FRAMES != 0 \
+				and marker.position.dot(forward) < in_view:
+			seen[sat.norad_id] = true
+			continue
+
+		var look := satellite_sky.look_angles(sat, now)
+		if look.elevation_deg < -2.0:
+			continue
+		if sat.category == Satellite.MANNED and satellite_sky.is_duplicate_of_neighbour(sat, now):
+			continue
+
+		seen[sat.norad_id] = true
+		if marker == null:
+			marker = _acquire(SkyMarker.Kind.SATELLITE)
+			active_satellite_markers[sat.norad_id] = marker
+			_satellite_labelled_at.erase(sat.norad_id)
+
+		# Relabel once per SGP4 sample (about 1 Hz), not per frame.
+		if _satellite_labelled_at.get(sat.norad_id) != sat.sampled_unix:
+			marker.configure(SkyMarker.color_for_satellite(sat.category),
+					SkyMarker.label_for_satellite(sat, look))
+			_satellite_labelled_at[sat.norad_id] = sat.sampled_unix
+
+		# One in Earth's shadow cannot be seen, so it recedes rather than vanishing:
+		# you may still want to know where it is.
+		marker.set_brightness(brightness * (1.0 if sat.sunlit else 0.4))
+		marker.set_look(look)
+
+	for key: int in active_satellite_markers.keys():
+		if not seen.has(key):
+			_release(active_satellite_markers[key])
+			active_satellite_markers.erase(key)
+			_satellite_labelled_at.erase(key)
+
+
 func _acquire(kind: SkyMarker.Kind) -> SkyMarker:
-	# One pool for now. Satellites will want their own, since the outline differs.
-	var marker: SkyMarker = _pool.pop_back() if not _pool.is_empty() else SkyMarker.create(rig, kind)
+	var pool: Array = _pools[kind]
+	var marker: SkyMarker = pool.pop_back() if not pool.is_empty() else SkyMarker.create(rig, kind)
 	marker.visible = true
 	return marker
 
 
 func _release(marker: SkyMarker) -> void:
 	marker.visible = false
-	_pool.append(marker)
+	_pools[marker.kind].append(marker)
 
 
 func _build_hud() -> void:
@@ -248,6 +347,20 @@ func _build_hud() -> void:
 	_hud.position = Vector2(12, 8)
 	_hud.add_theme_color_override("font_color", Color(0.7, 0.9, 1.0))
 	layer.add_child(_hud)
+
+
+func _satellite_status() -> String:
+	if celestrak.satellites.is_empty():
+		if not _satellite_error.is_empty():
+			return _satellite_error
+		return "loading elements" if start_satellites else "feed off"
+	var age_h := (unix_now() - celestrak.median_epoch_unix) / 3600.0
+	var text := "%d loaded, %d near, %d drawn, elements ~%.0fh old" % [celestrak.satellites.size(),
+			satellite_sky.near.size(), active_satellite_markers.size(), age_h]
+	# Stale elements are a pointing error, not just a data-freshness note.
+	if age_h > 72.0:
+		text += " — STALE, positions drifting"
+	return text
 
 
 func _hud_text() -> String:
@@ -268,7 +381,7 @@ func _hud_text() -> String:
 	var head := "%s%s" % [tracker.name, " (" + (tracker as VitureHeadTracker).status() + ")"
 			if tracker is VitureHeadTracker else ""]
 
-	return "Heading %.1f°   offset %.1f°   vfov %.1f°   tracker %s\nCalibration: %s\nObserver: %s (%s)\nFeed: %s\n%s" % [
+	return "Heading %.1f°   offset %.1f°   vfov %.1f°   tracker %s\nCalibration: %s\nObserver: %s (%s)\nFeed: %s\nSatellites: %s\n%s" % [
 		rig.current_heading_deg(), calibration.heading_offset_deg, rig.vertical_fov_deg, head, cal,
-		observer, _observer_source, feed,
+		observer, _observer_source, feed, _satellite_status(),
 		"Right-drag look · Left-drag turn sky (Shift = fine) · ←/→ nudge"]

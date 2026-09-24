@@ -140,3 +140,27 @@ static func label_for(ac: Aircraft, angles: LookAngles) -> String:
 
 	var nm := angles.range_m / GeoMath.METERS_PER_NAUTICAL_MILE
 	return "%s\n%s %s %dnm" % [ac.display_name(), ac.type_code if ac.type_code else "?", alt, roundi(nm)]
+
+
+## Colour for a satellite category. Satellites are already told apart from aircraft by
+## the diamond, so these can be quieter pastels; the station — the one people go out to
+## look for — gets the warm, strong one.
+static func color_for_satellite(category: int) -> Color:
+	match category:
+		Satellite.MANNED:
+			return Color(1.0, 0.85, 0.4)  # gold
+		Satellite.STARLINK:
+			return Color(0.6, 0.7, 1.0)  # periwinkle
+		Satellite.MEO:
+			return Color(0.85, 0.75, 1.0)  # lavender
+		Satellite.GEO:
+			return Color(1.0, 0.72, 0.72)  # rose
+	return Color(0.75, 0.95, 0.95)  # LEO: pale cyan
+
+
+## Name, then altitude and range. "shadow" when the satellite is in Earth's shadow and
+## so invisible to the eye however dark your sky is — the thing a finder most needs to
+## say, since otherwise you search empty sky for it.
+static func label_for_satellite(sat: Satellite, angles: LookAngles) -> String:
+	return "%s\n%dkm up %dkm%s" % [sat.name, roundi(sat.altitude_km()),
+			roundi(angles.range_m / 1000.0), "" if sat.sunlit else " shadow"]
