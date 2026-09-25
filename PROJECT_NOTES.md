@@ -4,8 +4,9 @@
 and see the aircraft and satellites actually passing overhead, drawn where they really
 are in the sky.
 
-Status: **aircraft and satellites running on the desktop in Godot**, with headless tests
-and live-data checks passing. Display spike passed on the phone and glasses.
+Status: **running on the phone and Viture glasses** — aircraft and 16,749 satellites with
+icons, head tracking, stereo, calibration controls — with 3,500+ headless checks and
+live-data checks passing. See §10 "Resume here".
 
 > **This plan replaces the 2026-08-03 plan**, which targeted a Quest 3 tabletop
 > terrain god-view in WebXR. That plan is archived at
@@ -370,20 +371,61 @@ VRAeroScan/
 and Godot still exits 0, so run.sh fails the run on any `SCRIPT ERROR`. This was hit
 for real — a crashed test once reported "0 failed".
 
-### Resume here
+### Resume here (updated 2026-09-24, end of session)
 
-1. **Hardware spike (build-order step 1)** — DISPLAY HALF PASSED (see below). Remaining:
-   read the glasses' IMU via the Viture SDK in a Godot Android plugin. Originally needed: Godot Android export templates (~1.2 GB, from the
-   Godot editor's *Manage Export Templates*), and a debug keystore. Goal: a stereo test
-   pattern on the glasses and IMU numbers printed, from a Godot APK. Answers risks 2
-   and 3 — including whether mirroring fills the glasses or letterboxes.
-2. **Declutter + filter.** The LA render showed 183 aircraft piled along the horizon;
-   at 46° FOV this is essential, not polish. Filter UI over `AircraftClassifier` flags,
-   plus a max-range/min-elevation default. Labels could also shrink (~2× smaller).
-3. **Side-by-side stereo** in `SkyRig` (two cameras into SubViewports), once step 1
-   says what the glasses actually accept.
-4. ~~Then satellites~~ — DONE, see "Satellites" below. Was: the SGP4 decision (§7.1) — `sgp4_fixture.json` now checks a GDScript
-   propagator exactly as it would have checked C#.
+**State:** everything committed on `master` (last: `0f2d779`, no remote). 3521 headless
+checks pass (`godot/VRAeroScan/tests/run.sh`). The app runs on the phone + glasses at
+60 fps with 16,749 satellites (CelesTrak active+visual+stations) and live aircraft: head
+tracking, SBS stereo, GPS, satellite + aircraft icons, pass prediction, pointers,
+phone control panel + glasses menu for calibration. The latest build (panel-waits-for-USB-
+permission fix) is INSTALLED on the phone but not yet seen running with the glasses.
+
+**Next, in order:**
+1. **Verify the fix on hardware:** connect glasses (3D mode), launch, tap OK on the USB
+   permission prompt (tick "use by default"), confirm head tracking streams and the
+   control panel opens by itself a few seconds later.
+2. **Outdoor calibration + truth test:** calibrate north (panel "I'm facing north" or
+   drag the pad until the ghost N sits on true north — the Catalinas are north), then
+   check a marker against a real aircraft, and an ISS pass (the panel/HUD list passes).
+3. **More HUD options** (Kendel chose "both" inputs; calibration was first): satellite
+   filters (kinds, groups), aircraft filters, display (label size — labels are large;
+   ~2× smaller was suggested — gaze-label radius/count, horizon ring, pointers).
+4. Smaller ideas: CRJ/E145 rear-engine regional jets → business-jet silhouette; aircraft
+   off-screen pointers (OffscreenPointers already takes any direction); a terrain/
+   obstruction horizon for rise times; profile the phone with the whole catalogue over a
+   long session (it was 60 fps at launch).
+
+**Kendel's standing rules (do not regress):** never hide or dim satellites the eye cannot
+see (shadow, daylight, below the horizon — draw them through the Earth); Godot/MIT only
+(no GPL assets; Unity removed); validate against live data / Skyfield, not assumptions.
+
+**Working with the phone (OnePlus 7 Pro, Android 16):**
+- Wi-Fi adb `192.168.86.114:5555`; after a phone reboot re-enable it over USB:
+  `adb -s dee0f13e tcpip 5555 && adb connect 192.168.86.114:5555`. The first connect
+  can fail while the phone's Wi-Fi wakes — ping, then retry.
+- **Running Godot (export, `--import`, tests) restarts the adb server**, dropping the
+  Wi-Fi connection: reconnect afterwards, and wrap adb calls in `timeout`.
+- Build + install: `godot --headless --path godot/VRAeroScan --export-debug "Android"
+  vraeroscan.apk`, then `adb install -r` (USB is far faster for the 111 MB APK).
+- Launch on the glasses: `ADB=adb ADB_SERIAL=192.168.86.114:5555
+  godot/DisplaySpike/launch_on_glasses.sh org.vraeroscan.app`. Status every 5 s:
+  `adb logcat -s godot | grep VRAEROSCAN`. Capture: `adb exec-out screencap -p -d
+  4615860159156968452` (glasses), `-d 4630946797824131201` (phone screen).
+- Drive the panel remotely: `adb shell input -d 0 tap/swipe …` on the phone display.
+- After a reboot or reinstall, Android re-asks USB permission for the glasses on the
+  phone screen, and location permission. A 2D↔3D switch replugs the glasses as a new
+  display id; the launch script finds it.
+- Viture plugin: `godot/plugins/viture_glasses/build.sh ../../VRAeroScan` (JDK 17,
+  needs `vendor/viture/lib`, gitignored — never commit Viture's libraries).
+- CelesTrak: 17 groups per refresh (every 4 h, cached in `user://celestrak/`). Seed a
+  device's cache rather than re-downloading within 2 h (debug build: `adb push` to
+  /data/local/tmp, then `run-as org.vraeroscan.app cp … files/celestrak/`).
+- Don't `pkill -f` with a pattern that appears in your own command line — it kills
+  the shell running it.
+
+**Pending on Kendel's side:** Unity Hub apt package (528 MB) still installed; needs
+`sudo apt purge -y unityhub` plus removing `/etc/apt/sources.list.d/unityhub.*` and
+`/usr/share/keyrings/Unity_Technologies_ApS.gpg`.
 
 ### Viture SDK — found inside SpaceWalker (2026-09-23)
 Kendel's `~/Vibe/SpaceJumper/` has SpaceWalker 1.7.2.0 (Viture's official app) already
