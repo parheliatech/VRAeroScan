@@ -1,53 +1,16 @@
-# Unity generated directories
-unity/VRAeroScan/[Ll]ibrary/
-unity/VRAeroScan/[Tt]emp/
-unity/VRAeroScan/[Oo]bj/
-unity/VRAeroScan/[Bb]uild/
-unity/VRAeroScan/[Bb]uilds/
-unity/VRAeroScan/[Ll]ogs/
-unity/VRAeroScan/[Uu]ser[Ss]ettings/
-unity/VRAeroScan/[Mm]emoryCaptures/
-unity/VRAeroScan/[Rr]ecordings/
-
-# Never commit the Viture SDK. It comes from their developer portal under their
-# own licence terms, and vendoring it here would redistribute it.
-unity/VRAeroScan/Assets/Viture/
-unity/VRAeroScan/Assets/Plugins/Viture/
-
 # Viture binaries, local only. vendor/viture/ holds SpaceWalker's APK and the glasses
 # libraries extracted from it (libglasses-jni.so, libglasses-internal.so) - Viture's
 # proprietary code, used locally to talk to the glasses and never redistributed.
 vendor/
 
-# Asset meta files for ignored directories
-unity/VRAeroScan/Assets/Viture.meta
-unity/VRAeroScan/Assets/Plugins/Viture.meta
-
-# Visual Studio / Rider / VS Code
+# Editors
 .vs/
 .idea/
 .vscode/
-*.csproj
-*.unityproj
-*.sln
-*.suo
-*.user
-*.userprefs
-*.pidb
-*.booproj
-*.svd
-*.pdb
-*.mdb
-*.opendb
-*.VC.db
-
-# Unity3D generated crash reports
-sysinfo.txt
 
 # Builds
 *.apk
 *.aab
-*.unitypackage
 *.app
 
 # OS

@@ -85,8 +85,9 @@ GDScript floats are 64-bit, which the geodesy wants. Cost: the C# was ported, no
 wrap the Viture SDK), and no obvious API for a *separate* image on an external display
 (the phone may simply mirror to the glasses; see risk 3). Neither is verified.
 
-The Unity C# remains in `unity/` for reference until the hardware spike settles the
-engine question for good. Do not develop it further.
+The hardware spike settled it: Godot drives the glasses natively. The Unity C# was
+removed on 2026-09-24 (still in git history before that date), and Unity itself was
+uninstalled from the dev machine.
 
 ## 3. Hardware
 
@@ -94,7 +95,7 @@ engine question for good. Do not develop it further.
 |---|---|---|
 | **Viture Pro XR** | **Display + head IMU** | Optical see-through. 3DoF only. 46° FOV. No GPS, no compass, no compute, no cameras. |
 | **Android phone** | **The entire computer** | Must support USB-C DisplayPort Alt Mode. Provides GPS + magnetometer. |
-| Linux box | Dev machine | Godot 4.7.2 at `~/.local/bin/godot` (→ `~/.local/opt/godot/`); Android SDK at `~/Android/Sdk`; `adb` present. Unity Hub also installed, unused. |
+| Linux box | Dev machine | Godot 4.7.2 at `~/.local/bin/godot` (→ `~/.local/opt/godot/`); Android SDK at `~/Android/Sdk`; `adb` present. (Unity removed 2026-09-24.) |
 | AeroScan Pi | *Not used in v1* | Kept as a future local-feed option, see §5. |
 
 ---
@@ -346,7 +347,6 @@ VRAeroScan/
 │   ├── scripts/ui/                   ← touch_horizon_control
 │   ├── scripts/app/                  ← app_bootstrap
 │   └── tests/                        ← run.sh (220 checks), live_check.gd, fixture
-└── unity/VRAeroScan/                 ← superseded C# version, reference only
 ```
 
 ### Conventions that are load-bearing (all pinned by tests)
