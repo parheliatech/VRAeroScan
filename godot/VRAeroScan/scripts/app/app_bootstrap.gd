@@ -155,9 +155,11 @@ func _ready() -> void:
 	if Engine.has_singleton("VitureGlasses"):
 		_android = Engine.get_singleton("VitureGlasses")
 		_android.startLocation()
-		# On the glasses, the phone's screen is free: put the controls there.
+		# On the glasses, the phone's screen is free: put the controls there — but not
+		# yet. See _open_panel_when_clear().
 		if _android.getCurrentDisplayId() > 0:
-			_android.showControlPanel()
+			_panel_pending = true
+			_panel_not_before = _seconds() + 3.0
 
 	if show_debug_hud:
 		_build_hud()
@@ -245,6 +247,7 @@ func _process(delta: float) -> void:
 			apply_location_fix(_android.getLocation())
 		for command: String in _android.takeCommands():
 			run_command(command)
+		_open_panel_when_clear()
 		_panel_status_timer += delta
 		if _panel_status_timer >= 0.25:
 			_panel_status_timer = 0.0
@@ -285,6 +288,9 @@ var _prompt: Label3D
 var _menu_idle_until := 0.0
 var _capture_until := 0.0
 var _panel_status_timer := 0.0
+## The phone control panel is to be opened once nothing else needs the phone's screen.
+var _panel_pending := false
+var _panel_not_before := 0.0
 
 
 ## Run one command. Everything that changes the app's state from outside comes through
@@ -390,6 +396,21 @@ func panel_status() -> String:
 	if capturing_north:
 		text += "\nFACE TRUE NORTH, THEN TAP"
 	return text
+
+
+## Open the control panel once the phone's screen is free. After a reboot Android asks
+## "Allow VRAeroScan to access the VITURE glasses?" on the phone's screen; a panel opened
+## straight away covered that prompt, nobody could answer it, and head tracking never
+## started (2026-09-24). So: wait a moment for the prompt to appear, then until it has
+## been answered.
+func _open_panel_when_clear() -> void:
+	if not _panel_pending or _seconds() < _panel_not_before:
+		return
+	var tracker := rig.tracker
+	if tracker is VitureHeadTracker and (tracker as VitureHeadTracker).status() == "waiting for USB permission":
+		return
+	_panel_pending = false
+	_android.showControlPanel()
 
 
 ## A small cross in the middle of the view, and the prompt under it: shown while the

@@ -1419,6 +1419,11 @@ class FakePanelPlugin:
 	func getLocation() -> PackedFloat64Array:
 		return PackedFloat64Array()
 
+	var panels_opened := 0
+
+	func showControlPanel() -> void:
+		panels_opened += 1
+
 
 func _north_x_deg(app: AppBootstrap) -> float:
 	# Where true north on the horizon appears, degrees right of the view centre.
@@ -1556,6 +1561,16 @@ func test_controls() -> void:
 	check(menu.is_open(), "M opens the menu")
 	app._unhandled_input(m)
 	check(not menu.is_open(), "M closes it")
+
+	# The phone panel waits its turn: not before its start delay, then exactly once.
+	app._panel_pending = true
+	app._panel_not_before = AppBootstrap._seconds() + 60.0
+	await _settle()
+	check(fake.panels_opened == 0, "panel not opened before its delay")
+	app._panel_not_before = 0.0
+	await _settle()
+	await _settle()
+	check(fake.panels_opened == 1, "panel opened once when clear (%d)" % fake.panels_opened)
 
 	app._android = null
 	app.queue_free()
