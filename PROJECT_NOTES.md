@@ -451,33 +451,131 @@ satellites are drawn exactly like lit ones (see §6).
 | Rendered frame, Tucson | rocket body at az 227.5 el 37.6 drawn 4° left / 2° up at heading 231.5 |
 
 Design points:
-- **Groups** default to `stations` + `visual` (175 objects). `starlink` (~11,100) and
-  `geo` are opt-in via `AppBootstrap.satellite_groups`. Kinds (Manned / Starlink / LEO /
+- **Groups** default to `stations` + `visual` + `starlink` (~11,300 objects; Starlink on
+  by default since 2026-09-24 — it is most of what is up there). `geo` is opt-in via
+  `AppBootstrap.satellite_groups`. Kinds (Manned / Starlink / LEO /
   MEO-HEO / GEO) are one per satellite and filtered by `satellite_types` bitmask.
 - **CelesTrak etiquette:** each group is cached in `user://celestrak/` and refetched only
   after `refresh_hours` (≥2, default 4). The cache is used at start, so it works offline.
   CelesTrak throttles clients that download unchanged data too often (HTTP 403).
 - **Docked vehicles and station modules** (ISS, POISK, NAUKA, Dragon, Soyuz…) share a
   position; MANNED satellites within 5 km collapse to the lowest catalogue number.
-- **Budget:** `SatelliteSky` resamples satellites within 10° of the horizon at ~1 Hz
-  (staggered), extrapolates them per frame (<10 m error), and round-robins the rest of the
-  catalogue every 10 s. Markers more than 45° off gaze refresh at 5 Hz.
-  Desktop cost per frame: **0.15 ms** default, **~3.3 ms with Starlink** (~550 drawn over
-  Tucson, ~100 in view). Not yet profiled on the phone. Starlink really needs declutter
-  (item 2), not more optimisation.
+- **The whole sky, through the Earth (2026-09-24).** Every satellite is drawn wherever it
+  is, below the horizon and on the far side of the planet included — Kendel's rule; a
+  horizon cut had hidden 96% of Starlink. (Checked first that nothing was being moved
+  above the horizon: drawn elevations matched SGP4 to 0.04°; the pile-up along the
+  horizon is real geometry — 60% of the Starlinks above the horizon are within 10° of it.)
+  - `SatelliteField`: one MultiMesh for all diamonds. Each instance holds its last SGP4
+    sample (position relative to the observer, velocity, sample time); the vertex shader
+    extrapolates, projects onto the dome and billboards. GDScript touches an instance
+    only when it is resampled. `direction_now()` mirrors the shader on the CPU for tests
+    (the rendering server keeps no readable copy, and none at all headless).
+  - `SatelliteSky`: a timing wheel resamples each satellite at a period set by range —
+    2 s overhead to 20 s on the far side (≤0.05° drift, checked over a simulated minute
+    for a 288-satellite all-sky catalogue) — within a 2 ms/frame budget. A 5° direction
+    index answers "what is near where I'm looking" without scanning 11,000.
+  - Tracked satellites (Manned) keep full markers, labels and pointers everywhere,
+    never faded; rise markers still count down. Aircraft still stop at the horizon.
+  - **Labels only near the gaze:** at most 8, within 8° of the view centre, nearest
+    first, skipping any that would overlap one already placed. Every diamond stays.
+  - **Phone: 60 fps with all 11,308 satellites** (OnePlus 7 Pro, Adreno 640), head
+    tracking live. Desktop (Intel HD 620): ~16–23 ms/frame.
+  - Whole-catalogue check vs Skyfield (all 11,133 Starlinks, one instant): app 0.006°,
+    GPU replica 0.026°. The distribution is physics, not a bug: 1 Starlink above 75°,
+    ~10,600 below the horizon; far-side ones move ~2°/min (look frozen), overhead ~40°/min.
+  - Diamonds scale with √range (1× at 1,000 km, 0.3×–1.4×): the far side reads as a fine
+    distant layer. Tracked markers stay full size.
+  - Dashed horizon ring on by default (`SkyRig.show_horizon_ring`, runtime-switchable).
+  - No label overlaps: edge pointers slide along the edge to clear each other; gaze
+    labels are placed last and skip anything that would cover a pointer, a tracked or
+    rise label, or another gaze label (`AppBootstrap.occupied_view_rects`).
 - **Clock accuracy matters more than the model:** 1 s of clock error ≈ 1.1° at the ISS.
   The phone's network time is fine; the HUD shows median element age and flags >72 h.
 
 - **Off-screen pointers** (`OffscreenPointers`, 2026-09-24): a chevron on the edge of the
-  view, aimed at each off-screen satellite of `pointer_types` (default Manned), labelled
+  view, aimed at each off-screen satellite of `tracked_types` (default Manned), labelled
   with name and angle to turn, e.g. `ISS (ZARYA) 97°`. Nearest first, capped at 4. They
   are 3D nodes on the camera, so they render in the eye viewport and work in SBS stereo
   (checked in a rendered frame); a 2D CanvasLayer would have spanned both eyes. Targets
-  behind you point the short way round. Only satellites with a marker (above the horizon
-  and passing the filters) get one — a rising satellite is pass prediction's job.
+  behind you point the short way round.
+- **Pass prediction** (`PassPredictor`, 2026-09-24): for `tracked_types` satellites
+  (GEO excluded — it never rises), the next rise / peak / set within 24 h. Within
+  `rise_lead_minutes` (20) of a rise, an up-chevron sits on the horizon at the rise
+  azimuth, labelled `ISS (ZARYA) rises in 4:12 / max 67°`, and gets a pointer when off
+  screen; at rise the satellite's own marker takes over. The HUD (and the phone's log
+  line) lists the next three: `ISS (ZARYA) in 4:12 from SSW, max 21°`. Docked vehicles
+  and station modules have the station's pass and are folded into it.
+  - Search: 20 s steps near the horizon (60 s when >15° below), bisection for crossings,
+    golden-section for the peak, geometric 0° horizon (no refraction or terrain).
+  - **vs Skyfield `find_events`, 55 passes, 4 satellites, 3 observers:** rise/set
+    **0.19 s**, azimuth **0.02°**, peak elevation **0.004°**; no-pass cases (Hubble and
+    CSS never reach Tromsø) and a mid-pass start also checked. Mutation-checked
+    (crossing offset, coarse steps, docking dedupe).
+  - Cost: time-budgeted at 1 ms/frame. Re-predicting all 13 manned objects takes ~160
+    frames (~3 s); it reruns only when a pass ends, elements refresh, or the observer
+    moves >5 km. At most 50 satellites are predicted, so tracking Starlink is capped.
 
-Not done: pass prediction ("ISS rises in 4 min, WSW") and pointers for aircraft
-(`OffscreenPointers` takes any world direction, so that is wiring, not new maths).
+### Aircraft icons (2026-09-24)
+Silhouettes replace the aircraft squares (`AircraftIcons`): airliner, heavy (drawn 1.25×),
+business jet, twin prop, light single, helicopter, fighter, glider, balloon, generic.
+**Our own drawings (MIT)** — the ADS-B Exchange/tar1090 set was considered and rejected:
+tar1090 is GPL-2.0+, and its shapes have mixed attributions. Outline-only line meshes,
+top-down planform (also the view from below).
+- Chosen from the classifier + ADS-B emitter category + an ICAO type-prefix table (own,
+  not tar1090's). Live Tucson traffic mapped sensibly (737/E175/CRJ → airliner, B763 →
+  heavy, C172/P28A/SR20/C208 → light, B350/E120 → twin prop).
+- **The nose points along the aircraft's motion across YOUR view** (track projected
+  into the marker plane via a point 500 m ahead), not map-north-up. Balloons stay upright.
+- Idea, not done: regional jets with rear engines (CRJ, E145) could use the business-jet
+  shape, which matches them better; their colour already says commercial.
+- Also fixed while here: gaze labels now avoid aircraft labels, and edge pointers slide
+  sideways along the top/bottom edges instead of drifting into the view.
+
+### Satellite icons and the active catalogue (2026-09-24)
+Twelve silhouettes (`SatelliteIcons`, our own drawings, MIT): ISS, space station
+(Tiangong), crew/cargo capsule, Hubble, Starlink (lopsided single array), communications,
+navigation, Earth observation/weather, rocket body, debris, CubeSat, generic. Shape says
+what it is; colour stays with the orbit category, **military in amber** (as for aircraft).
+- **Catalogue is now CelesTrak `active` + `visual` + `stations`** (16,749 objects; `active`
+  ⊇ Starlink). Purpose comes from CelesTrak's purpose groups, fetched and cached like the
+  rest but used only for tagging: gnss, weather, resource, planet, geo, intelsat, ses,
+  iridium-NEXT, oneweb, globalstar, orbcomm, cubesat, spire, military (names verified
+  2026-09-24). Then name patterns, then orbit (GEO with nothing else → comms).
+- Gotchas found: `gnss` lists comsats hosting WAAS/EGNOS payloads (Galaxy, Astra) — in GEO
+  only BeiDou/QZSS/NavIC count as navigation; "ISS OBJECT xx" are CubeSats released from
+  the ISS, not the station (they had been classed manned → tracked); the public
+  `military` group has only 24 objects, so military is mostly by name (Yaogan, TJS, USA-,
+  non-GLONASS Cosmos): 400 flagged.
+- Real-catalogue split: Starlink 11,134, comms ~2,470, EO ~800, nav ~200, CubeSat ~180,
+  rocket bodies 98, generic ~1,800 (Cosmos, launch-designator names, rideshare carriers,
+  Chinese experimental Shiyan/Shijian — genuinely hard to type).
+- Rendering: one MultiMesh per icon (`SatelliteField` layers), same shader.
+  Desktop ~29 ms/frame with 16,749 drawn (Intel HD 620); phone not yet measured.
+- CelesTrak courtesy: 17 groups per refresh (every 4 h, cached). The desktop cache was
+  seeded from validation downloads so nothing was fetched twice within 2 h.
+
+### Controls: phone panel + glasses menu (2026-09-24)
+Calibration first; more options (satellite/aircraft filters, display) to follow.
+- **One command path**: `AppBootstrap.run_command()` — `north`, `sky:<deg>`,
+  `drag:<frac>:<fingers>`, `drag_end`, `tap`, `menu` — used by the phone panel, the glasses
+  menu and keys (N north, Space tap, M menu, ←/→ nudge; `adb shell input keyevent`).
+- **Phone panel** (`ControlPanelActivity`, in the Viture plugin): opens on the phone's own
+  display when the app starts on the glasses (Android multi-resume keeps both running:
+  60 fps confirmed). "I'm facing north", sky ←/→ 1° and 0.1°, and a large pad: **drag to
+  turn the sky** (the original primary calibration design, back since the app moved to
+  the glasses; two fingers fine), tap to open/select in the glasses menu. Live status
+  line. Keeps the phone screen on (the phone sleeping had paused the app). Commands cross
+  from Java through a queue the app polls each frame (`takeCommands`).
+- **Glasses menu** (`QuickMenu`): opens world-anchored where you look; a centre reticle
+  selects by head gaze, the pad's tap chooses. "Set north…" is two steps (choose, face
+  north, tap) — aiming at a menu item and facing north can't happen at once. Closes after
+  20 s idle or a tap looking away.
+- Verified on hardware via `adb shell input -d 0 tap/swipe` on the phone display: button
+  nudges, pad drag (300 px right = 17.5° sky right, swipe back = exact return), pad tap
+  opening the glasses menu with the hovered row boxed.
+
+Not done: pointers for aircraft (`OffscreenPointers` takes any world direction, so that
+is wiring, not new maths), and a terrain/obstruction horizon for rise times.
 
 Commands:
 ```

@@ -60,6 +60,16 @@ static func diamond_outline(half := 0.5) -> ArrayMesh:
 	return line_mesh(PackedVector3Array([a, b, b, c, c, d, d, a]))
 
 
+## Upward double chevron, for where a satellite is about to rise: "coming up here".
+static func rise_chevron(half := 0.5) -> ArrayMesh:
+	return line_mesh(PackedVector3Array([
+		Vector3(-half, -half * 0.2, 0), Vector3(0, half * 0.5, 0),
+		Vector3(0, half * 0.5, 0), Vector3(half, -half * 0.2, 0),
+		Vector3(-half, -half * 0.9, 0), Vector3(0, -half * 0.2, 0),
+		Vector3(0, -half * 0.2, 0), Vector3(half, -half * 0.9, 0),
+	]))
+
+
 ## Horizontal tick with a vertical stem, marking a cardinal direction on the horizon.
 static func cardinal_tick(half_width := 0.5, stem_height := 0.35) -> ArrayMesh:
 	return line_mesh(PackedVector3Array([

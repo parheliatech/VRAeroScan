@@ -18,6 +18,10 @@ extends Node
 ##
 ## Input arrives through _unhandled_input, so a touch that lands on a UI control is
 ## consumed by the control and never nudges the sky.
+##
+## When the app runs on the glasses, the phone screen is not the app's window: the drag
+## comes instead from the pad on the phone's control panel (ControlPanelActivity), as
+## fractions of the pad's width, through pad_drag() — same gain, same sign.
 
 ## Degrees for a full-screen-width drag, one finger.
 @export var coarse_deg_per_screen := 90.0
@@ -39,6 +43,7 @@ var _mouse_down := false
 var _dragging := false
 var _pending_px := 0.0
 var _key_highlight_until := -INF
+var _pad_dragging := false
 
 
 func initialize(calibration: CompassCalibration, cardinals: CardinalMarkers) -> void:
@@ -48,7 +53,23 @@ func initialize(calibration: CompassCalibration, cardinals: CardinalMarkers) -> 
 
 ## True while the user is actively turning the sky.
 func is_adjusting() -> bool:
-	return _dragging or _now() < _key_highlight_until
+	return _dragging or _pad_dragging or _now() < _key_highlight_until
+
+
+## A drag on the control panel's pad: `fraction` of the pad's width, with `fingers` down
+## (two or more is fine mode). The panel has already told taps from drags.
+func pad_drag(fraction: float, fingers: int) -> void:
+	_pad_dragging = true
+	rotate_sky(fraction * (fine_deg_per_screen if fingers >= 2 else coarse_deg_per_screen))
+
+
+func pad_release() -> void:
+	_pad_dragging = false
+
+
+## Brighten the ghosts briefly, as after a key nudge — for a nudge from a button.
+func highlight() -> void:
+	_key_highlight_until = _now() + key_highlight_s
 
 
 func _process(_delta: float) -> void:

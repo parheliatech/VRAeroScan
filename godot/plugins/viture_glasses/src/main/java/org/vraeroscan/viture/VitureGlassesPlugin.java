@@ -2,6 +2,7 @@ package org.vraeroscan.viture;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -177,6 +178,47 @@ public class VitureGlassesPlugin extends GodotPlugin {
     public int getCurrentDisplayId() {
         Activity activity = getActivity();
         return activity != null && activity.getDisplay() != null ? activity.getDisplay().getDisplayId() : -1;
+    }
+
+    // --- Phone control panel ---------------------------------------------------------------
+
+    /**
+     * Open the control panel (ControlPanelActivity) on the phone's own screen, for when
+     * the app itself is on the glasses. Android 10+ keeps an activity on each display
+     * resumed at once, so the app keeps rendering while the panel is used.
+     */
+    @UsedByGodot
+    public void showControlPanel() {
+        runOnUiThread(() -> {
+            Activity activity = getActivity();
+            if (activity == null) return;
+            Intent intent = new Intent(activity, ControlPanelActivity.class);
+            // Its own task (see the manifest's taskAffinity), reused if already open: an
+            // app restart — a 2D/3D replug of the glasses — must not stack a second panel.
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            ActivityOptions options = ActivityOptions.makeBasic();
+            options.setLaunchDisplayId(Display.DEFAULT_DISPLAY);
+            try {
+                activity.startActivity(intent, options.toBundle());
+            } catch (RuntimeException e) {
+                Log.w(TAG, "Could not open the control panel", e);
+            }
+        });
+    }
+
+    /** Commands posted by the control panel since the last call, oldest first. */
+    @UsedByGodot
+    public String[] takeCommands() {
+        java.util.ArrayList<String> out = new java.util.ArrayList<>();
+        String c;
+        while ((c = ControlPanelActivity.COMMANDS.poll()) != null) out.add(c);
+        return out.toArray(new String[0]);
+    }
+
+    /** The status line the control panel shows. */
+    @UsedByGodot
+    public void setPanelStatus(String text) {
+        ControlPanelActivity.status = text;
     }
 
     // --- Location --------------------------------------------------------------------------

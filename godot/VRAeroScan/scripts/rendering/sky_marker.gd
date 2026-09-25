@@ -10,7 +10,9 @@ extends Node3D
 ## Markers are pooled by the caller and reconfigured rather than freed, so everything
 ## here is built once.
 
-enum Kind { AIRCRAFT, SATELLITE }
+## RISE is not an object but a place and a time: where a satellite will come up over
+## the horizon, shown shortly before it does (see PassPredictor).
+enum Kind { AIRCRAFT, SATELLITE, RISE }
 
 ## Degrees of elevation over which a marker fades out as it sinks. A hard cut at 0°
 ## makes low aircraft blink as dead reckoning and position noise jitter them across
@@ -22,8 +24,12 @@ const ANGULAR_SIZE := 0.03
 
 static var _square: ArrayMesh
 static var _diamond: ArrayMesh
+static var _rise: ArrayMesh
 
 var kind := Kind.AIRCRAFT
+## Fade out below the horizon. Aircraft and rise markers do; satellites do not — they are
+## drawn below the horizon, through the Earth, like everywhere else.
+var fades_at_horizon := true
 ## Where this marker last was, for decluttering and off-screen hints.
 var look: LookAngles
 
@@ -56,9 +62,10 @@ func _build(rig: SkyRig, marker_kind: Kind) -> void:
 	if _square == null:
 		_square = ArVisuals.square_outline()
 		_diamond = ArVisuals.diamond_outline()
+		_rise = ArVisuals.rise_chevron()
 
 	_outline = MeshInstance3D.new()
-	_outline.mesh = _diamond if kind == Kind.SATELLITE else _square
+	_outline.mesh = [_square, _diamond, _rise][kind]
 	_outline.scale = Vector3.ONE * size
 	# One material per marker, since each has its own colour and fade. The pool keeps
 	# the count bounded by what is in the sky at once.
@@ -69,6 +76,35 @@ func _build(rig: SkyRig, marker_kind: Kind) -> void:
 	# Beside the outline, left-aligned, so it never paints over the target.
 	_label = ArVisuals.create_label(self, "", size * 0.55, Color.WHITE, HORIZONTAL_ALIGNMENT_LEFT)
 	_label.position = Vector3(size * 0.8, 0, 0)
+
+
+## Show or hide the outline, leaving the label: for a satellite whose diamond
+## SatelliteField already draws.
+func set_outline_visible(shown: bool) -> void:
+	_outline.visible = shown
+
+
+## Use an aircraft silhouette instead of the default outline, at its relative size. The
+## label moves out with a bigger icon so it never overlaps it.
+func set_icon(icon: AircraftIcons.Icon) -> void:
+	var size := _rig.sky_radius * ANGULAR_SIZE * AircraftIcons.scale_of(icon)
+	_outline.mesh = AircraftIcons.mesh(icon)
+	_outline.scale = Vector3.ONE * size
+	_label.position = Vector3(size * 0.8, 0, 0)
+
+
+## Use a satellite silhouette (SatelliteIcons) for the outline, at the standard size.
+func set_satellite_icon(icon: SatelliteIcons.Icon) -> void:
+	_outline.mesh = SatelliteIcons.mesh(icon)
+	_outline.scale = Vector3.ONE * _rig.sky_radius * ANGULAR_SIZE
+	_outline.rotation = Vector3.ZERO
+
+
+## Point the outline's nose along `angle`, radians counter-clockwise from the view's
+## right, in the marker's own (camera-facing) plane. Only the outline turns; the label
+## stays level.
+func set_travel_angle(angle: float) -> void:
+	_outline.rotation = Vector3(0.0, 0.0, angle - PI / 2.0)
 
 
 ## Colour and text. Meant for data updates, not every frame.
@@ -95,7 +131,7 @@ func set_look(angles: LookAngles) -> void:
 	basis = _rig.billboard_basis()
 
 	# 1 at +HORIZON_FADE_DEG and above, 0 at 0° and below.
-	var alpha := clampf(angles.elevation_deg / HORIZON_FADE_DEG, 0.0, 1.0)
+	var alpha := clampf(angles.elevation_deg / HORIZON_FADE_DEG, 0.0, 1.0) if fades_at_horizon else 1.0
 	if not is_equal_approx(alpha, _alpha):
 		_alpha = alpha
 		_apply_color()
@@ -145,6 +181,14 @@ static func label_for(ac: Aircraft, angles: LookAngles) -> String:
 ## Colour for a satellite category. Satellites are already told apart from aircraft by
 ## the diamond, so these can be quieter pastels; the station — the one people go out to
 ## look for — gets the warm, strong one.
+## A satellite's colour: its orbit category's, except military in amber — as for
+## aircraft, colour says who, shape says what.
+static func color_for_sat(sat: Satellite) -> Color:
+	if sat.military:
+		return color_for(AircraftClassifier.MILITARY)
+	return color_for_satellite(sat.category)
+
+
 static func color_for_satellite(category: int) -> Color:
 	match category:
 		Satellite.MANNED:
@@ -164,3 +208,10 @@ static func color_for_satellite(category: int) -> Color:
 static func label_for_satellite(sat: Satellite, angles: LookAngles) -> String:
 	return "%s\n%dkm up %dkm%s" % [sat.name, roundi(sat.altitude_km()),
 			roundi(angles.range_m / 1000.0), "" if sat.sunlit else " shadow"]
+
+
+## For a rise marker: who, when, and how high it will get — the height decides whether
+## it is worth waiting for.
+static func label_for_rise(sat: Satellite, p: PassPredictor.SatellitePass, unix_s: float) -> String:
+	return "%s rises %s\nmax %d°" % [sat.name, PassPredictor.countdown(p.rise_unix - unix_s),
+			roundi(p.max_elevation_deg)]

@@ -19,10 +19,18 @@ signal fetch_failed(message: String)
 const ENDPOINT := "https://celestrak.org/NORAD/elements/gp.php?GROUP=%s&FORMAT=json"
 const CACHE_DIR := "user://celestrak"
 
-## CelesTrak groups to load. "stations" (ISS, CSS and visitors) and "visual" (~150
-## naked-eye objects) are small and the most useful. "starlink" is ~11,000 objects,
-## "geo" ~600 — both far more than fit in a 46° view, so opt-in.
-@export var groups := PackedStringArray(["stations", "visual"])
+## CelesTrak groups that make up the catalogue. "active" is every working satellite
+## (~16,600, Starlink included); "visual" adds the bright spent rocket stages it leaves
+## out; "stations" the ISS, CSS and their visitors. This is only the fallback;
+## AppBootstrap.satellite_groups sets what the app loads.
+@export var groups := PackedStringArray(["stations", "visual", "active"])
+## Groups used only to say what a satellite is FOR — navigation, weather, comms — so it
+## gets the right icon (SatelliteIcons.icon_for). Not drawn in their own right: their
+## members are already in "active". Names checked against CelesTrak 2026-09-24.
+@export var purpose_groups := PackedStringArray(PURPOSE_GROUPS)
+
+const PURPOSE_GROUPS := ["gnss", "weather", "resource", "planet", "geo", "intelsat", "ses",
+		"iridium-NEXT", "oneweb", "globalstar", "orbcomm", "cubesat", "spire", "military"]
 ## Hours before a cached group is refetched. CelesTrak asks for no more than every two.
 @export_range(2.0, 72.0) var refresh_hours := 4.0
 
@@ -50,7 +58,7 @@ func _ready() -> void:
 ## Load caches now, then refresh stale groups in the background.
 func start() -> void:
 	DirAccess.make_dir_recursive_absolute(CACHE_DIR)
-	for group in groups:
+	for group in groups + purpose_groups:
 		var records := _load_cache(group)
 		if not records.is_empty():
 			_raw[group] = records
@@ -61,7 +69,7 @@ func start() -> void:
 func _refresh_stale() -> void:
 	while is_inside_tree():
 		var changed := false
-		for group in groups:
+		for group in groups + purpose_groups:
 			var age_h: float = (Time.get_unix_time_from_system() - fetched_unix.get(group, 0.0)) / 3600.0
 			if age_h < refresh_hours:
 				continue
@@ -113,9 +121,20 @@ static func parse(text: String) -> Array:
 	return parsed if typeof(parsed) == TYPE_ARRAY else []
 
 
-## Merge record lists into Satellites, one per catalogue number: the ISS is in both
-## "stations" and "visual".
-static func build_catalogue(record_lists: Array) -> Dictionary:
+## Merge record lists into Satellites, one per catalogue number (the ISS is in both
+## "stations" and "visual"), and tag each with the purpose groups it appears in:
+## `purpose_lists` maps group name -> Array of OMM records.
+static func build_catalogue(record_lists: Array, purpose_lists: Dictionary = {}) -> Dictionary:
+	var membership := {}  # norad_id -> PackedStringArray of purpose group names
+	for group: String in purpose_lists:
+		for o: Variant in purpose_lists[group]:
+			if typeof(o) == TYPE_DICTIONARY and o.has("NORAD_CAT_ID"):
+				var id := int(o["NORAD_CAT_ID"])
+				# Packed arrays are values: append to a local, then store it back.
+				var tags: PackedStringArray = membership.get(id, PackedStringArray())
+				tags.append(group)
+				membership[id] = tags
+
 	var out := {}
 	for records: Array in record_lists:
 		for o: Variant in records:
@@ -123,12 +142,21 @@ static func build_catalogue(record_lists: Array) -> Dictionary:
 				continue
 			var sat := Satellite.from_omm(o)
 			if sat != null and not out.has(sat.norad_id):
+				if membership.has(sat.norad_id):
+					sat.tag(membership[sat.norad_id])
 				out[sat.norad_id] = sat
 	return out
 
 
 func _rebuild() -> void:
-	satellites = build_catalogue(_raw.values())
+	var catalogue := []
+	var purposes := {}
+	for group: String in _raw:
+		if group in groups:
+			catalogue.append(_raw[group])
+		if group in purpose_groups:
+			purposes[group] = _raw[group]
+	satellites = build_catalogue(catalogue, purposes)
 	var epochs := PackedFloat64Array()
 	for sat: Satellite in satellites.values():
 		epochs.append(sat.sgp4.epoch_unix)

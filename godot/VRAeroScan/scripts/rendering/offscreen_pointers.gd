@@ -34,6 +34,7 @@ const SIZE := 0.025
 var _camera: Camera3D
 var _pool: Array[Node3D] = []
 var _active := 0
+var _footprints: Array[Rect2] = []
 
 static var _chevron: ArrayMesh
 
@@ -99,6 +100,7 @@ func update_targets(targets: Array[Target], brightness: float = 1.0) -> void:
 		return a.direction.dot(forward) > b.direction.dot(forward))
 
 	_active = 0
+	_footprints.clear()
 	for target: Target in sorted:
 		if _active >= max_pointers:
 			break
@@ -106,11 +108,67 @@ func update_targets(targets: Array[Target], brightness: float = 1.0) -> void:
 		if where.is_empty():
 			continue
 		var degrees := roundi(rad_to_deg(forward.angle_to(target.direction)))
-		_show(_active, where, "%s %d°" % [target.text, degrees], target.color, brightness)
+		var text := "%s %d°" % [target.text, degrees]
+		if not _make_room(where, text, tan_h, tan_v):
+			continue  # nowhere free along this edge: the nearer pointers win
+		_show(_active, where, text, target.color, brightness)
 		_active += 1
 
 	for i in range(_active, _pool.size()):
 		_pool[i].visible = false
+
+
+## What a pointer covers on the view — chevron and label — as a rectangle on the image
+## plane at distance 1 (the units of place()), so overlaps can be checked before drawing.
+static func footprint(pos: Vector2, angle: float, text: String) -> Rect2:
+	var dir := Vector2(cos(angle), sin(angle))
+	var perp := Vector2(-dir.y, dir.x)
+	# The chevron: tip at pos, body back along -dir, half a size either side.
+	var rect := Rect2(pos, Vector2.ZERO)
+	for corner in [pos - dir * SIZE * 1.1 + perp * SIZE * 0.5, pos - dir * SIZE * 1.1 - perp * SIZE * 0.5]:
+		rect = rect.expand(corner)
+	# The label: one line of LABEL_HEIGHT, glyphs about 0.55 of that wide, anchored as
+	# _show() anchors it.
+	var line := SIZE * 0.6 * 1.35
+	var width := text.length() * SIZE * 0.6 * 0.55
+	var anchor := pos - dir * SIZE * 1.6
+	var left := anchor.x - width / 2.0
+	if cos(angle) > 0.3:
+		left = anchor.x - width
+	elif cos(angle) < -0.3:
+		left = anchor.x
+	return rect.merge(Rect2(left, anchor.y - line / 2.0, width, line))
+
+
+## Slide a pointer ALONG its view edge — up and down the sides, sideways along the top
+## and bottom — nearest spot first, until its footprint clears every one already placed;
+## then claim it. Nearest-target pointers were placed first, so they keep their true
+## spots. The chevron keeps its aim: it still points the way to turn.
+func _make_room(where: Dictionary, text: String, tan_h: float, tan_v: float) -> bool:
+	var pos: Vector2 = where["position"]
+	var angle: float = where["angle"]
+	# On a side edge the pointer sits at the inset's x limit; otherwise top or bottom.
+	var on_side := absf(absf(pos.x) - tan_h * EDGE_INSET) < 1e-4
+	# Small steps (about a degree), nearest first, so gaps between pointers get used.
+	var step := Vector2(0.0, 0.018) if on_side else Vector2(0.018, 0.0)
+	for k in 81:
+		# 0, +1, -1, +2, -2, ... steps along the edge.
+		var candidate := pos + step * ((k + 1) / 2) * (1.0 if k % 2 == 1 else -1.0)
+		# Tolerance: positions come back from place() in 32-bit floats, and the true edge
+		# spot must not round itself out of bounds.
+		if absf(candidate.y) > tan_v * EDGE_INSET + 1e-5 or absf(candidate.x) > tan_h * EDGE_INSET + 1e-5:
+			continue
+		var rect := footprint(candidate, angle, text)
+		if not _footprints.any(func(r: Rect2) -> bool: return r.intersects(rect)):
+			_footprints.append(rect)
+			where["position"] = candidate
+			return true
+	return false
+
+
+## The footprints of the pointers placed this frame, for tests.
+func footprints() -> Array[Rect2]:
+	return _footprints
 
 
 ## How many pointers are showing.

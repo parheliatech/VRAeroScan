@@ -30,8 +30,10 @@ extends Node3D
 ## the glasses so a marker's on-screen position means the same thing it will in AR.
 @export var vertical_fov_deg := 23.5
 
-## Faint horizon ring. Useful on the desktop, usually noise in AR.
-@export var show_horizon_ring := false
+## Faint dashed ring at 0° elevation. On by default since satellites are drawn below the
+## horizon too (2026-09-24): without it, nothing says which side of it a marker is on —
+## the cardinal ticks mark only four points.
+@export var show_horizon_ring := true
 
 enum Stereo { AUTO, MONO, SIDE_BY_SIDE }
 ## AUTO picks side-by-side when the window is 3:1 or wider — the glasses' 3D mode is
@@ -45,6 +47,7 @@ var camera: Camera3D
 var marker_root: Node3D
 
 var _billboard := Basis.IDENTITY
+var _horizon_ring: MeshInstance3D
 var _eye_viewport: SubViewport
 var _eye_views: Array[TextureRect] = []
 
@@ -78,8 +81,8 @@ func _ready() -> void:
 	# this makes it true even if someone changes that.
 	RenderingServer.set_default_clear_color(Color.BLACK)
 
-	if show_horizon_ring:
-		_build_horizon_ring()
+	_build_horizon_ring()
+	set_horizon_ring_visible(show_horizon_ring)
 
 
 ## Supply the tracker and calibration. Kept out of _ready so the app can choose between
@@ -201,14 +204,24 @@ func _face_camera_basis() -> Basis:
 	return Basis.looking_at(forward, up)
 
 
+func set_horizon_ring_visible(shown: bool) -> void:
+	show_horizon_ring = shown
+	if _horizon_ring != null:
+		_horizon_ring.visible = shown
+
+
+## Dashed, like every long guide here: a solid line all round would paint over the very
+## horizon the user is looking at. 2° dashes, 2° gaps.
 func _build_horizon_ring() -> void:
-	const SEGMENTS := 72
+	const DASHES := 90
 	var pairs := PackedVector3Array()
-	for i in SEGMENTS:
-		pairs.append(position_for(360.0 * i / SEGMENTS, 0.0))
-		pairs.append(position_for(360.0 * (i + 1) / SEGMENTS, 0.0))
+	for i in DASHES:
+		var start := 360.0 * i / DASHES
+		pairs.append(position_for(start, 0.0))
+		pairs.append(position_for(start + 180.0 / DASHES, 0.0))
 
 	var ring := MeshInstance3D.new()
+	_horizon_ring = ring
 	ring.name = "HorizonRing"
 	ring.mesh = ArVisuals.line_mesh(pairs)
 	ring.material_override = ArVisuals.additive_material(Color(0.3, 0.5, 0.6, 0.25))

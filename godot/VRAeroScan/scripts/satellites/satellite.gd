@@ -37,8 +37,17 @@ var ecef := PackedFloat64Array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 var sampled_unix := -INF
 ## Whether it was in sunlight at the last sample.
 var sunlit := true
-## Elevation at the last sample, degrees, from SatelliteSky's observer.
+## Look angles at the last sample, degrees, from SatelliteSky's observer.
 var sampled_elevation_deg := -90.0
+var sampled_azimuth_deg := 0.0
+## SatelliteSky's direction-index cell; SatelliteField's instance number overall, and
+## within its icon's MultiMesh.
+var bin_key := -1
+var render_index := -1
+var render_slot := -1
+## What it looks like (SatelliteIcons) and whether it is military (drawn amber).
+var icon := SatelliteIcons.Icon.GENERIC
+var military := false
 ## False once SGP4 reports the elements unusable (decayed, bad eccentricity).
 var ok := true
 
@@ -55,13 +64,22 @@ static func from_omm(o: Dictionary) -> Satellite:
 	if sat.name.is_empty():
 		sat.name = str(sat.norad_id)
 	sat.category = classify(sat.name, float(o["MEAN_MOTION"]), float(o["ECCENTRICITY"]))
+	sat.tag(PackedStringArray())
 	return sat
+
+
+## Choose the icon and military flag from the name, the orbit and the CelesTrak purpose
+## groups this satellite appears in (CelestrakService.PURPOSE_GROUPS).
+func tag(purpose_groups: PackedStringArray) -> void:
+	icon = SatelliteIcons.icon_for(name, category, purpose_groups)
+	military = SatelliteIcons.is_military(name, purpose_groups)
 
 
 static func classify(object_name: String, mean_motion_rev_per_day: float, eccentricity: float) -> int:
 	var upper := object_name.to_upper()
-	# "ISS DEB", "FREGAT DEB", "CZ-2F R/B": debris and rocket bodies share the prefixes.
-	var junk := upper.contains(" DEB") or upper.contains("R/B")
+	# "ISS DEB", "FREGAT DEB", "CZ-2F R/B": debris and rocket bodies share the prefixes;
+	# "ISS OBJECT YN" is a small satellite released from the station, not the station.
+	var junk := upper.contains(" DEB") or upper.contains("R/B") or upper.contains(" OBJECT")
 	for prefix: String in MANNED_PREFIXES:
 		if upper.begins_with(prefix) and not junk:
 			return MANNED
@@ -100,6 +118,19 @@ func sample(unix_s: float, gmst: float, sun: Vector3) -> bool:
 	sampled_unix = unix_s
 	sunlit = Solar.is_sunlit(r[0], r[1], r[2], sun)
 	return true
+
+
+## ECEF position (m) at any time, propagated fresh, leaving the tracking state alone —
+## for looking ahead (PassPredictor). Empty if SGP4 reports the elements unusable.
+func ecef_position_at(unix_s: float) -> PackedFloat64Array:
+	if sgp4.propagate(sgp4.minutes_since_epoch(unix_s)) != Sgp4.Fault.NONE:
+		return PackedFloat64Array()
+	var gmst := Sgp4.gstime(Sgp4.unix_to_jd(unix_s))
+	var c := cos(gmst)
+	var s := sin(gmst)
+	var r := sgp4.r
+	return PackedFloat64Array([(c * r[0] + s * r[1]) * 1000.0, (-s * r[0] + c * r[1]) * 1000.0,
+			r[2] * 1000.0])
 
 
 ## ECEF position (m) at unix_s, extrapolated in a straight line from the last sample.

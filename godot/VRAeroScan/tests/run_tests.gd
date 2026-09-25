@@ -29,13 +29,23 @@ func _initialize() -> void:
 	test_sgp4_matches_vallado_suite()
 	test_satellite_chain_matches_skyfield()
 	test_satellite_classifier()
+	test_satellite_icon_choice()
 	test_satellite_sky_scheduling()
+	test_aircraft_icon_choice()
 	await test_app_places_marker_on_aircraft()
+	await test_aircraft_icon_points_along_travel()
 	await test_app_places_marker_on_satellite()
 	await test_app_draws_eclipsed_satellite()
+	await test_app_draws_whole_sky()
+	await test_gaze_labels_do_not_overlap()
 	test_offscreen_pointer_placement()
+	test_pass_prediction_matches_skyfield()
+	test_pass_predictor_scheduling()
+	await test_app_shows_rise_marker()
+	await test_pointer_labels_do_not_overlap()
 	await test_app_points_at_offscreen_station()
 	await test_side_by_side_stereo()
+	await test_controls()
 
 	print("\n%d checks, %d failed" % [_checks, _failures])
 	quit(1 if _failures > 0 else 0)
@@ -350,6 +360,7 @@ func test_satellite_classifier() -> void:
 	check(S.classify("ISS (ZARYA)", 15.49, 0.0004) == S.MANNED, "ISS is manned")
 	check(S.classify("CREW DRAGON 12", 15.49, 0.0004) == S.MANNED, "visiting Dragon is manned")
 	check(S.classify("ISS DEB", 15.6, 0.001) == S.LEO, "ISS debris is not manned")
+	check(S.classify("ISS OBJECT YN", 15.6, 0.001) == S.LEO, "a small satellite released from the ISS is not manned")
 	check(S.classify("CZ-2F R/B", 15.8, 0.01) == S.LEO, "rocket body is not manned")
 	check(S.classify("STARLINK-1008", 15.65, 0.0001) == S.STARLINK, "Starlink by name")
 	check(S.classify("GOES 16", 1.0027, 0.0001) == S.GEO, "GOES 16 is GEO")
@@ -358,42 +369,286 @@ func test_satellite_classifier() -> void:
 	check(S.classify("HST", 15.32, 0.0002) == S.LEO, "Hubble is LEO")
 
 
+## The fixture's eight orbits, each copied round its orbit and across nodes, so the
+## catalogue covers the whole sky — above the horizon and below it. The copies are
+## ordinary satellites (LEO/MEO/GEO by orbit), never tracked.
+func _spread_catalogue(fixture: Dictionary, phase_deg := 0.0) -> Array[Satellite]:
+	var out: Array[Satellite] = []
+	var id := 900000
+	for o: Dictionary in fixture["omm"]:
+		for k in range(1, 37):  # not 0: that would sit exactly on the real satellite
+			id += 1
+			# Renamed so they are classified by orbit: copies named "ISS (ZARYA)" would all
+			# be manned, i.e. tracked, and fill the sky with full station markers.
+			out.append(Satellite.from_omm(o.merged({"NORAD_CAT_ID": id, "OBJECT_NAME": "COPY-%d" % id,
+					"MEAN_ANOMALY": fposmod(float(o["MEAN_ANOMALY"]) + k * 47.0 + phase_deg, 360.0),
+					"RA_OF_ASC_NODE": fposmod(float(o["RA_OF_ASC_NODE"]) + k * 83.0, 360.0)}, true)))
+	return out
+
+
+func test_satellite_icon_choice() -> void:
+	var I = SatelliteIcons.Icon
+	var none := PackedStringArray()
+	var cases := [
+		["ISS (ZARYA)", Satellite.MANNED, none, I.ISS], ["ISS (NAUKA)", Satellite.MANNED, none, I.ISS],
+		["CSS (TIANHE)", Satellite.MANNED, none, I.STATION],
+		["CREW DRAGON 12", Satellite.MANNED, none, I.CAPSULE], ["SOYUZ-MS 29", Satellite.MANNED, none, I.CAPSULE],
+		["HST", Satellite.LEO, none, I.HUBBLE],
+		["STARLINK-1008", Satellite.STARLINK, none, I.STARLINK],
+		["ISS DEB", Satellite.LEO, none, I.DEBRIS], ["FREGAT DEB", Satellite.LEO, none, I.DEBRIS],
+		["ISS OBJECT YN", Satellite.LEO, none, I.CUBESAT],
+		["CZ-2F R/B", Satellite.LEO, none, I.ROCKET_BODY], ["SL-16 R/B", Satellite.LEO, none, I.ROCKET_BODY],
+		["NAVSTAR 68 (USA 242)", Satellite.MEO, PackedStringArray(["gnss"]), I.NAVIGATION],
+		["BEIDOU-3 G2", Satellite.GEO, PackedStringArray(["gnss"]), I.NAVIGATION],
+		# A comsat with a WAAS payload is in gnss, but it is a comsat.
+		["GALAXY 30", Satellite.GEO, PackedStringArray(["gnss", "geo", "intelsat"]), I.COMMS],
+		["NOAA 20", Satellite.LEO, PackedStringArray(["weather"]), I.EARTH_OBS],
+		["GOES 16", Satellite.GEO, PackedStringArray(["weather", "geo"]), I.EARTH_OBS],
+		["LANDSAT 9", Satellite.LEO, PackedStringArray(["resource"]), I.EARTH_OBS],
+		["FLOCK 4Y-12", Satellite.LEO, PackedStringArray(["planet"]), I.EARTH_OBS],
+		["ONEWEB-0012", Satellite.LEO, PackedStringArray(["oneweb"]), I.COMMS],
+		["IRIDIUM 106", Satellite.LEO, PackedStringArray(["iridium-NEXT"]), I.COMMS],
+		["LEMUR-2-XYZ", Satellite.LEO, PackedStringArray(["spire"]), I.CUBESAT],
+		["AEROCUBE 12A", Satellite.LEO, PackedStringArray(["cubesat"]), I.CUBESAT],
+		# No groups: names, then the orbit.
+		["GPS BIII-6", Satellite.MEO, none, I.NAVIGATION],
+		["METEOSAT-12", Satellite.GEO, none, I.EARTH_OBS],
+		["INTELSAT 40E", Satellite.GEO, none, I.COMMS],
+		["SOME GEO BIRD", Satellite.GEO, none, I.COMMS],
+		["TECHSAT 1", Satellite.LEO, none, I.GENERIC],
+	]
+	for c: Array in cases:
+		var got := SatelliteIcons.icon_for(c[0], c[1], c[2])
+		check(got == c[3], "%s -> %s (got %s)" % [c[0], I.keys()[c[3]], I.keys()[got]])
+
+	check(SatelliteIcons.is_military("PRAETORIAN SDA", PackedStringArray(["military"])), "military group")
+	check(SatelliteIcons.is_military("YAOGAN-41", none), "Yaogan is military")
+	check(SatelliteIcons.is_military("USA 326", none), "USA-numbered is military")
+	check(SatelliteIcons.is_military("COSMOS 2575", none), "a non-GLONASS Cosmos is military")
+	check(not SatelliteIcons.is_military("COSMOS 2569 (GLONASS)", PackedStringArray(["gnss"])), "a GLONASS Cosmos is not")
+	check(not SatelliteIcons.is_military("STARLINK-1008", none), "Starlink is not military")
+	for icon in I.values():
+		var verts: PackedVector3Array = SatelliteIcons.mesh(icon).surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+		check(verts.size() >= 8 and Array(verts).all(func(v: Vector3) -> bool:
+				return absf(v.x) <= 0.5 + 1e-6 and absf(v.y) <= 0.5 + 1e-6),
+				"%s icon: lines inside the unit square" % I.keys()[icon])
+
+	# build_catalogue tags satellites from the purpose groups they appear in.
+	var fixture: Dictionary = JSON.parse_string(
+			FileAccess.get_file_as_string("res://tests/satellite_fixture.json"))
+	var gps: Dictionary = fixture["omm"].filter(func(o: Dictionary) -> bool: return int(o["NORAD_CAT_ID"]) == 39166)[0]
+	var spy: Dictionary = fixture["omm"][2].merged({"NORAD_CAT_ID": 777001, "OBJECT_NAME": "SECRETSAT 1"}, true)
+	var built := CelestrakService.build_catalogue([[gps, spy]], {"gnss": [gps], "military": [spy]})
+	check((built[39166] as Satellite).icon == I.NAVIGATION, "gnss membership tags GPS as navigation")
+	var unnamed: Dictionary = gps.merged({"NORAD_CAT_ID": 777002, "OBJECT_NAME": "MYSTERY 2"}, true)
+	var tagged := CelestrakService.build_catalogue([[unnamed]], {"gnss": [unnamed]})
+	check((tagged[777002] as Satellite).icon == I.NAVIGATION, "the gnss group alone, no telling name, gives navigation")
+	check((built[777001] as Satellite).military, "military membership tags the unknown satellite military")
+	check(SkyMarker.color_for_sat(built[777001]) == SkyMarker.color_for(AircraftClassifier.MILITARY),
+			"military satellites drawn amber")
+	check(SkyMarker.color_for_sat(built[39166]) == SkyMarker.color_for_satellite(Satellite.MEO),
+			"others keep their orbit colour")
+
+
 func test_satellite_sky_scheduling() -> void:
 	var fixture: Dictionary = JSON.parse_string(
 			FileAccess.get_file_as_string("res://tests/satellite_fixture.json"))
-	var list: Array[Satellite] = []
-	list.assign(_fixture_satellites(fixture).values())
+	var list := _spread_catalogue(fixture)
 	var tucson := GeoPoint.new(32.2226, -110.9747, 730.0)
+	var frame := GeoMath.local_frame(tucson)
 	var t0: float = fixture["cases"][0]["unix"]
 
 	var sky := SatelliteSky.new()
 	sky.set_catalogue(list, tucson, t0)
-	var frame := GeoMath.local_frame(tucson)
+	var below := list.filter(func(s: Satellite) -> bool: return s.sampled_elevation_deg < 0.0).size()
+	check(below > list.size() / 2 and below < list.size(), "catalogue spans above and below the horizon (%d of %d below)" % [below, list.size()])
+
+	# Run a minute at 30 fps. At every frame, what would be drawn — the extrapolation from
+	# each satellite's last sample — must match a fresh SGP4 propagation, for every
+	# satellite, above the horizon or on the far side of the Earth.
+	var worst_deg := 0.0
+	var worst_what := ""
+	var longest_gap := 0.0
+	var last := {}
 	for sat in list:
-		var el := GeoMath.look_angles_in_frame(frame, sat.ecef[0], sat.ecef[1], sat.ecef[2]).elevation_deg
-		check(sky.near.has(sat.norad_id) == (el > SatelliteSky.NEAR_ELEVATION_DEG),
-				"%s NEAR matches its elevation %.1f°" % [sat.name, el])
-	# GEO satellites never set: GOES 16 is always in Tucson's sky.
-	check(sky.near.has(41866), "GOES 16 is near from Tucson")
+		last[sat.norad_id] = sat.sampled_unix
+	for f in 1800:
+		var t := t0 + (f + 1) / 30.0
+		sky.update(tucson, t)
+		for sat in sky.resampled:
+			longest_gap = maxf(longest_gap, sat.sampled_unix - last[sat.norad_id])
+			last[sat.norad_id] = sat.sampled_unix
+		if f % 90 != 89:
+			continue  # full comparison every 3 s is plenty
+		for sat in list:
+			var drawn := sky.look_angles(sat, t)
+			var p := sat.ecef_position_at(t)
+			var truth := GeoMath.look_angles_in_frame(frame, p[0], p[1], p[2])
+			var err := rad_to_deg(GeoMath.sky_direction(drawn.azimuth_deg, drawn.elevation_deg).angle_to(
+					GeoMath.sky_direction(truth.azimuth_deg, truth.elevation_deg)))
+			if err > worst_deg:
+				worst_deg = err
+				worst_what = "%s at el %.0f°, range %.0f km" % [sat.name, truth.elevation_deg, truth.range_m / 1000.0]
+	check(worst_deg < 0.05, "drawn positions within 0.05° of SGP4 everywhere (worst %.4f°, %s)" % [worst_deg, worst_what])
+	# The wheel rounds up to the next slot and processes a slot once it has passed.
+	check(longest_gap <= SatelliteSky.MAX_REFRESH_S + 2.0 * SatelliteSky.SLOT_S + 0.1,
+			"no satellite waits longer than its refresh (%.1f s)" % longest_gap)
+	check(sky.backlog() == 0, "no backlog at steady state")
+
+	# The direction index finds everything a brute-force scan does.
+	var t_end := t0 + 60.0
+	for gaze: Array in [[0.0, 45.0], [200.0, 2.0], [90.0, -30.0], [10.0, 88.0], [300.0, -89.0]]:
+		var got := {}
+		for sat in sky.near_direction(gaze[0], gaze[1], 10.0):
+			got[sat.norad_id] = true
+		var dir := GeoMath.sky_direction(gaze[0], gaze[1])
+		var missed := 0
+		for sat in list:
+			var d := GeoMath.sky_direction(sat.sampled_azimuth_deg, sat.sampled_elevation_deg)
+			if rad_to_deg(dir.angle_to(d)) <= 10.0 and not got.has(sat.norad_id):
+				missed += 1
+		check(missed == 0, "direction index misses nothing near az %s el %s (%d missed)" % [gaze[0], gaze[1], missed])
+
+	# Moving the observer 1 km resamples everything, spread over frames by the budget.
+	sky.budget_usec = 200
+	var moved := GeoPoint.new(32.2316, -110.9747, 730.0)
+	sky.update(moved, t_end + 0.01)
+	check(sky.backlog() > 0 and sky.resampled.size() < list.size(), "observer move: resampling spread over frames")
+	var frames := 0
+	while sky.backlog() > 0 and frames < 1000:
+		frames += 1
+		sky.update(moved, t_end + 0.01 + frames / 60.0)
+	check(sky.backlog() == 0, "observer move: backlog drains (%d frames)" % frames)
 
 	# Between samples, straight-line extrapolation must stay on the true orbit.
-	var iss: Satellite = list.filter(func(s: Satellite) -> bool: return s.norad_id == 25544)[0]
-	var extrapolated := iss.ecef_at(t0 + 0.9)
-	var truth := Satellite.from_omm(fixture["omm"][0])
-	var jd := Sgp4.unix_to_jd(t0 + 0.9)
-	truth.sample(t0 + 0.9, Sgp4.gstime(jd), Solar.sun_direction_teme(jd))
-	var err_m := Vector3(extrapolated[0] - truth.ecef[0], extrapolated[1] - truth.ecef[1],
-			extrapolated[2] - truth.ecef[2]).length()
-	check(err_m < 10.0, "0.9 s extrapolation within 10 m of SGP4 (%.1f m)" % err_m)
+	var iss := Satellite.from_omm(fixture["omm"][0])
+	var one: Array[Satellite] = [iss]
+	sky.set_catalogue(one, tucson, t0)
+	var extrapolated := iss.ecef_at(t0 + 2.0)
+	var truth := iss.ecef_position_at(t0 + 2.0)
+	var err_m := Vector3(extrapolated[0] - truth[0], extrapolated[1] - truth[1],
+			extrapolated[2] - truth[2]).length()
+	check(err_m < 25.0, "2 s extrapolation within 25 m of SGP4 (%.1f m)" % err_m)
 
-	# The round-robin reaches the whole catalogue within one scan period.
-	var before := {}
-	for sat in list:
-		before[sat.norad_id] = sat.sampled_unix
-	for i in 60:
-		sky.update(tucson, t0 + sky.scan_period_s * (i + 1) / 60.0)
-	var stale := list.filter(func(s: Satellite) -> bool: return s.sampled_unix == before[s.norad_id])
-	check(stale.is_empty(), "every satellite resampled within a scan period (%d stale)" % stale.size())
+
+# --- Aircraft icons -----------------------------------------------------------------
+
+func _icon(type: String, category: String, callsign := "") -> AircraftIcons.Icon:
+	var ac := Aircraft.new()
+	ac.type_code = type
+	ac.emitter_category = category
+	ac.callsign = callsign
+	ac.classification = AircraftClassifier.classify(ac)
+	return AircraftIcons.icon_for(ac)
+
+
+func test_aircraft_icon_choice() -> void:
+	var I = AircraftIcons.Icon
+	for t in ["A21N", "A320", "B38M", "B738", "E75L"]:
+		check(_icon(t, "A3") == I.AIRLINER, "%s is an airliner" % t)
+	for t in ["B77W", "B789", "A359", "B744", "A388"]:
+		check(_icon(t, "A5") == I.HEAVY, "%s is a heavy" % t)
+	check(_icon("B77W", "") == I.HEAVY, "heavy by type alone, no category")
+	check(_icon("C17", "A5", "RCH401") == I.HEAVY, "C-17: military, drawn as a heavy")
+	check(_icon("GLF5", "A2") == I.BIZJET, "Gulfstream is a business jet")
+	check(_icon("C680", "A2") == I.BIZJET, "Citation is a business jet")
+	check(_icon("C172", "A1") == I.LIGHT, "C172 is a light single")
+	check(_icon("C208", "A1") == I.LIGHT, "Caravan (single turboprop) is a light single")
+	check(_icon("BE58", "A1") == I.TWIN_PROP, "Baron is a twin prop")
+	check(_icon("DH8D", "A2") == I.TWIN_PROP, "Q400 is a twin prop")
+	check(_icon("C130", "A5", "RCH123") == I.TWIN_PROP or _icon("C130", "A5", "RCH123") == I.HEAVY,
+			"C-130 is a transport, not a fighter")
+	check(_icon("R44", "A7") == I.HELICOPTER, "R44 is a helicopter")
+	check(_icon("", "A7") == I.HELICOPTER, "rotorcraft category alone is a helicopter")
+	check(_icon("F16", "A6", "VIPER01") == I.FIGHTER, "F-16 is a fighter")
+	check(_icon("A10", "", "HAWG01") == I.FIGHTER, "A-10 (Davis-Monthan) is a fighter")
+	check(_icon("", "B1") == I.GLIDER, "glider by category")
+	check(_icon("", "B2") == I.BALLOON, "balloon by category")
+	check(not AircraftIcons.is_directional(I.BALLOON), "a balloon has no nose to point")
+	check(_icon("", "A3") == I.AIRLINER, "no type, large category: airliner")
+	check(_icon("", "A1") == I.LIGHT, "no type, light category: light single")
+	check(_icon("ZZZZ", "") == I.GENERIC, "unknown stays generic")
+	check(AircraftIcons.scale_of(I.HEAVY) > AircraftIcons.scale_of(I.AIRLINER), "heavies drawn bigger")
+	for icon in I.values():
+		var verts: PackedVector3Array = AircraftIcons.mesh(icon).surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+		check(verts.size() >= 8 and Array(verts).all(func(v: Vector3) -> bool:
+				return absf(v.x) <= 0.5 + 1e-6 and absf(v.y) <= 0.5 + 1e-6 and v.z == 0.0),
+				"%s icon: lines inside the unit square" % I.keys()[icon])
+
+
+func test_aircraft_icon_points_along_travel() -> void:
+	var app: AppBootstrap = load("res://main.tscn").instantiate()
+	app.start_feed = false
+	app.start_satellites = false
+	app.show_debug_hud = false
+	app.latitude_deg = 32.2226
+	app.longitude_deg = -110.9747
+	app.altitude_m = 730.0
+	root.add_child(app)
+	await process_frame
+	var mock: MockHeadTracker = app.rig.tracker
+	mock._yaw = 0.0
+	mock._pitch = 20.0
+
+	# An airliner due north, well up; the head looks at it.
+	var cases := [
+		[90.0, 0.0, "eastbound: crosses left to right, nose right"],
+		[270.0, PI, "westbound: nose left"],
+		[0.0, -PI / 2.0, "flying away (north): sinks toward the horizon, nose down"],
+		[180.0, PI / 2.0, "flying toward us: climbs up the sky, nose up"],
+	]
+	for c: Array in cases:
+		var ac := Aircraft.new()
+		ac.icao24 = "dir01"
+		ac.callsign = "DIR1"
+		ac.type_code = "A320"
+		ac.emitter_category = "A3"
+		ac.latitude_deg = 32.33
+		ac.longitude_deg = -110.9747
+		ac.altitude_ft = 20000.0
+		ac.ground_speed_kt = 250.0
+		ac.track_deg = c[0]
+		ac.received_at = Time.get_ticks_msec() / 1000.0
+		ac.classification = AircraftClassifier.classify(ac)
+		app.adsb.aircraft.clear()
+		app.adsb.aircraft[ac.icao24] = ac
+		await process_frame
+		await process_frame
+		var marker: SkyMarker = app.active_markers.get("dir01")
+		check(marker != null, "marker for the test aircraft")
+		if marker == null:
+			continue
+		# Nose direction on the view: the outline's +Y, through its rotation.
+		var nose_angle: float = marker._outline.rotation.z + PI / 2.0
+		near(angle_difference(nose_angle, c[1]), 0.0, deg_to_rad(8.0), c[2])
+		check(marker._outline.mesh == AircraftIcons.mesh(AircraftIcons.Icon.AIRLINER), "drawn as an airliner")
+
+	# A heavy is drawn bigger than an airliner.
+	var heavy := app.adsb.aircraft["dir01"] as Aircraft
+	var small_scale: float = app.active_markers["dir01"]._outline.scale.x
+	var big := Aircraft.new()
+	big.icao24 = "big01"
+	big.type_code = "B77W"
+	big.emitter_category = "A5"
+	big.latitude_deg = heavy.latitude_deg
+	big.longitude_deg = heavy.longitude_deg + 0.05
+	big.altitude_ft = 30000.0
+	big.received_at = heavy.received_at
+	big.classification = AircraftClassifier.classify(big)
+	app.adsb.aircraft[big.icao24] = big
+	await process_frame
+	var big_marker: SkyMarker = app.active_markers.get("big01")
+	check(big_marker != null and big_marker._outline.scale.x > small_scale * 1.2, "heavy drawn 1.25x")
+
+	# Aircraft labels are claimed space: gaze labels for satellites must not cover them.
+	var marker: SkyMarker = app.active_markers["dir01"]
+	var v: Vector3 = app.rig.camera.global_basis.inverse() * marker.position
+	var own := app.label_rect_deg(v, marker._label.text)
+	check(app.occupied_view_rects().any(func(r: Rect2) -> bool: return r.is_equal_approx(own)),
+			"an aircraft's label is space gaze labels avoid")
+
+	app.queue_free()
+	await process_frame
 
 
 # --- Whole app ----------------------------------------------------------------------
@@ -517,10 +772,7 @@ func test_app_places_marker_on_satellite() -> void:
 				"marker sits where Skyfield says (%.4f° off)" % rad_to_deg(marker.global_position.angle_to(want)))
 
 	check(not app.active_satellite_markers.has(99001), "docked vehicle folded into the station")
-	var iss_up: bool = app.satellite_sky.near.has(25544) and \
-			app.satellite_sky.look_angles(app.satellite_sky.near[25544], app.unix_now()).elevation_deg > 0.0
-	if iss_up:
-		check(app.active_satellite_markers.has(25544), "the station itself keeps its marker")
+	check(app.active_satellite_markers.has(25544), "the station itself keeps its marker")
 
 	# Filtering by kind removes the marker and returns it to the satellite pool.
 	var kind: int = list.filter(func(x: Satellite) -> bool: return x.norad_id == norad)[0].category
@@ -528,6 +780,202 @@ func test_app_places_marker_on_satellite() -> void:
 	await process_frame
 	check(not app.active_satellite_markers.has(norad), "filtered-out kind loses its marker")
 	check(marker != null and not marker.visible, "released satellite marker hidden")
+
+	app.queue_free()
+	await process_frame
+
+
+func test_app_draws_whole_sky() -> void:
+	# Every satellite is drawn wherever it is — below the horizon and on the far side of
+	# the Earth included (Kendel, 2026-09-24). Untracked ones are SatelliteField
+	# instances; tracked ones are full markers.
+	var fixture: Dictionary = JSON.parse_string(
+			FileAccess.get_file_as_string("res://tests/satellite_fixture.json"))
+	var app: AppBootstrap = load("res://main.tscn").instantiate()
+	app.start_feed = false
+	app.start_satellites = false
+	app.show_debug_hud = false
+	app.latitude_deg = 32.2226
+	app.longitude_deg = -110.9747
+	app.altitude_m = 730.0
+	var t0: float = fixture["cases"][0]["unix"]
+	app.fixed_unix_time = t0
+	root.add_child(app)
+	await process_frame
+
+	var list := _spread_catalogue(fixture)
+	var named := _fixture_satellites(fixture)
+	list.append_array(named.values())
+	app.satellite_sky.set_catalogue(list, app.observer, t0)
+	app.fixed_unix_time = t0 + 7.3  # mid-way between samples: the GPU is extrapolating
+	await process_frame
+	var now := app.unix_now()
+
+	var field := app.satellite_field
+	check(field.instance_total() == list.size(), "one instance per satellite (%d)" % field.instance_total())
+	check(list.all(func(sat: Satellite) -> bool: return field.layer_mesh(sat) == SatelliteIcons.mesh(sat.icon)),
+			"each satellite drawn in its own icon's layer")
+	var worst := 0.0
+	var below := 0
+	var far_side := 0
+	var drawn := 0
+	for sat in list:
+		var c := field.instance_color(sat)
+		var tracked := app._by_id.has(sat.norad_id)
+		check(c.a == (0.0 if tracked else 1.0), "%s: drawn by %s" % [sat.name, "its marker" if tracked else "the field"])
+		if tracked:
+			continue
+		drawn += 1
+		var look := app.satellite_sky.look_angles(sat, now)
+		var want := GeoMath.sky_direction(look.azimuth_deg, look.elevation_deg)
+		worst = maxf(worst, rad_to_deg(field.direction_now(sat, now).angle_to(want)))
+		below += 1 if look.elevation_deg < 0.0 else 0
+		far_side += 1 if look.elevation_deg < -45.0 else 0
+	check(worst < 0.01, "field draws each satellite at its look angles (worst %.5f°)" % worst)
+
+	# Diamonds shrink with range: the far side is a fine, distant layer.
+	var near_size := 0.0
+	var far_size := INF
+	for sat in list:
+		if app._by_id.has(sat.norad_id):
+			continue
+		var look := app.satellite_sky.look_angles(sat, now)
+		var size := field.size_now(sat, now)
+		near(size, SatelliteField.size_scale(look.range_m), 0.01, "%s: drawn size follows its range" % sat.name)
+		if look.range_m < 2.0e6:
+			near_size = maxf(near_size, size)
+		if look.range_m > 8.0e6:
+			far_size = minf(far_size, size)
+	check(near_size > 2.0 * far_size, "nearby diamonds well larger than far-side ones (%.2f vs %.2f)" % [near_size, far_size])
+	near(SatelliteField.size_scale(1.0e6), 1.0, 1e-9, "1x at 1000 km")
+	near(SatelliteField.size_scale(13.0e6), SatelliteField.MIN_SCALE, 1e-9, "far side clamps to the minimum")
+	near(SatelliteField.size_scale(200.0e3), SatelliteField.MAX_SCALE, 1e-9, "very close clamps to the maximum")
+
+	# The dashed horizon ring: on by default, at 0°, and switchable.
+	var ring: MeshInstance3D = app.rig.find_child("HorizonRing", true, false)
+	check(ring != null and ring.visible, "horizon ring shown by default")
+	if ring != null:
+		var verts: PackedVector3Array = ring.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+		check(verts.size() == 180, "dashed: 90 dashes (%d vertices)" % verts.size())
+		check(Array(verts).all(func(v: Vector3) -> bool: return absf(v.y) < 1e-3), "ring lies on the true horizon")
+		app.rig.set_horizon_ring_visible(false)
+		check(not ring.visible, "horizon ring can be hidden")
+		app.rig.set_horizon_ring_visible(true)
+	check(below > drawn / 2, "most drawn satellites are below the horizon (%d of %d)" % [below, drawn])
+	check(far_side > 20, "including far below it, through the Earth (%d below -45°)" % far_side)
+
+	# A tracked satellite below the horizon keeps its full marker, unfaded.
+	var css: Satellite = named[48274]
+	var css_look := app.satellite_sky.look_angles(css, now)
+	var marker: SkyMarker = app.active_satellite_markers.get(48274)
+	check(css_look.elevation_deg < 0.0, "CSS is below the horizon now (%.1f°)" % css_look.elevation_deg)
+	check(marker != null and marker.visible and marker._alpha == 1.0, "CSS marker drawn below the horizon, unfaded")
+	if marker != null:
+		near(rad_to_deg(asin(marker.position.normalized().y)), css_look.elevation_deg, 0.01, "CSS marker at its (negative) elevation")
+
+	# Filtering a kind clears its diamonds.
+	app.satellite_types = Satellite.ALL_CATEGORIES & ~Satellite.LEO
+	await process_frame
+	var hst: Satellite = named[20580]
+	check(field.instance_color(hst).a == 0.0, "LEO filtered out: Hubble's diamond cleared")
+	app.satellite_types = Satellite.ALL_CATEGORIES
+	await process_frame
+	check(field.instance_color(hst).a == 1.0, "LEO back: Hubble drawn again")
+
+	# Gaze labels: look at Hubble and it is labelled, without a second diamond. Tracking
+	# is off for this: at this moment the ISS happens to pass 2.2° from Hubble, and its
+	# label would (rightly) take the spot — test_gaze_labels_do_not_overlap covers that.
+	app.tracked_types = 0
+	var hst_look := app.satellite_sky.look_angles(hst, app.unix_now())
+	var mock: MockHeadTracker = app.rig.tracker
+	mock._yaw = hst_look.azimuth_deg
+	mock._pitch = hst_look.elevation_deg
+	await process_frame
+	await process_frame
+	var label: SkyMarker = app.active_label_markers.get(20580)
+	check(label != null, "looking at Hubble labels it (%.1f°, labelled %s)" % [hst_look.elevation_deg, app.active_label_markers.keys()])
+	if label != null:
+		check(label._label.text.begins_with("HST"), "Hubble's label (%s)" % label._label.text)
+		check(not label._outline.visible, "label only: the field already draws the diamond")
+	check(app.active_label_markers.size() <= app.gaze_labels, "at most gaze_labels labels")
+
+	# Labels never overlap: pack many satellites into the gaze and check the placed
+	# rectangles, in degrees of view, pairwise.
+	for label_marker: SkyMarker in app.active_label_markers.values():
+		var dir := label_marker.position.normalized()
+		check(rad_to_deg((-app.rig.camera.global_basis.z).angle_to(dir)) <= app.gaze_label_deg + 0.5,
+				"labelled satellites are near the gaze")
+
+	# Look away: those labels go.
+	mock._yaw = fposmod(hst_look.azimuth_deg + 90.0, 360.0)
+	await process_frame
+	await process_frame
+	check(not app.active_label_markers.has(20580), "looking away drops Hubble's label")
+
+	app.queue_free()
+	await process_frame
+
+
+func test_gaze_labels_do_not_overlap() -> void:
+	# Labels are placed nearest the gaze first, and one that would overlap a label already
+	# placed is skipped — so a dense band like Starlink along the horizon stays readable.
+	var fixture: Dictionary = JSON.parse_string(
+			FileAccess.get_file_as_string("res://tests/satellite_fixture.json"))
+	var app: AppBootstrap = load("res://main.tscn").instantiate()
+	app.start_feed = false
+	app.start_satellites = false
+	app.show_debug_hud = false
+	app.latitude_deg = 32.2226
+	app.longitude_deg = -110.9747
+	app.altitude_m = 730.0
+	var t0: float = fixture["cases"][0]["unix"]
+	app.fixed_unix_time = t0
+	root.add_child(app)
+	await process_frame
+
+	# Three spread catalogues, a sixth of an orbit apart: ~860 satellites all round.
+	var list: Array[Satellite] = []
+	for shift in 3:
+		for sat in _spread_catalogue(fixture, shift * 60.0):
+			list.append(sat)
+	for i in list.size():
+		list[i].norad_id = 700000 + i  # unique ids; the copies share names, not identity
+	app.satellite_sky.set_catalogue(list, app.observer, t0)
+
+	var mock: MockHeadTracker = app.rig.tracker
+	var most := 0
+	var skipped_somewhere := false
+	for view: Array in [[0.0, 3.0], [90.0, 3.0], [180.0, 3.0], [270.0, 3.0], [45.0, -40.0], [200.0, 30.0]]:
+		mock._yaw = view[0]
+		mock._pitch = view[1]
+		await process_frame
+		await process_frame
+		var forward := -app.rig.camera.global_basis.z
+		var in_cone := 0
+		for sat in list:
+			var look := app.satellite_sky.look_angles(sat, app.unix_now())
+			if rad_to_deg(forward.angle_to(GeoMath.sky_direction(look.azimuth_deg, look.elevation_deg))) <= app.gaze_label_deg:
+				in_cone += 1
+		var rects := app.gaze_rects
+		var overlaps := 0
+		for i in rects.size():
+			for j in range(i + 1, rects.size()):
+				if rects[i].intersects(rects[j]):
+					overlaps += 1
+		check(overlaps == 0, "view az %s el %s: no two labels overlap (%d pairs)" % [view[0], view[1], overlaps])
+		var clashes := 0
+		for r in rects:
+			for other in app.occupied_view_rects():
+				if r.intersects(other):
+					clashes += 1
+		check(clashes == 0, "view az %s el %s: no label covers a pointer or marker label (%d)" % [view[0], view[1], clashes])
+		check(rects.size() == app.active_label_markers.size(), "a rect per label")
+		check(rects.size() <= app.gaze_labels, "view az %s el %s: at most gaze_labels" % view)
+		check(in_cone == 0 or rects.size() >= 1, "view az %s el %s: something in view is labelled" % view)
+		most = maxi(most, rects.size())
+		skipped_somewhere = skipped_somewhere or rects.size() < mini(in_cone, app.gaze_labels)
+	check(most >= 2, "some view carries several labels (%d)" % most)
+	check(skipped_somewhere, "and overlapping labels were skipped somewhere")
 
 	app.queue_free()
 	await process_frame
@@ -574,6 +1022,196 @@ func test_app_draws_eclipsed_satellite() -> void:
 	await process_frame
 
 
+func test_pass_prediction_matches_skyfield() -> void:
+	# Every pass Skyfield's find_events reports over a day, for four LEO satellites from
+	# three observers, walked in order: each prediction starts just after the last set.
+	# Measured agreement: rise/set 0.19 s, azimuth 0.02°, peak elevation 0.004°.
+	var fixture: Dictionary = JSON.parse_string(
+			FileAccess.get_file_as_string("res://tests/satellite_fixture.json"))
+	var sats := _fixture_satellites(fixture)
+	var groups := {}
+	for p: Dictionary in fixture["passes"]:
+		var key := "%s from %s" % [sats[int(p["norad"])].name, p["observerName"]]
+		if not groups.has(key):
+			groups[key] = []
+		groups[key].append(p)
+	check(fixture["passes"].size() >= 50, "fixture passes loaded (%d)" % fixture["passes"].size())
+
+	for key: String in groups:
+		var expected: Array = groups[key]
+		var sat: Satellite = sats[int(expected[0]["norad"])]
+		var o: Array = expected[0]["observer"]
+		var observer := GeoPoint.new(o[0], o[1], o[2])
+		var from: float = expected[0]["fromUnix"]
+		for i in expected.size():
+			var want: Dictionary = expected[i]
+			var what := "%s pass %d" % [key, i + 1]
+			var got := PassPredictor.next_pass(sat, observer, from)
+			check(got != null, what + " found")
+			if got == null:
+				break
+			near(got.rise_unix, want["rise"][0], 1.0, what + " rise time")
+			near(GeoMath.bearing_delta(got.rise_azimuth_deg, want["rise"][1]), 0.0, 0.1, what + " rise azimuth")
+			near(got.max_unix, want["max"][0], 1.0, what + " peak time")
+			near(got.max_elevation_deg, want["max"][2], 0.05, what + " peak elevation")
+			# Near the peak of a high pass azimuth swings fast, so compare distance on the
+			# sky: azimuth difference scaled by cos(elevation).
+			near(GeoMath.bearing_delta(got.max_azimuth_deg, want["max"][1]) * cos(deg_to_rad(got.max_elevation_deg)),
+					0.0, 0.1, what + " peak azimuth")
+			near(got.set_unix, want["set"][0], 1.0, what + " set time")
+			near(GeoMath.bearing_delta(got.set_azimuth_deg, want["set"][1]), 0.0, 0.1, what + " set azimuth")
+			from = got.set_unix + 1.0
+		# After the last pass Skyfield found in its day, none until the day is out.
+		var start: float = expected[0]["fromUnix"]
+		var tail := PassPredictor.next_pass(sat, observer, from, start + 86400.0 - from)
+		check(tail == null, "%s: no pass after the last one in the day" % key)
+
+	# Hubble (28.5°) and the Chinese station (41.5°) never reach Tromso's sky at 69.7° N.
+	var tromso := GeoPoint.new(69.65, 18.96, 20.0)
+	var t0: float = fixture["passes"][0]["fromUnix"]
+	check(PassPredictor.next_pass(sats[20580], tromso, t0) == null, "no Hubble pass over Tromso")
+	check(PassPredictor.next_pass(sats[48274], tromso, t0) == null, "no CSS pass over Tromso")
+
+	# Starting mid-pass: already up, so no rise, and the same set.
+	var first: Dictionary = groups.values()[0][0]
+	var o: Array = first["observer"]
+	var mid := PassPredictor.next_pass(sats[int(first["norad"])], GeoPoint.new(o[0], o[1], o[2]),
+			float(first["max"][0]))
+	check(mid != null and is_nan(mid.rise_unix), "mid-pass start: pass in progress, rise unknown")
+	if mid != null:
+		near(mid.set_unix, first["set"][0], 1.0, "mid-pass start: set time")
+		check(mid.in_progress_at(float(first["max"][0])), "mid-pass start: in progress now")
+
+	check(PassPredictor.countdown(252.4) == "in 4:12", "countdown m:ss (%s)" % PassPredictor.countdown(252.4))
+	check(PassPredictor.countdown(37 * 60 + 10) == "in 37m", "countdown minutes")
+	check(PassPredictor.countdown(3 * 3600 + 5 * 60) == "in 3h05m", "countdown hours")
+	check(PassPredictor.compass_point(247.5) == "WSW", "compass WSW")
+	check(PassPredictor.compass_point(359.0) == "N" and PassPredictor.compass_point(11.0) == "N", "compass N wraps")
+	check(PassPredictor.compass_point(11.3) == "NNE", "compass NNE")
+
+
+func test_pass_predictor_scheduling() -> void:
+	var fixture: Dictionary = JSON.parse_string(
+			FileAccess.get_file_as_string("res://tests/satellite_fixture.json"))
+	var sats := _fixture_satellites(fixture)
+	var iss: Satellite = sats[25544]
+	var hst: Satellite = sats[20580]
+	var tucson := GeoPoint.new(32.2226, -110.9747, 730.0)
+	var t0: float = fixture["passes"][0]["fromUnix"]
+	var tracked: Array[Satellite] = [iss, hst]
+
+	# Sliced over frames, it reaches the same answer as the one-shot search.
+	var predictor := PassPredictor.new()
+	var frames := 0
+	predictor.update(tracked, tucson, t0)
+	while not predictor.is_idle() and frames < 1000:
+		predictor.update(tracked, tucson, t0)
+		frames += 1
+	check(predictor.is_idle(), "predictions finish (%d frames at %d µs)" % [frames, predictor.budget_usec])
+	check(frames > 5, "work is spread over frames, not done at once (%d)" % frames)
+	var one_shot := PassPredictor.next_pass(iss, tucson, t0)
+	var sliced: PassPredictor.SatellitePass = predictor.passes.get(25544)
+	check(sliced != null and absf(sliced.rise_unix - one_shot.rise_unix) < 1e-6, "sliced = one-shot")
+
+	# Idle means no work: nothing re-searched while predictions are current.
+	predictor.update(tracked, tucson, t0 + 60.0)
+	check(predictor.is_idle(), "current predictions are not re-searched")
+
+	# Once the pass has set, the next one is found.
+	var after := sliced.set_unix + 1.0
+	predictor.update(tracked, tucson, after)
+	while not predictor.is_idle():
+		predictor.update(tracked, tucson, after)
+	var next: PassPredictor.SatellitePass = predictor.passes[25544]
+	check(next.rise_unix > sliced.set_unix, "after the pass sets, the next pass is predicted")
+
+	# New elements (a new Satellite object) and a moved observer both force a re-search.
+	# (Checked by what was searched, not by is_idle(): a short search can finish within
+	# the same frame.)
+	var fresh := Satellite.from_omm(fixture["omm"][0])
+	predictor.update([fresh, hst] as Array[Satellite], tucson, after)
+	check(predictor._searched[25544][0] == fresh, "new elements trigger a re-search")
+	while not predictor.is_idle():
+		predictor.update([fresh, hst] as Array[Satellite], tucson, after)
+	var moved := GeoPoint.new(32.3, -110.9747, 730.0)
+	predictor.update([fresh, hst] as Array[Satellite], moved, after)
+	check(predictor._searched[25544][2] == GeoMath.geodetic_to_ecef(moved), "observer moving 8 km triggers a re-search")
+	while not predictor.is_idle():
+		predictor.update([fresh, hst] as Array[Satellite], moved, after)
+	var searched_at: float = predictor._searched[25544][1]
+	predictor.update([fresh, hst] as Array[Satellite], GeoPoint.new(32.301, -110.9747, 730.0), after + 5.0)
+	check(predictor._searched[25544][1] == searched_at, "moving 100 m does not")
+
+	# Untracked satellites are forgotten.
+	predictor.update([fresh] as Array[Satellite], tucson, after)
+	check(not predictor.passes.has(20580), "untracked satellite's pass dropped")
+
+
+func test_app_shows_rise_marker() -> void:
+	var fixture: Dictionary = JSON.parse_string(
+			FileAccess.get_file_as_string("res://tests/satellite_fixture.json"))
+	var iss_pass: Dictionary = {}
+	for p: Dictionary in fixture["passes"]:
+		if int(p["norad"]) == 25544 and p["observerName"] == "Tucson":
+			iss_pass = p
+			break
+	var rise_unix: float = iss_pass["rise"][0]
+
+	var app: AppBootstrap = load("res://main.tscn").instantiate()
+	app.start_feed = false
+	app.start_satellites = false
+	app.show_debug_hud = false
+	app.latitude_deg = 32.2226
+	app.longitude_deg = -110.9747
+	app.altitude_m = 730.0
+	app.fixed_unix_time = rise_unix - 300.0  # five minutes before the ISS rises
+	root.add_child(app)
+	await process_frame
+	app.pass_predictor.budget_usec = 10_000_000
+
+	var list: Array[Satellite] = []
+	list.assign(_fixture_satellites(fixture).values())
+	# A docked vehicle shares the station's pass; it must not get a second rise marker.
+	list.append(Satellite.from_omm(fixture["omm"][0].merged({"NORAD_CAT_ID": 99001,
+			"OBJECT_NAME": "SOYUZ-MS 99"}, true)))
+	app.satellite_sky.set_catalogue(list, app.observer, app.unix_now())
+	var mock: MockHeadTracker = app.rig.tracker
+	mock._yaw = fposmod(float(iss_pass["rise"][1]) + 180.0, 360.0)  # facing away
+	mock._pitch = 0.0
+	await process_frame
+	await process_frame
+
+	check(app.active_rise_markers.keys() == [25544], "one rise marker, the station's (got %s)" % [app.active_rise_markers.keys()])
+	var rise_marker: SkyMarker = app.active_rise_markers.get(25544)
+	if rise_marker != null:
+		check(rise_marker.kind == SkyMarker.Kind.RISE, "rise marker is a chevron")
+		var want := app.rig.position_for(iss_pass["rise"][1], SkyMarker.HORIZON_FADE_DEG)
+		check(rad_to_deg(rise_marker.global_position.angle_to(want)) < 0.1, "rise marker at the rise azimuth")
+		var text: String = rise_marker._label.text
+		check(text.begins_with("ISS (ZARYA) rises in 5:00") and text.ends_with("max %d°" % roundi(iss_pass["max"][2])),
+				"rise label (%s)" % text.replace("\n", " / "))
+		check(rise_marker.visible, "rise marker visible")
+
+	var pointer_texts := []
+	for i in app.pointers.active_count():
+		pointer_texts.append((app.pointers.pointer(i).get_child(1) as Label3D).text)
+	check(pointer_texts.any(func(t: String) -> bool: return t.begins_with("ISS (ZARYA) rises in 5:00")),
+			"pointer leads to the rise point (%s)" % [pointer_texts])
+	check(app._passes_status().begins_with("ISS (ZARYA) in 5:00 from %s" %
+			PassPredictor.compass_point(iss_pass["rise"][1])), "HUD lists the pass (%s)" % app._passes_status())
+
+	# Half a minute after the rise, the satellite's own marker takes over.
+	app.fixed_unix_time = rise_unix + 30.0
+	app.satellite_sky.set_catalogue(list, app.observer, app.unix_now())
+	await process_frame
+	await process_frame
+	check(not app.active_rise_markers.has(25544), "rise marker gone once risen")
+	check(app.active_satellite_markers.has(25544), "satellite marker there instead")
+
+	app.queue_free()
+	await process_frame
+
+
 func test_offscreen_pointer_placement() -> void:
 	var P = OffscreenPointers
 	var th := tan(deg_to_rad(40.0) / 2.0)  # 40° x 23.5° view
@@ -612,6 +1250,57 @@ func test_offscreen_pointer_placement() -> void:
 			near(pos.angle(), Vector2(d.x, d.y).angle(), 1e-6, "%s: pointer aims at the target" % d)
 
 
+func _pointer_texts(app: AppBootstrap) -> Array:
+	var texts := []
+	for i in app.pointers.active_count():
+		texts.append((app.pointers.pointer(i).get_child(1) as Label3D).text)
+	return texts
+
+
+func _pointer_labelled(app: AppBootstrap, prefix: String) -> Node3D:
+	for i in app.pointers.active_count():
+		if (app.pointers.pointer(i).get_child(1) as Label3D).text.begins_with(prefix):
+			return app.pointers.pointer(i)
+	return null
+
+
+func test_pointer_labels_do_not_overlap() -> void:
+	# Three targets almost on top of each other, off the bottom of the view, like the ISS,
+	# the CSS and a rise point all below the horizon: all three pointers show, none of
+	# their labels overlap, and each still aims the way to turn.
+	# The glasses' per-eye view is 16:9; the headless window is a 64 px square, with no
+	# room along the bottom for three labels.
+	var window_size := root.size
+	root.size = Vector2i(1920, 1080)
+	var rig := SkyRig.new()
+	rig.stereo = SkyRig.Stereo.MONO
+	root.add_child(rig)
+	await process_frame
+	var pointers := OffscreenPointers.new()
+	pointers.initialize(rig.camera)
+	var targets: Array[OffscreenPointers.Target] = []
+	for i in 3:
+		var dir := GeoMath.sky_direction(1.0 + i * 0.5, -40.0 - i * 0.3)
+		targets.append(OffscreenPointers.Target.new(dir, ["ISS (ZARYA)", "CSS (TIANHE)", "CSS (TIANHE) rises in 16m"][i], Color.WHITE))
+	pointers.update_targets(targets)
+	check(pointers.active_count() == 3, "all three pointers shown (%d)" % pointers.active_count())
+	var rects := pointers.footprints()
+	var overlaps := 0
+	for i in rects.size():
+		for j in range(i + 1, rects.size()):
+			if rects[i].intersects(rects[j]):
+				overlaps += 1
+	check(overlaps == 0, "no two pointer footprints overlap (%d pairs)" % overlaps)
+	for i in pointers.active_count():
+		var chevron: MeshInstance3D = pointers.pointer(i).get_child(0)
+		check(sin(chevron.rotation.z) < -0.9, "pointer %d still aims down" % i)
+		var bottom := -OffscreenPointers.DISTANCE * tan(deg_to_rad(rig.camera.fov) / 2.0) * OffscreenPointers.EDGE_INSET
+		near(pointers.pointer(i).position.y, bottom, 1e-3, "pointer %d stays on the bottom edge, sliding sideways" % i)
+	root.size = window_size
+	rig.queue_free()
+	await process_frame
+
+
 func test_app_points_at_offscreen_station() -> void:
 	var fixture: Dictionary = JSON.parse_string(
 			FileAccess.get_file_as_string("res://tests/satellite_fixture.json"))
@@ -647,30 +1336,32 @@ func test_app_points_at_offscreen_station() -> void:
 	await process_frame
 	await process_frame
 
-	var texts := []
-	for i in app.pointers.active_count():
-		texts.append((app.pointers.pointer(i).get_child(1) as Label3D).text)
-	check(texts.size() == 1 and texts[0].begins_with("ISS (ZARYA) "),
-			"one pointer, for the ISS only (got %s)" % [texts])
-	if texts.size() == 1:
+	# The manned satellites get pointers (the CSS too, though it is below the horizon
+	# now — it is drawn through the Earth like everything else); Hubble and the rest,
+	# not tracked, get none.
+	var iss_pointer := _pointer_labelled(app, "ISS (ZARYA) ")
+	check(iss_pointer != null, "pointer for the ISS (got %s)" % [_pointer_texts(app)])
+	check(_pointer_texts(app).all(func(t: String) -> bool:
+			return t.begins_with("ISS (ZARYA) ") or t.begins_with("CSS (TIANHE) ")),
+			"pointers only for tracked (manned) satellites (got %s)" % [_pointer_texts(app)])
+	if iss_pointer != null:
 		# Straight behind and up by the pass elevation: 180 - elevation degrees of turn.
+		var text: String = (iss_pointer.get_child(1) as Label3D).text
 		var want := roundi(180.0 - pass_["elevationDeg"])
-		check(absi(texts[0].trim_prefix("ISS (ZARYA) ").trim_suffix("°").to_int() - want) <= 1,
-				"pointer says %s, want ~%d°" % [texts[0], want])
-		var p := app.pointers.pointer(0)
-		check(p.visible and p.position.z < 0.0, "pointer drawn in front of the camera")
-		check(p.position.y > 0.0, "pointer on the upper side: the ISS is above the horizon")
+		check(absi(text.trim_prefix("ISS (ZARYA) ").trim_suffix("°").to_int() - want) <= 1,
+				"pointer says %s, want ~%d°" % [text, want])
+		check(iss_pointer.visible and iss_pointer.position.z < 0.0, "pointer drawn in front of the camera")
+		check(iss_pointer.position.y > 0.0, "pointer on the upper side: the ISS is above the horizon")
 
-	# Turn to face the ISS: the marker is on screen, the pointer goes.
+	# Turn to face the ISS: the marker is on screen, its pointer goes.
 	mock._yaw = pass_["azimuthDeg"]
 	mock._pitch = pass_["elevationDeg"]
 	await process_frame
 	await process_frame
-	check(app.pointers.active_count() == 0, "facing the ISS: no pointer")
-	check(not app.pointers.pointer(0).visible, "pointer hidden once on screen")
+	check(_pointer_labelled(app, "ISS (ZARYA) ") == null, "facing the ISS: no ISS pointer (got %s)" % [_pointer_texts(app)])
 
-	# Kinds outside pointer_types get none: with every kind on, more pointers appear.
-	app.pointer_types = Satellite.ALL_CATEGORIES
+	# Kinds outside tracked_types get none: with every kind on, more pointers appear.
+	app.tracked_types = Satellite.ALL_CATEGORIES
 	mock._yaw = fposmod(pass_["azimuthDeg"] + 180.0, 360.0)
 	mock._pitch = 0.0
 	await process_frame
@@ -707,3 +1398,165 @@ func test_side_by_side_stereo() -> void:
 	rig.queue_free()
 	mono.queue_free()
 	await process_frame
+
+
+# --- Controls ---------------------------------------------------------------------
+
+## Stands in for the VitureGlasses plugin: the control panel's command queue and status.
+class FakePanelPlugin:
+	extends RefCounted
+	var queued: Array[String] = []
+	var status := ""
+
+	func takeCommands() -> PackedStringArray:
+		var out := PackedStringArray(queued)
+		queued.clear()
+		return out
+
+	func setPanelStatus(text: String) -> void:
+		status = text
+
+	func getLocation() -> PackedFloat64Array:
+		return PackedFloat64Array()
+
+
+func _north_x_deg(app: AppBootstrap) -> float:
+	# Where true north on the horizon appears, degrees right of the view centre.
+	var v := app.rig.camera.global_basis.inverse() * GeoMath.sky_direction(0.0, 0.0)
+	return rad_to_deg(atan2(v.x, -v.z))
+
+
+## Turn the (mock) head to look along a world direction: the raw yaw the glasses would
+## report is the true heading minus the calibration offset.
+func _face(app: AppBootstrap, mock: MockHeadTracker, dir: Vector3) -> void:
+	var heading := rad_to_deg(atan2(dir.x, -dir.z))
+	mock._yaw = fposmod(heading - app.calibration.heading_offset_deg, 360.0)
+	mock._pitch = rad_to_deg(asin(clampf(dir.normalized().y, -1.0, 1.0)))
+
+
+## Commands apply after the camera has moved this frame, so their effect shows next frame.
+func _settle() -> void:
+	await process_frame
+	await process_frame
+
+
+func test_controls() -> void:
+	var app: AppBootstrap = load("res://main.tscn").instantiate()
+	app.start_feed = false
+	app.start_satellites = false
+	app.show_debug_hud = false
+	root.add_child(app)
+	await _settle()
+	var fake := FakePanelPlugin.new()
+	app._android = fake
+	var mock: MockHeadTracker = app.rig.tracker
+	mock._yaw = 0.0  # facing north, uncalibrated: offset 0
+	mock._pitch = 0.0
+	await _settle()
+	near(_north_x_deg(app), 0.0, 1e-3, "starts looking at north")
+
+	# Panel buttons: sky:+1 moves the sky (and so the N) right by 1°, like a drag.
+	fake.queued.append("sky:1")
+	await _settle()
+	near(_north_x_deg(app), 1.0, 1e-3, "panel 'sky 1° →' moves the N right 1°")
+	check(app.horizon_control.is_adjusting(), "a nudge brightens the ghosts")
+	fake.queued.append("sky:-1")
+	await _settle()
+	near(_north_x_deg(app), 0.0, 1e-3, "and '← 1°' moves it back")
+
+	# The pad: a drag of 10% of its width is 10% of coarse_deg_per_screen; two fingers
+	# are fine mode. The ghosts stay bright until the finger lifts.
+	var coarse := app.horizon_control.coarse_deg_per_screen
+	var fine := app.horizon_control.fine_deg_per_screen
+	fake.queued.append_array(["drag:0.05000:1", "drag:0.05000:1"])
+	await _settle()
+	near(_north_x_deg(app), 0.1 * coarse, 1e-3, "pad drag right turns the sky right, coarse")
+	check(app.horizon_control.is_adjusting(), "adjusting while the pad is held")
+	fake.queued.append_array(["drag:-0.10000:2", "drag_end"])
+	await _settle()
+	near(_north_x_deg(app), 0.1 * coarse - 0.1 * fine, 1e-3, "two fingers: fine")
+	app.horizon_control._key_highlight_until = -INF
+	check(not app.horizon_control.is_adjusting(), "released pad: not adjusting")
+
+	# "I'm facing north" from the panel: whatever the offset, heading now reads 0.
+	mock._yaw = 73.0
+	fake.queued.append("north")
+	await _settle()
+	near(GeoMath.bearing_delta(app.rig.current_heading_deg(), 0.0), 0.0, 1e-6, "panel north calibrates")
+	app._panel_status_timer = 1.0  # due now: it goes out four times a second
+	await process_frame
+	check(fake.status.begins_with("Heading 0.0°"), "status reaches the panel (%s)" % fake.status.replace("\n", " / "))
+	check(fake.status.contains("Calibrated"), "status says calibrated")
+
+	# Glasses menu: a tap opens it where you look, facing you.
+	fake.queued.append("tap")
+	await _settle()
+	check(app.quick_menu.is_open(), "tap opens the glasses menu")
+	check(app._reticle.visible, "reticle shown with the menu")
+	var menu := app.quick_menu
+	var forward := -app.rig.camera.global_basis.z
+	near(rad_to_deg(forward.angle_to(menu.position.normalized())), 0.0, 1e-3, "menu opens where you look")
+	check(menu.row_at(forward) >= 0 or menu.items[menu.items.size() / 2].command.is_empty(), "looking at the middle hits a row")
+
+	# Aim at "Sky → 1°" by turning the head, tap: the sky moves, the menu stays.
+	var target := -1
+	for i in menu.items.size():
+		if menu.items[i].command == "sky:1":
+			target = i
+	var row_dir := (menu.global_transform * Vector3(0.0, menu._row_y(target), 0.0)).normalized()
+	_face(app, mock, row_dir)
+	await _settle()
+	check(menu.hovered == target, "aiming at a row hovers it (hovered %d, want %d)" % [menu.hovered, target])
+	var before := app.calibration.heading_offset_deg
+	fake.queued.append("tap")
+	await _settle()
+	near(GeoMath.bearing_delta(app.calibration.heading_offset_deg, before), -1.0, 1e-6, "menu 'Sky → 1°' nudges")
+	check(menu.is_open(), "the menu stays open to press again")
+
+	# Rows are told apart: the row above and the title are not the same target.
+	var above := (menu.global_transform * Vector3(0.0, menu._row_y(target - 1), 0.0)).normalized()
+	check(menu.row_at(above) == target - 1 or menu.items[target - 1].command.is_empty(), "the row above is its own row")
+	var title := (menu.global_transform * Vector3(0.0, menu._row_y(0), 0.0)).normalized()
+	check(menu.row_at(title) == -1, "the title is not selectable")
+	var beside := (menu.global_transform * Vector3(menu._width, menu._row_y(target), 0.0)).normalized()
+	check(menu.row_at(beside) == -1, "beside the menu hits nothing")
+	check(menu.row_at(-row_dir) == -1, "looking the other way hits nothing")
+
+	# "Set north…" is two steps: choose it (menu closes, prompt shows), face north, tap.
+	var set_north := -1
+	for i in menu.items.size():
+		if menu.items[i].command == "set_north":
+			set_north = i
+	row_dir = (menu.global_transform * Vector3(0.0, menu._row_y(set_north), 0.0)).normalized()
+	_face(app, mock, row_dir)
+	await _settle()
+	fake.queued.append("tap")
+	await _settle()
+	check(not menu.is_open() and app.capturing_north, "Set north closes the menu and waits")
+	check(app._prompt.visible, "prompt shown: face north, then tap")
+	mock._yaw = 211.0  # the user turns to face north; the glasses happen to say 211
+	mock._pitch = 0.0
+	fake.queued.append("tap")
+	await _settle()
+	check(not app.capturing_north and not app._prompt.visible, "the tap takes it")
+	near(GeoMath.bearing_delta(app.rig.current_heading_deg(), 0.0), 0.0, 1e-6, "north is where they faced at the tap")
+
+	# A tap looking away from an open menu dismisses it; M toggles it.
+	fake.queued.append("tap")
+	await _settle()
+	_face(app, mock, GeoMath.sky_direction(120.0, 0.0))
+	await _settle()
+	fake.queued.append("tap")
+	await _settle()
+	check(not menu.is_open(), "tap looking away closes the menu")
+	var m := InputEventKey.new()
+	m.keycode = KEY_M
+	m.pressed = true
+	app._unhandled_input(m)
+	check(menu.is_open(), "M opens the menu")
+	app._unhandled_input(m)
+	check(not menu.is_open(), "M closes it")
+
+	app._android = null
+	app.queue_free()
+	await _settle()

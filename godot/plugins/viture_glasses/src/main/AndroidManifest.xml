@@ -10,6 +10,17 @@
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
 
     <application>
+        <!-- The phone-screen control panel, shown beside the app while it runs on the
+             glasses. Its own task, so it lives on the phone display independently. -->
+        <activity
+            android:name="org.vraeroscan.viture.ControlPanelActivity"
+            android:exported="false"
+            android:label="VRAeroScan controls"
+            android:taskAffinity="org.vraeroscan.controls"
+            android:excludeFromRecents="true"
+            android:resizeableActivity="true"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
+
         <!-- Godot v2 plugin registration: name → class. -->
         <meta-data
             android:name="org.godotengine.plugin.v2.VitureGlasses"
