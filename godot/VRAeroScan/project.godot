@@ -7,6 +7,10 @@ config_version=5
 
 config/name="VRAeroScan"
 config/description="AR finder for the aircraft and satellites overhead, on Viture Pro XR glasses."
+config/icon="res://icons/full.png"
+boot_splash/bg_color=Color(0.0196, 0.0392, 0.0784, 1)
+boot_splash/image="res://icons/splash.png"
+boot_splash/fullsize=false
 run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
