@@ -42,11 +42,15 @@ func position() -> GeoPoint:
 ## The feed arrives every few seconds; the display runs at frame rate. Without this,
 ## markers teleport. Straight constant-velocity extrapolation — no turn or climb rate —
 ## which is honest for a few seconds and increasingly wrong past that, hence the cap.
-func position_at(now: float, max_extrapolation_s: float = 10.0) -> GeoPoint:
+##
+## The position was already position_age_s old when the feed sent it (adsb.lol's
+## seen_pos: 16% of aircraft near Tucson were over 5 s, up to 58 s, on 2026-10-04). At
+## 450 kt that is 230 m a second, so the age is extrapolated too.
+func position_at(now: float, max_extrapolation_s: float = 30.0) -> GeoPoint:
 	if on_ground or ground_speed_kt <= 0.0:
 		return position()
 
-	var dt := minf(now - received_at, max_extrapolation_s)
+	var dt := minf(now - received_at + position_age_s, max_extrapolation_s)
 	if dt <= 0.0:
 		return position()
 

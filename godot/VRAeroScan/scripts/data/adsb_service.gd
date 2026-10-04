@@ -21,6 +21,9 @@ const ENDPOINT := "https://api.adsb.lol/v2/point/%.5f/%.5f/%d"
 @export_range(1.0, 30.0) var poll_interval_s := 3.0
 ## Drop an aircraft this many seconds after it stops being reported.
 @export var stale_after_s := 30.0
+## How long to stop asking after "429 Too Many Requests" when the reply does not say
+## (Retry-After). Ordinary backoff tops out at 48 s and then hammers again at 3 s.
+@export var rate_limit_pause_s := 30.0
 
 ## icao24 -> Aircraft. Entries are REPLACED on each poll, never mutated, so a changed
 ## reference means new data — AppBootstrap relies on that to skip label rebuilds.
@@ -32,6 +35,12 @@ var _last_seen: Dictionary = {}
 var _observer_provider: Callable
 var _http: HTTPRequest
 var _polling := false
+## Seconds the service asked us to wait before the next poll; 0 when it did not.
+var _pause_s := 0.0
+## Multiplies poll_interval_s. Each 429 doubles it (to 8x); each good poll eases it back,
+## so the rate settles just under whatever adsb.lol will take. On 2026-10-04, polling a
+## 250 nm circle every 3 s was blocked after ~25 s, again and again.
+var interval_scale := 1.0
 
 
 func _ready() -> void:
@@ -59,9 +68,11 @@ func _poll_loop() -> void:
 		_prune_stale()
 
 		# Back off when the service is unhappy, rather than hammering it.
-		var wait := poll_interval_s
+		var wait := poll_interval_s * interval_scale
 		if consecutive_failures > 0:
 			wait *= pow(2.0, mini(consecutive_failures, 4))
+		wait = maxf(wait, _pause_s)
+		_pause_s = 0.0
 		await get_tree().create_timer(wait).timeout
 
 
@@ -71,28 +82,47 @@ func _poll_once() -> void:
 
 	var err := _http.request(url, ["User-Agent: VRAeroScan/0.1"])
 	if err != OK:
-		_fail("adsb.lol request could not start: %s" % error_string(err))
+		_fail("request could not start: %s" % error_string(err))
 		return
 
 	var response: Array = await _http.request_completed
 	var result: int = response[0]
 	var code: int = response[1]
+	var headers: PackedStringArray = response[2]
 	var body: PackedByteArray = response[3]
 
+	if code == 429:
+		interval_scale = minf(interval_scale * 2.0, 8.0)
+		_pause_s = retry_after_s(headers, rate_limit_pause_s)
+		_fail("rate-limited, retry in %ds" % roundi(_pause_s))
+		return
 	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
-		_fail("adsb.lol request failed: result %d, HTTP %d" % [result, code])
+		_fail("request failed (result %d, HTTP %d)" % [result, code])
 		return
 
 	var parsed: Variant = JSON.parse_string(body.get_string_from_utf8())
 	if typeof(parsed) != TYPE_DICTIONARY:
 		# A malformed response should not take the app down; the next poll is seconds away.
-		_fail("adsb.lol response could not be parsed")
+		_fail("response could not be parsed")
 		return
 
 	_merge(parse(parsed, _now()))
+	interval_scale = maxf(interval_scale * 0.97, 1.0)
 	consecutive_failures = 0
 	last_successful_poll = _now()
 	aircraft_updated.emit(aircraft)
+
+
+## The Retry-After header in seconds (the delta-seconds form; an HTTP date is rare and
+## falls back), clamped to [fallback_s, 600].
+static func retry_after_s(headers: PackedStringArray, fallback_s: float) -> float:
+	for h in headers:
+		var colon := h.find(":")
+		if colon > 0 and h.left(colon).strip_edges().to_lower() == "retry-after":
+			var value := h.substr(colon + 1).strip_edges()
+			if value.is_valid_int():
+				return clampf(float(value.to_int()), fallback_s, 600.0)
+	return fallback_s
 
 
 ## Parse a whole response. Ground vehicles and fixed obstructions are dropped here
