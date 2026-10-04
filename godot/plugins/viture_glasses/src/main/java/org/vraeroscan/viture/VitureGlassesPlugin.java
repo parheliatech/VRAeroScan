@@ -238,10 +238,13 @@ public class VitureGlassesPlugin extends GodotPlugin {
             if (activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
                 startLocationUpdates();
+            } else if (activity.getDisplay() != null
+                    && activity.getDisplay().getDisplayId() != Display.DEFAULT_DISPLAY) {
+                // The dialog would appear on the glasses, where nobody can tap it. The
+                // launcher and the control panel ask on the phone's screen instead, and
+                // getLocation() starts updates once it is granted.
+                locationStatus = "no location permission";
             } else {
-                // Note: this dialog appears on whichever display the activity is on. On the
-                // glasses nobody can tap it; grant with `adb shell pm grant` until the phone
-                // UI asks for it instead.
                 locationStatus = "waiting for location permission";
                 activity.requestPermissions(new String[] {
                         Manifest.permission.ACCESS_FINE_LOCATION,
@@ -261,6 +264,11 @@ public class VitureGlassesPlugin extends GodotPlugin {
      */
     @UsedByGodot
     public double[] getLocation() {
+        // Permission may have been granted since startLocation() (by the control panel).
+        if (locationListener == null && getContext().checkSelfPermission(
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            runOnUiThread(this::startLocationUpdates);
+        }
         Location l = latestFix;
         if (l == null) return new double[0];
         double altitude = l.getAltitude();
