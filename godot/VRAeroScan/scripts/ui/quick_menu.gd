@@ -67,6 +67,13 @@ func open(direction: Vector3, menu_items: Array[Item]) -> void:
 	set_hovered(-1)
 
 
+## Swap the rows for another page, staying where the menu is.
+func set_items(menu_items: Array[Item]) -> void:
+	items = menu_items
+	_build_rows()
+	set_hovered(-1)
+
+
 func close() -> void:
 	visible = false
 	hovered = -1

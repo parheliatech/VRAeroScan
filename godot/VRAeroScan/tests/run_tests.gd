@@ -46,6 +46,8 @@ func _initialize() -> void:
 	await test_app_points_at_offscreen_station()
 	await test_side_by_side_stereo()
 	await test_controls()
+	await test_viewpoint_and_groups()
+	await test_pole_star()
 
 	print("\n%d checks, %d failed" % [_checks, _failures])
 	quit(1 if _failures > 0 else 0)
@@ -1416,6 +1418,11 @@ class FakePanelPlugin:
 	func setPanelStatus(text: String) -> void:
 		status = text
 
+	var state := ""
+
+	func setPanelState(text: String) -> void:
+		state = text
+
 	func getLocation() -> PackedFloat64Array:
 		return PackedFloat64Array()
 
@@ -1571,6 +1578,320 @@ func test_controls() -> void:
 	await _settle()
 	await _settle()
 	check(fake.panels_opened == 1, "panel opened once when clear (%d)" % fake.panels_opened)
+
+	app._android = null
+	app.queue_free()
+	await _settle()
+
+
+func test_viewpoint_geometry() -> void:
+	# From the middle of the Earth, north is still north, and "up" is out through the
+	# observer's latitude and longitude. At 0°, 0° geodetic and geocentric agree.
+	var centre := GeoPoint.earth_centre(0.0, 0.0)
+	var zero := GeoMath.geodetic_to_ecef(centre)
+	check(zero[0] == 0.0 and zero[1] == 0.0 and zero[2] == 0.0, "Earth centre is the ECEF origin")
+	var overhead := GeoMath.to_look_angles(centre, GeoPoint.new(0.0, 0.0, 400000.0))
+	near(overhead.elevation_deg, 90.0, 1e-9, "centre: the point over the observer is straight up")
+	near(overhead.range_m, GeoMath.SEMI_MAJOR_AXIS + 400000.0, 1e-3, "centre: range is the geocentric distance")
+	var east := GeoMath.to_look_angles(centre, GeoPoint.new(0.0, 90.0, 0.0))
+	near(east.azimuth_deg, 90.0, 1e-9, "centre: 90° of longitude east is due east")
+	near(east.elevation_deg, 0.0, 1e-9, "centre: ...and level")
+	var north := GeoMath.to_look_angles(GeoPoint.earth_centre(0.0, 0.0), GeoPoint.new(60.0, 0.0, 0.0))
+	near(north.azimuth_deg, 0.0, 1e-9, "centre: a point further north is due north")
+	# Up is out through lat/lon 0,0; a point 60° of latitude away is 30° above that "level".
+	near(north.elevation_deg, 30.0, 0.2, "centre: ...30° up (60° round the Earth from straight up)")
+
+	# From 400 km up the ground below is straight down, and a point on the far side of the
+	# Earth is below the horizon by nearly 90°.
+	var high := GeoPoint.new(10.0, 20.0, 400000.0)
+	near(GeoMath.to_look_angles(high, GeoPoint.new(10.0, 20.0, 0.0)).elevation_deg, -90.0, 1e-6,
+			"400 km: the ground below is straight down")
+	check(GeoMath.to_look_angles(high, GeoPoint.new(-10.0, -160.0, 0.0)).elevation_deg < -60.0,
+			"400 km: the antipode is far below")
+	# Geostationary: the sub-satellite point on the equator is straight down.
+	var geo := GeoPoint.new(0.0, 100.0, AppBootstrap.GEO_ALTITUDE_KM * 1000.0)
+	near(GeoMath.to_look_angles(geo, GeoPoint.new(0.0, 100.0, 0.0)).elevation_deg, -90.0, 1e-6, "GEO: ground is down")
+
+
+func test_viewpoint_and_groups() -> void:
+	test_viewpoint_geometry()
+	var fixture: Dictionary = JSON.parse_string(
+			FileAccess.get_file_as_string("res://tests/satellite_fixture.json"))
+	var app: AppBootstrap = load("res://main.tscn").instantiate()
+	app.start_feed = false
+	app.start_satellites = false
+	app.show_debug_hud = false
+	app.latitude_deg = 47.6
+	app.longitude_deg = -122.3
+	app.altitude_m = 100.0
+	var t0: float = fixture["cases"][0]["unix"]
+	app.fixed_unix_time = t0
+	root.add_child(app)
+	await process_frame
+	var fake := FakePanelPlugin.new()
+	app._android = fake
+
+	# Two airliners: one overhead-ish, one on the far side of the Earth.
+	var near_ac := Aircraft.new()
+	near_ac.icao24 = "near01"
+	near_ac.latitude_deg = 47.65
+	near_ac.longitude_deg = -122.22
+	near_ac.altitude_ft = 12000.0
+	near_ac.classification = AircraftClassifier.COMMERCIAL | AircraftClassifier.JET
+	var far_ac := Aircraft.new()
+	far_ac.icao24 = "far01"
+	far_ac.latitude_deg = -47.6
+	far_ac.longitude_deg = 57.7
+	far_ac.altitude_ft = 35000.0
+	far_ac.classification = AircraftClassifier.MILITARY | AircraftClassifier.JET
+	app.adsb.aircraft = {"near01": near_ac, "far01": far_ac}
+	await _settle()
+	check(app.view_point() == app.observer, "default view is the observer's own position")
+	check(app.active_markers.has("near01") and not app.active_markers.has("far01"),
+			"surface: only the aircraft above the horizon and in range")
+
+	# Earth centre: nothing is hidden by the horizon or the range, and the far side shows.
+	fake.queued.append("view:centre")
+	await _settle()
+	check(app.viewpoint == AppBootstrap.Viewpoint.CENTRE and app.view_point().at_earth_centre, "view:centre")
+	check(app.active_markers.has("far01"), "centre: the far side's aircraft is drawn")
+	var far_marker: SkyMarker = app.active_markers.get("far01")
+	if far_marker != null:
+		var look := GeoMath.to_look_angles(app.view_point(), far_ac.position())
+		check(look.elevation_deg < -30.0, "centre: it is well below the local level (%.1f°)" % look.elevation_deg)
+		near_vec(far_marker.global_position, app.rig.position_for_look(look), 1e-3, "centre: it sits at its direction from the middle")
+		check(far_marker.visible and not far_marker.fades_at_horizon, "centre: not faded for being 'below the horizon'")
+	check(app.adsb.radius_nm == 250, "off the ground the feed asks for its widest circle")
+	check(app.active_rise_markers.is_empty(), "no rise markers without a horizon")
+
+	# Altitude: any km, clamped to the ground ... GEO; the panel is told.
+	fake.queued.append("view:400")
+	await _settle()
+	check(app.viewpoint == AppBootstrap.Viewpoint.ALTITUDE and app.viewpoint_altitude_km == 400.0, "view:400")
+	near(app.view_point().altitude_m, 400000.0, 1e-6, "400 km is 400,000 m above the observer's lat/lon")
+	near(app.view_point().latitude_deg, 47.6, 1e-12, "...at the observer's latitude")
+	fake.queued.append("view:up")
+	await _settle()
+	near(app.viewpoint_altitude_km, 600.0, 1e-9, "higher is x1.5")
+	fake.queued.append("view:down")
+	fake.queued.append("view:down")
+	await _settle()
+	near(app.viewpoint_altitude_km, 266.666667, 1e-3, "lower is /1.5")
+	app.run_command("view:99999")
+	near(app.viewpoint_altitude_km, AppBootstrap.GEO_ALTITUDE_KM, 1e-9, "clamped at GEO")
+	app.run_command("view:0.4")
+	near(app.viewpoint_altitude_km, 0.0, 1e-9, "under a km is the ground")
+	app.run_command("view:-5")
+	near(app.viewpoint_altitude_km, 0.0, 1e-9, "never below the ground")
+	app.run_command("view:banana")
+	near(app.viewpoint_altitude_km, 0.0, 1e-9, "garbage is ignored")
+	app.run_command("view:400")
+	app._panel_status_timer = 1.0
+	await process_frame
+	check(fake.state == "view=altitude;alt=400;sat=%d;air=%d;star=0" % [Satellite.ALL_CATEGORIES, AppBootstrap.AIRCRAFT_ALL],
+			"panel state (%s)" % fake.state)
+	check(fake.status.contains("400 km up"), "panel status names the viewpoint")
+
+	app.run_command("view:surface")
+	await _settle()
+	check(app.view_point() == app.observer and app.adsb.radius_nm == 100, "back on the ground")
+	check(not app.active_markers.has("far01"), "...the far side's aircraft is hidden again")
+
+	# Aircraft groups.
+	check(AppBootstrap.aircraft_shown(AircraftClassifier.COMMERCIAL | AircraftClassifier.JET, AppBootstrap.AIRCRAFT_ALL), "all: airliner")
+	check(AppBootstrap.aircraft_shown(AircraftClassifier.UNKNOWN, AppBootstrap.AIRCRAFT_ALL), "all: unclassified")
+	check(not AppBootstrap.aircraft_shown(AircraftClassifier.UNKNOWN, AppBootstrap.AIRCRAFT_ALL & ~AppBootstrap.AIRCRAFT_OTHER),
+			"no Other: unclassified hidden")
+	check(not AppBootstrap.aircraft_shown(AircraftClassifier.GLIDER | AircraftClassifier.PRIVATE, AircraftClassifier.COMMERCIAL), "commercial only: private glider hidden")
+	check(AppBootstrap.aircraft_shown(AircraftClassifier.MILITARY | AircraftClassifier.ROTORCRAFT, AircraftClassifier.ROTORCRAFT),
+			"a military helicopter is in Helicopters too")
+	check(not AppBootstrap.aircraft_shown(AircraftClassifier.COMMERCIAL, 0), "none: nothing")
+	app.run_command("air:0")  # Commercial off
+	await _settle()
+	check(not (app.aircraft_types & AircraftClassifier.COMMERCIAL) and not app.active_markers.has("near01"),
+			"air:0 hides commercial aircraft")
+	app.run_command("air:0")
+	await _settle()
+	check(app.active_markers.has("near01"), "and flips back")
+	app.run_command("air:none")
+	await _settle()
+	check(app.active_markers.is_empty(), "air:none hides them all")
+	app.run_command("air:all")
+	app.run_command("air:99")
+	check(app.aircraft_types == AppBootstrap.AIRCRAFT_ALL, "all on; a bad group index changes nothing")
+
+	# Satellite kinds follow the same commands...
+	app.run_command("sat:1")
+	check(not (app.satellite_types & Satellite.STARLINK) and app.satellite_types & Satellite.MANNED, "sat:1 is Starlink")
+	app.run_command("sat:all")
+	check(app.satellite_types == Satellite.ALL_CATEGORIES, "sat:all")
+
+	# ...and the satellites' directions are measured from wherever you view them from.
+	var list := _spread_catalogue(fixture)
+	app.satellite_sky.set_catalogue(list, app.view_point(), t0)
+	app.run_command("view:centre")
+	app.fixed_unix_time = t0 + 3.0
+	for i in 400:  # the re-frame is spread over frames by SatelliteSky's budget
+		await process_frame
+		if app.satellite_sky.backlog() == 0:
+			break
+	var checked := 0
+	for sat in list.slice(0, 40):
+		var p: PackedFloat64Array = sat.ecef_at(app.unix_now())
+		var want := GeoMath.look_angles_in_frame(GeoMath.local_frame(app.view_point()), p[0], p[1], p[2])
+		var got := app.satellite_sky.look_angles(sat, app.unix_now())
+		if absf(want.elevation_deg - got.elevation_deg) > 1e-6 or absf(want.range_m - got.range_m) > 1e-3:
+			check(false, "%s: look from the centre is %.4f° / %.0f m, want %.4f° / %.0f m" % [
+					sat.name, got.elevation_deg, got.range_m, want.elevation_deg, want.range_m])
+		checked += 1
+	check(checked == 40, "satellites measured from the Earth's centre")
+	var ranges := list.slice(0, 40).map(func(sat: Satellite) -> float:
+		return app.satellite_sky.look_angles(sat, app.unix_now()).range_m)
+	check(ranges.all(func(r: float) -> bool: return r > 6.3e6), "centre: every range is geocentric (>6,300 km)")
+
+	# Glasses menu pages: toggles show their state and the menu stays open.
+	app.run_command("view:surface")
+	app.open_menu()
+	check(app._menu_items().size() >= 8, "main menu has the new pages")
+	app.run_command("page:sat")
+	check(app.quick_menu.items.size() == 9 and app.quick_menu.items[2].text.begins_with("☑"), "satellite page lists kinds, all on")
+	app.run_command("sat:1")
+	app.quick_menu.set_items(app._menu_items())
+	check(app.quick_menu.items[2].text.begins_with("☐ Starlink"), "the Starlink row shows it is off (%s)" % app.quick_menu.items[2].text)
+	app.run_command("page:alt")
+	check(app.quick_menu.items[0].text == "View from: Surface", "altitude page title")
+	app.run_command("page:main")
+	check(app.quick_menu.items[0].text.begins_with("Heading"), "back to the main page")
+
+	app._android = null
+	app.queue_free()
+	await _settle()
+
+
+func test_pole_star() -> void:
+	# The star finder against Skyfield, both stars from observers north and south.
+	var fixture: Dictionary = JSON.parse_string(
+			FileAccess.get_file_as_string("res://tests/star_fixture.json"))
+	var worst := 0.0
+	var count := 0
+	for c: Dictionary in fixture["cases"]:
+		var target := PoleStar.POLARIS if c["star"] == "Polaris" else PoleStar.SIGMA_OCTANTIS
+		var o: Array = c["observer"]
+		var look := PoleStar.look_angles(target, o[0], o[1], c["unix"])
+		# Atmospheric refraction is not in either: compare geometric directions.
+		var d_az := absf(GeoMath.bearing_delta(look.azimuth_deg, c["azimuthDeg"]))
+		var d_el := absf(look.elevation_deg - c["elevationDeg"])
+		# Azimuth is only well defined away from the zenith: scale by cos(el).
+		var err := maxf(d_az * cos(deg_to_rad(c["elevationDeg"])), d_el)
+		worst = maxf(worst, err)
+		count += 1
+		if err > 0.02:
+			check(false, "%s from %s at %s: %.3f°/%.3f° vs Skyfield %.3f°/%.3f°" % [c["star"], c["observerName"],
+					Time.get_datetime_string_from_unix_time(int(c["unix"])), look.azimuth_deg, look.elevation_deg,
+					c["azimuthDeg"], c["elevationDeg"]])
+	check(count == 84, "star fixture loaded (%d cases)" % count)
+	print("pole star vs Skyfield: worst %.4f° over %d cases" % [worst, count])
+	check(worst < 0.02, "pole star matches Skyfield to 0.02° (worst %.4f°)" % worst)
+
+	check(PoleStar.for_latitude(32.0) == PoleStar.POLARIS and PoleStar.for_latitude(-33.0) == PoleStar.SIGMA_OCTANTIS,
+			"Polaris in the north, Sigma Octantis in the south")
+	# Polaris is up by about your latitude, and never far from north.
+	var t0: float = fixture["cases"][0]["unix"]
+	for i in 24:
+		var look := PoleStar.look_angles(PoleStar.POLARIS, 32.2226, -110.9747, t0 + i * 3600.0)
+		check(absf(look.elevation_deg - 32.2226) < 1.0, "Polaris is %.1f° up at hour %d" % [look.elevation_deg, i])
+		check(absf(GeoMath.bearing_delta(look.azimuth_deg, 0.0)) < 1.5, "...and within 1.5° of north (%.2f°)" % look.azimuth_deg)
+
+	# Calibrating from the gaze: whatever the head's yaw, pitched up, the offset makes it
+	# face the star's true azimuth.
+	var cal := CompassCalibration.new()
+	cal.calibrate_from_gaze(0.7, 200.0)
+	near(cal.heading_offset_deg, GeoMath.wrap360(0.7 - 200.0), 1e-9, "gaze fix sets the offset")
+	check(cal.is_calibrated and cal.source == CompassCalibration.Source.CELESTIAL, "...as a celestial fix")
+	cal.calibrate_from_gaze(10.0, 10.0)
+	near(cal.heading_offset_deg, GeoMath.wrap360(0.7 - 200.0), 1e-9, "a gaze already right changes nothing")
+
+	# In the app: sight the star with the head pitched up, tap, and north is where it should be.
+	var app: AppBootstrap = load("res://main.tscn").instantiate()
+	app.start_feed = false
+	app.start_satellites = false
+	app.show_debug_hud = false
+	app.latitude_deg = 32.2226
+	app.longitude_deg = -110.9747
+	app.altitude_m = 730.0
+	app.fixed_unix_time = t0
+	root.add_child(app)
+	await _settle()
+	var fake := FakePanelPlugin.new()
+	app._android = fake
+	var mock: MockHeadTracker = app.rig.tracker
+	var want := PoleStar.look_angles(PoleStar.POLARIS, 32.2226, -110.9747, t0)
+
+	fake.queued.append("star")
+	await _settle()
+	check(app.capturing_star and app._star_ring.visible and app._prompt.visible, "star: circle and prompt shown")
+	check(app._prompt.text.begins_with("Put Polaris in the circle"), "prompt names the star (%s)" % app._prompt.text.replace("\n", " / "))
+	check(fake.status.length() >= 0 and app.panel_status().contains("POLARIS"), "the panel says so too")
+	mock._yaw = 137.0  # whatever the glasses think
+	mock._pitch = want.elevation_deg
+	await _settle()
+	fake.queued.append("tap")
+	await _settle()
+	check(not app.capturing_star and not app._star_ring.visible, "the tap takes the sighting")
+	var fwd := -app.rig.camera.global_basis.z
+	var gaze_az := GeoMath.wrap360(rad_to_deg(atan2(fwd.x, -fwd.z)))
+	near(absf(GeoMath.bearing_delta(gaze_az, want.azimuth_deg)), 0.0, 1e-3, "now facing the star's azimuth")
+	check(app.calibration.source == CompassCalibration.Source.CELESTIAL, "recorded as a star fix")
+	# Turn to true north (the star is ~0.5° off it): the heading reads that.
+	mock._yaw = fposmod(137.0 - want.azimuth_deg, 360.0)
+	await _settle()
+	near(absf(GeoMath.bearing_delta(app.rig.current_heading_deg(), 0.0)), 0.0, 1e-2, "so north is north")
+
+	# Cancelling: the star command again (the panel's button is a toggle), "cancel", or Escape.
+	app.run_command("star")
+	check(app.capturing_star and app.panel_state().ends_with("star=1"), "sighting on; the panel is told")
+	app.run_command("star")
+	check(not app.capturing_star and app.panel_state().ends_with("star=0"), "star again cancels")
+	app.run_command("star")
+	app.run_command("cancel")
+	check(not app.capturing_star, "cancel ends a sighting")
+	app.run_command("star")
+	var esc := InputEventKey.new()
+	esc.keycode = KEY_ESCAPE
+	esc.pressed = true
+	app._unhandled_input(esc)
+	check(not app.capturing_star, "Escape ends a sighting")
+	app.capturing_north = true
+	app.run_command("cancel")
+	check(not app.capturing_north, "cancel also ends waiting to take north")
+	await _settle()
+	check(not app._prompt.visible and not app._star_ring.visible, "the circle and prompt are gone")
+
+	# Not required: other ways still work, a menu open cancels it, and it times out.
+	fake.queued.append("star")
+	await _settle()
+	app.open_menu()
+	check(not app.capturing_star, "opening the menu cancels the sighting")
+	app.quick_menu.close()
+	app.run_command("star")
+	app._capture_until = 0.0
+	await _settle()
+	check(not app.capturing_star, "a sighting nobody finishes times out")
+	check(app._menu_items().any(func(i: QuickMenu.Item) -> bool: return i.command == "star"), "the glasses menu offers it")
+
+	# Too low to use near the equator: a notice, not a sighting.
+	app.observer = GeoPoint.new(0.5, -78.0, 2800.0)
+	app.run_command("star")
+	await _settle()
+	check(not app.capturing_star and app._prompt.visible and app._prompt.text.contains("Polaris is only"),
+			"near the equator it says the star is too low (%s)" % app._prompt.text)
+	# South: Sigma Octantis, and it warns that it is faint.
+	app._notice_until = 0.0
+	app.observer = GeoPoint.new(-33.9, 18.4, 20.0)
+	app.run_command("star")
+	await _settle()
+	check(app.capturing_star and app._prompt.text.begins_with("Put Sigma Octantis") and app._prompt.text.contains("faint"),
+			"south: Sigma Octantis, with the faint warning (%s)" % app._prompt.text.replace("\n", " / "))
 
 	app._android = null
 	app.queue_free()

@@ -221,6 +221,12 @@ public class VitureGlassesPlugin extends GodotPlugin {
         ControlPanelActivity.status = text;
     }
 
+    /** What is switched on, for the panel's buttons: "view=surface;alt=400;sat=31;air=1055". */
+    @UsedByGodot
+    public void setPanelState(String text) {
+        ControlPanelActivity.state = text;
+    }
+
     // --- Location --------------------------------------------------------------------------
 
     /** Start GPS + network location updates, asking for permission first if needed. */

@@ -16,9 +16,13 @@ import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -40,10 +44,25 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class ControlPanelActivity extends Activity {
 
-    /** Commands for the app, oldest first: "north", "sky:<deg>", "tap", "drag:<fraction of pad width>:<fingers>", "drag_end". */
+    /** Commands for the app, oldest first: "north", "star", "sky:<deg>", "tap", "drag:<fraction of pad width>:<fingers>", "drag_end". */
     static final ConcurrentLinkedQueue<String> COMMANDS = new ConcurrentLinkedQueue<>();
     /** Status line from the app. */
     static volatile String status = "starting…";
+    /** What is switched on, "key=value;…": view=surface|centre|altitude, alt=<km>, sat=<mask>, air=<mask>. */
+    static volatile String state = "";
+
+    /**
+     * Group names and their bits in the app's masks, in the order the app numbers them: the
+     * command "sat:2" flips the third. Mirrors AppBootstrap.SATELLITE_KINDS and AIRCRAFT_GROUPS.
+     */
+    private static final String[] SAT_NAMES = {"Manned", "Starlink", "LEO", "MEO / HEO", "GEO"};
+    private static final int[] SAT_BITS = {1, 2, 4, 8, 16};
+    private static final String[] AIR_NAMES = {"Commercial", "Private", "Military", "Helicopters", "Other"};
+    private static final int[] AIR_BITS = {1 << 0, 1 << 1, 1 << 2, 1 << 6, 1 << 20};
+    /** Top of the altitude slider: geostationary orbit, km. The slider is a cube, fine near the ground. */
+    private static final double GEO_KM = 35786.0;
+    private static final int SLIDER_MAX = 1000;
+    private static final long SLIDER_SEND_MS = 150;
 
     /** Finger travel, in pixels, before a touch counts as a drag rather than a tap. */
     private static final float DRAG_THRESHOLD_PX = 24f;
@@ -51,6 +70,14 @@ public class ControlPanelActivity extends Activity {
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private TextView statusView;
+    private final Button[] satButtons = new Button[SAT_NAMES.length];
+    private final Button[] airButtons = new Button[AIR_NAMES.length];
+    private Button surfaceButton, centreButton, starButton;
+    private static final String STAR_LABEL = "Sight the pole star (clear sky)";
+    private SeekBar altitudeBar;
+    private TextView altitudeView;
+    private boolean sliderTouched;
+    private long lastSliderSend;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,9 +110,43 @@ public class ControlPanelActivity extends Activity {
         statusView.setPadding(0, 0, 0, dp(8));
         root.addView(statusView);
 
+        LinearLayout tabs = new LinearLayout(this);
+        tabs.setOrientation(LinearLayout.HORIZONTAL);
+        root.addView(tabs, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(56)));
+
+        // One page at a time under the tabs: North (the pad), Show (what is drawn), View (altitude).
+        LinearLayout northPage = page();
+        LinearLayout showPage = page();
+        LinearLayout viewPage = page();
+        LinearLayout[] pages = {northPage, showPage, viewPage};
+        String[] tabNames = {"North", "Show", "View"};
+        for (int i = 0; i < pages.length; i++) {
+            final int shown = i;
+            Button tab = new Button(this);
+            tab.setText(tabNames[i]);
+            tab.setAllCaps(false);
+            tab.setTextSize(17);
+            tab.setOnClickListener(v -> {
+                for (int j = 0; j < pages.length; j++) {
+                    pages[j].setVisibility(j == shown ? View.VISIBLE : View.GONE);
+                }
+            });
+            tabs.addView(tab, weight());
+            root.addView(pages[i], new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+            pages[i].setVisibility(i == 0 ? View.VISIBLE : View.GONE);
+        }
+
+        buildShowPage(showPage);
+        buildViewPage(viewPage);
+
         Button north = button("I'm facing north", "north");
         north.setTextSize(20);
-        root.addView(north, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(84)));
+        northPage.addView(north, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(84)));
+
+        // Optional: put the pole star in the glasses' circle and tap. Needs a clear sky.
+        starButton = button(STAR_LABEL, "star");
+        northPage.addView(starButton,
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(64)));
 
         LinearLayout nudges = new LinearLayout(this);
         nudges.setOrientation(LinearLayout.HORIZONTAL);
@@ -94,7 +155,7 @@ public class ControlPanelActivity extends Activity {
         nudges.addView(button("← 0.1°", "sky:-0.1"), weight());
         nudges.addView(button("0.1° →", "sky:0.1"), weight());
         nudges.addView(button("1° →", "sky:1"), weight());
-        root.addView(nudges, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(72)));
+        northPage.addView(nudges, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(72)));
 
         TextView padView = new TextView(this);
         padView.setText("Drag ← → to turn the sky\n(two fingers: fine)\n\nTap: glasses menu / select");
@@ -106,7 +167,7 @@ public class ControlPanelActivity extends Activity {
         LinearLayout.LayoutParams padParams =
                 new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
         padParams.topMargin = dp(12);
-        root.addView(padView, padParams);
+        northPage.addView(padView, padParams);
 
         setContentView(root);
     }
@@ -123,10 +184,163 @@ public class ControlPanelActivity extends Activity {
         handler.removeCallbacks(refresh);
     }
 
+    private LinearLayout page() {
+        LinearLayout page = new LinearLayout(this);
+        page.setOrientation(LinearLayout.VERTICAL);
+        return page;
+    }
+
+    private TextView heading(String text) {
+        TextView t = new TextView(this);
+        t.setText(text);
+        t.setTextColor(Color.rgb(180, 220, 255));
+        t.setTextSize(16);
+        t.setPadding(0, dp(10), 0, dp(4));
+        return t;
+    }
+
+    /** Which satellite kinds and aircraft groups are drawn: a toggle per group. */
+    private void buildShowPage(LinearLayout page) {
+        LinearLayout inner = page();
+        ScrollView scroll = new ScrollView(this);
+        scroll.addView(inner);
+        page.addView(scroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        inner.addView(heading("Satellites"));
+        for (int i = 0; i < SAT_NAMES.length; i++) {
+            satButtons[i] = button(SAT_NAMES[i], "sat:" + i);
+            inner.addView(satButtons[i], new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(56)));
+        }
+        inner.addView(allNone("sat"));
+
+        inner.addView(heading("Aircraft"));
+        for (int i = 0; i < AIR_NAMES.length; i++) {
+            airButtons[i] = button(AIR_NAMES[i], "air:" + i);
+            inner.addView(airButtons[i], new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(56)));
+        }
+        inner.addView(allNone("air"));
+    }
+
+    private LinearLayout allNone(String prefix) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.addView(button("All on", prefix + ":all"), weight());
+        row.addView(button("All off", prefix + ":none"), weight());
+        row.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(56)));
+        return row;
+    }
+
+    /** Where to view the sky from: the ground, the Earth's centre, or any height up to GEO. */
+    private void buildViewPage(LinearLayout page) {
+        page.addView(heading("View the sky from"));
+        LinearLayout modes = new LinearLayout(this);
+        modes.setOrientation(LinearLayout.HORIZONTAL);
+        surfaceButton = button("Surface", "view:surface");
+        centreButton = button("Earth centre", "view:centre");
+        modes.addView(surfaceButton, weight());
+        modes.addView(centreButton, weight());
+        page.addView(modes, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(64)));
+
+        altitudeView = new TextView(this);
+        altitudeView.setTextColor(Color.rgb(180, 220, 255));
+        altitudeView.setTextSize(20);
+        altitudeView.setTypeface(Typeface.MONOSPACE);
+        altitudeView.setPadding(0, dp(16), 0, dp(4));
+        page.addView(altitudeView);
+
+        altitudeBar = new SeekBar(this);
+        altitudeBar.setMax(SLIDER_MAX);
+        altitudeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar bar, int progress, boolean fromUser) {
+                if (!fromUser) return;
+                altitudeView.setText(altitudeText(sliderToKm(progress)));
+                long now = System.currentTimeMillis();
+                if (now - lastSliderSend >= SLIDER_SEND_MS) {
+                    lastSliderSend = now;
+                    COMMANDS.add(String.format(Locale.US, "view:%.0f", sliderToKm(progress)));
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar bar) {
+                sliderTouched = true;
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar bar) {
+                sliderTouched = false;
+                COMMANDS.add(String.format(Locale.US, "view:%.0f", sliderToKm(bar.getProgress())));
+            }
+        });
+        page.addView(altitudeBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(56)));
+
+        LinearLayout steps = new LinearLayout(this);
+        steps.setOrientation(LinearLayout.HORIZONTAL);
+        steps.addView(button("▼ Lower", "view:down"), weight());
+        steps.addView(button("▲ Higher", "view:up"), weight());
+        page.addView(steps, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(64)));
+
+        page.addView(heading("Presets"));
+        LinearLayout presets = new LinearLayout(this);
+        presets.setOrientation(LinearLayout.HORIZONTAL);
+        presets.addView(button("400 km", "view:400"), weight());
+        presets.addView(button("20,200", "view:20200"), weight());
+        presets.addView(button("GEO", "view:35786"), weight());
+        page.addView(presets, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(64)));
+    }
+
+    private static double sliderToKm(int progress) {
+        double f = progress / (double) SLIDER_MAX;
+        return GEO_KM * f * f * f;
+    }
+
+    private static int kmToSlider(double km) {
+        return (int) Math.round(SLIDER_MAX * Math.cbrt(Math.max(0.0, Math.min(km, GEO_KM)) / GEO_KM));
+    }
+
+    private static String altitudeText(double km) {
+        return String.format(Locale.US, "%,.0f km up", km);
+    }
+
+    /** Show the app's state on the buttons: a check by what is on, and the slider where the altitude is. */
+    private void applyState(String text) {
+        Map<String, String> kv = new HashMap<>();
+        for (String pair : text.split(";")) {
+            int eq = pair.indexOf('=');
+            if (eq > 0) kv.put(pair.substring(0, eq), pair.substring(eq + 1));
+        }
+        if (kv.isEmpty()) return;
+        try {
+            int sat = Integer.parseInt(kv.get("sat"));
+            int air = Integer.parseInt(kv.get("air"));
+            for (int i = 0; i < SAT_NAMES.length; i++) {
+                satButtons[i].setText(((sat & SAT_BITS[i]) != 0 ? "☑  " : "☐  ") + SAT_NAMES[i]);
+            }
+            for (int i = 0; i < AIR_NAMES.length; i++) {
+                airButtons[i].setText(((air & AIR_BITS[i]) != 0 ? "☑  " : "☐  ") + AIR_NAMES[i]);
+            }
+            // The star button is also its own cancel while a sighting is going.
+            starButton.setText("1".equals(kv.get("star")) ? "Cancel sighting" : STAR_LABEL);
+            String view = kv.get("view");
+            double km = Double.parseDouble(kv.get("alt"));
+            surfaceButton.setText(("surface".equals(view) ? "● " : "") + "Surface");
+            centreButton.setText(("centre".equals(view) ? "● " : "") + "Earth centre");
+            if (!sliderTouched) {
+                altitudeBar.setProgress(kmToSlider(km));
+                altitudeView.setText("altitude".equals(view) ? altitudeText(km)
+                        : "centre".equals(view) ? "from the Earth's centre" : "from the ground");
+            }
+        } catch (RuntimeException e) {
+            // A malformed state line: keep what is showing.
+        }
+    }
+
     private final Runnable refresh = new Runnable() {
         @Override
         public void run() {
             statusView.setText(status);
+            applyState(state);
             handler.postDelayed(this, STATUS_REFRESH_MS);
         }
     };

@@ -30,6 +30,8 @@ const FEET_TO_METERS := 0.3048
 
 ## Earth-Centred Earth-Fixed cartesian metres, as [x, y, z] doubles.
 static func geodetic_to_ecef(p: GeoPoint) -> PackedFloat64Array:
+	if p.at_earth_centre:
+		return PackedFloat64Array([0.0, 0.0, 0.0])
 	var lat := deg_to_rad(p.latitude_deg)
 	var lon := deg_to_rad(p.longitude_deg)
 	var sin_lat := sin(lat)

@@ -24,7 +24,20 @@ extends Node3D
 ## already 3° of pointing error, so a coarse cell-tower fix is worse than a good manual one.
 @export var max_fix_accuracy_m := 100.0
 
+@export_group("Viewpoint")
+## Where you view the sky from. Surface is where you stand (the GPS fix). Earth centre looks
+## out from the middle of the planet: no horizon, every satellite and aircraft in view at once,
+## north still north. Altitude floats you above your spot, from the ground to geostationary
+## orbit; the Earth does not block the view, as at the surface (nothing here is ever hidden for
+## being behind it).
+enum Viewpoint { SURFACE, CENTRE, ALTITUDE }
+@export var viewpoint := Viewpoint.SURFACE
+## For Viewpoint.ALTITUDE: height above the WGS84 ellipsoid (≈ sea level), km.
+@export_range(0.0, 35786.0) var viewpoint_altitude_km := 400.0
+
 @export_group("Aircraft")
+## Which aircraft groups to draw (a bitmask of AIRCRAFT_GROUPS' flags).
+@export var aircraft_types := AIRCRAFT_ALL
 ## Hide aircraft reporting on the ground. Almost always below the local horizon anyway.
 @export var hide_on_ground := true
 ## Hide aircraft further than this, nautical miles. The feed radius decides what is
@@ -60,6 +73,33 @@ extends Node3D
 ## glasses, text is light in your eyes.
 @export var show_debug_hud := true
 
+## Geostationary altitude, km: the top of the altitude range.
+const GEO_ALTITUDE_KM := 35786.0
+## Aircraft groups: [label, flag]. An aircraft is in a group if the classifier gave it that
+## flag; one with none of them (glider, drone, unknown) is in Other.
+const AIRCRAFT_OTHER := 1 << 20
+const AIRCRAFT_GROUPS := [
+	["Commercial", AircraftClassifier.COMMERCIAL],
+	["Private", AircraftClassifier.PRIVATE],
+	["Military", AircraftClassifier.MILITARY],
+	["Helicopters", AircraftClassifier.ROTORCRAFT],
+	["Other", AIRCRAFT_OTHER],
+]
+const AIRCRAFT_ALL := AircraftClassifier.COMMERCIAL | AircraftClassifier.PRIVATE \
+		| AircraftClassifier.MILITARY | AircraftClassifier.ROTORCRAFT | AIRCRAFT_OTHER
+## Satellite kinds, [label, flag], in the order Satellite's flags are declared.
+const SATELLITE_KINDS := [
+	["Manned", Satellite.MANNED],
+	["Starlink", Satellite.STARLINK],
+	["LEO", Satellite.LEO],
+	["MEO / HEO", Satellite.MEO],
+	["GEO", Satellite.GEO],
+]
+## Altitude presets for the glasses menu, km above the ellipsoid.
+const ALTITUDE_PRESETS_KM := [100.0, 400.0, 1200.0, 20200.0, GEO_ALTITUDE_KM]
+
+## Where you are: the GPS fix, or the manual position. Feeds and passes use this; what the
+## sky is drawn from is view_point().
 var observer: GeoPoint
 var calibration: CompassCalibration
 var rig: SkyRig
@@ -148,7 +188,7 @@ func _ready() -> void:
 	add_child(celestrak)
 	celestrak.fetch_failed.connect(func(message: String) -> void: _satellite_error = message)
 	celestrak.catalogue_updated.connect(func(list: Array[Satellite]) -> void:
-		satellite_sky.set_catalogue(list, observer, unix_now()))
+		satellite_sky.set_catalogue(list, view_point(), unix_now()))
 	if start_satellites:
 		celestrak.start()
 
@@ -180,6 +220,54 @@ func apply_location_fix(fix: PackedFloat64Array) -> bool:
 	if first:
 		print("VRAEROSCAN observer from GPS: %s (±%dm)" % [observer, roundi(accuracy)])
 	return true
+
+
+## What the sky is drawn from: the observer at the chosen viewpoint. At the surface it is
+## the observer itself. Otherwise the same latitude and longitude, so north stays north,
+## either raised to the chosen altitude or moved to the Earth's centre.
+func view_point() -> GeoPoint:
+	if viewpoint == Viewpoint.SURFACE:
+		return observer
+	if _view_built_from != [observer, viewpoint, viewpoint_altitude_km]:
+		_view_built_from = [observer, viewpoint, viewpoint_altitude_km]
+		if viewpoint == Viewpoint.CENTRE:
+			_view = GeoPoint.earth_centre(observer.latitude_deg, observer.longitude_deg)
+		else:
+			_view = GeoPoint.new(observer.latitude_deg, observer.longitude_deg,
+					viewpoint_altitude_km * 1000.0)
+	return _view
+
+
+var _view: GeoPoint
+var _view_built_from := []
+
+
+func viewpoint_text() -> String:
+	match viewpoint:
+		Viewpoint.CENTRE:
+			return "Earth centre"
+		Viewpoint.ALTITUDE:
+			return "%s km up" % _thousands(roundi(viewpoint_altitude_km))
+	return "Surface"
+
+
+static func _thousands(n: int) -> String:
+	var digits := str(n)
+	var out := ""
+	for i in digits.length():
+		if i > 0 and (digits.length() - i) % 3 == 0:
+			out += ","
+		out += digits[i]
+	return out
+
+
+## Whether an aircraft of this classification is in a group that is switched on.
+static func aircraft_shown(classification: int, types: int) -> bool:
+	var groups := classification & (AircraftClassifier.COMMERCIAL | AircraftClassifier.PRIVATE \
+			| AircraftClassifier.MILITARY | AircraftClassifier.ROTORCRAFT)
+	if groups == 0:
+		return types & AIRCRAFT_OTHER != 0
+	return types & groups != 0
 
 
 ## Prefer a real tracker: one added as a child, else the Viture glasses when the Android
@@ -220,6 +308,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				run_command("north")
 		# Space: the pad's tap; M: the glasses menu. For the desktop, and adb:
 		#   adb shell input keyevent KEYCODE_SPACE
+		KEY_ESCAPE:
+			run_command("cancel")
 		KEY_SPACE:
 			if not key.echo:
 				run_command("tap")
@@ -252,6 +342,7 @@ func _process(delta: float) -> void:
 		if _panel_status_timer >= 0.25:
 			_panel_status_timer = 0.0
 			_android.setPanelStatus(panel_status())
+			_android.setPanelState(panel_state())
 	update_controls()
 
 	update_aircraft_markers()
@@ -279,6 +370,16 @@ const MENU_IDLE_S := 20.0
 ## Give up waiting for the "facing north" tap after this long.
 const CAPTURE_TIMEOUT_S := 30.0
 
+## Waiting for a tap with the pole star in the circle (see PoleStar). Finding a star takes
+## longer than facing a landmark, so it waits longer.
+var capturing_star := false
+const STAR_CAPTURE_TIMEOUT_S := 120.0
+## Below this the star is in the murk or behind the horizon: not worth trying.
+const STAR_MIN_ELEVATION_DEG := 3.0
+var _star_ring: MeshInstance3D
+var _notice := ""
+var _notice_until := 0.0
+
 ## Waiting for a tap to take "I'm facing north now" (chosen from the glasses menu: you
 ## cannot aim at a menu item and face north at the same time, so it takes two steps).
 var capturing_north := false
@@ -299,14 +400,32 @@ var _panel_not_before := 0.0
 ##   sky:<deg>          move the sky right by deg (negative: left), as a drag would
 ##   drag:<frac>:<n>    the panel's pad dragged by frac of its width, n fingers
 ##   drag_end           the pad was released
+##   star               sight the pole star (Polaris in the north, Sigma Octantis in the
+##                      south) in the circle, then tap: sets north from where it is now
+##   cancel             stop sighting the star, or waiting to take north (Esc does too)
 ##   tap                the pad was tapped: open the menu, choose in it, or take north
 ##   menu               open or close the glasses menu
+##   view:surface | view:centre | view:<km>   where to view the sky from (km: that high up)
+##   view:up | view:down                      raise or lower the altitude by a step (×1.5)
+##   sat:<i> | air:<i>                        toggle satellite kind / aircraft group i
+##   sat:all | sat:none | air:all | air:none  every group on or off
+##   page:<name>                              glasses menu page: main, sat, air, alt
 func run_command(command: String) -> void:
 	var parts := command.split(":")
 	match parts[0]:
 		"north":
 			calibrate_facing_north()
 			horizon_control.highlight()
+		"star":
+			# The panel's button reads "Cancel sighting" while one is going: same command.
+			if capturing_star:
+				run_command("cancel")
+			else:
+				start_star_capture()
+		"cancel":
+			capturing_north = false
+			capturing_star = false
+			_notice = ""
 		"sky":
 			horizon_control.rotate_sky(parts[1].to_float() if parts.size() > 1 else 0.0)
 			horizon_control.highlight()
@@ -322,29 +441,176 @@ func run_command(command: String) -> void:
 				quick_menu.close()
 			else:
 				open_menu()
+		"view":
+			_set_view(parts[1] if parts.size() > 1 else "")
+		"sat":
+			satellite_types = _toggle_group(satellite_types, SATELLITE_KINDS,
+					parts[1] if parts.size() > 1 else "", Satellite.ALL_CATEGORIES)
+		"air":
+			aircraft_types = _toggle_group(aircraft_types, AIRCRAFT_GROUPS,
+					parts[1] if parts.size() > 1 else "", AIRCRAFT_ALL)
+		"page":
+			_menu_page = parts[1] if parts.size() > 1 else "main"
+			quick_menu.set_items(_menu_items())
 		_:
 			push_warning("[AppBootstrap] unknown command: %s" % command)
 
 
+## Switch to a viewpoint, or to an altitude: "surface", "centre", "up", "down", or km.
+func _set_view(what: String) -> void:
+	match what:
+		"surface":
+			viewpoint = Viewpoint.SURFACE
+		"centre":
+			viewpoint = Viewpoint.CENTRE
+		"up", "down":
+			var factor := 1.5 if what == "up" else 1.0 / 1.5
+			viewpoint = Viewpoint.ALTITUDE
+			viewpoint_altitude_km = _clamp_altitude(maxf(viewpoint_altitude_km, 1.0) * factor)
+		_:
+			if not what.is_valid_float():
+				push_warning("[AppBootstrap] unknown viewpoint: %s" % what)
+				return
+			viewpoint = Viewpoint.ALTITUDE
+			viewpoint_altitude_km = _clamp_altitude(what.to_float())
+	# The feed's circle is centred under you; from higher up, more of the ground is in view.
+	adsb.radius_nm = 100 if viewpoint == Viewpoint.SURFACE else 250
+	print("VRAEROSCAN viewpoint: %s" % viewpoint_text())
+
+
+static func _clamp_altitude(km: float) -> float:
+	var clamped := clampf(km, 0.0, GEO_ALTITUDE_KM)
+	return 0.0 if clamped < 1.0 else clamped
+
+
+## Flip group i of a bitmask, or set them all ("all") or none ("none").
+static func _toggle_group(mask: int, groups: Array, what: String, all: int) -> int:
+	if what == "all":
+		return all
+	if what == "none":
+		return 0
+	if not what.is_valid_int() or what.to_int() < 0 or what.to_int() >= groups.size():
+		push_warning("[AppBootstrap] unknown group: %s" % what)
+		return mask
+	return mask ^ int(groups[what.to_int()][1])
+
+
+## "key=value;..." for the phone panel, so its buttons show what is on: view mode and
+## altitude, satellite kinds and aircraft groups as bitmasks.
+func panel_state() -> String:
+	return "view=%s;alt=%d;sat=%d;air=%d;star=%d" % [
+		Viewpoint.keys()[viewpoint].to_lower(), roundi(viewpoint_altitude_km),
+		satellite_types, aircraft_types, 1 if capturing_star else 0]
+
+
 func open_menu() -> void:
 	capturing_north = false
-	quick_menu.open(-rig.camera.global_basis.z, _calibration_items())
+	capturing_star = false
+	_menu_page = "main"
+	quick_menu.open(-rig.camera.global_basis.z, _menu_items())
 	_menu_idle_until = _seconds() + MENU_IDLE_S
 
 
-func _calibration_items() -> Array[QuickMenu.Item]:
+var _menu_page := "main"
+
+
+static func _check(on: bool, label: String) -> String:
+	return ("☑ " if on else "☐ ") + label
+
+
+## The rows of the glasses menu's current page. Toggles show their state, and keep the
+## menu open to flip several in a row.
+func _menu_items() -> Array[QuickMenu.Item]:
 	var items: Array[QuickMenu.Item] = []
-	items.append(QuickMenu.Item.new(_heading_readout(), ""))
-	items.append(QuickMenu.Item.new("Set north…", "set_north"))
-	items.append(QuickMenu.Item.new("Sky ← 1°", "sky:-1"))
-	items.append(QuickMenu.Item.new("Sky → 1°", "sky:1"))
-	items.append(QuickMenu.Item.new("Sky ← 0.1°", "sky:-0.1"))
-	items.append(QuickMenu.Item.new("Sky → 0.1°", "sky:0.1"))
-	items.append(QuickMenu.Item.new("Close", "close"))
+	match _menu_page:
+		"sat":
+			items.append(QuickMenu.Item.new("Satellites", ""))
+			for i in SATELLITE_KINDS.size():
+				items.append(QuickMenu.Item.new(_check(satellite_types & SATELLITE_KINDS[i][1] != 0,
+						SATELLITE_KINDS[i][0]), "sat:%d" % i))
+			items.append(QuickMenu.Item.new("All on", "sat:all"))
+			items.append(QuickMenu.Item.new("All off", "sat:none"))
+			items.append(QuickMenu.Item.new("‹ Back", "page:main"))
+		"air":
+			items.append(QuickMenu.Item.new("Aircraft", ""))
+			for i in AIRCRAFT_GROUPS.size():
+				items.append(QuickMenu.Item.new(_check(aircraft_types & AIRCRAFT_GROUPS[i][1] != 0,
+						AIRCRAFT_GROUPS[i][0]), "air:%d" % i))
+			items.append(QuickMenu.Item.new("All on", "air:all"))
+			items.append(QuickMenu.Item.new("All off", "air:none"))
+			items.append(QuickMenu.Item.new("‹ Back", "page:main"))
+		"alt":
+			items.append(QuickMenu.Item.new("View from: " + viewpoint_text(), ""))
+			items.append(QuickMenu.Item.new(_check(viewpoint == Viewpoint.SURFACE, "Surface"), "view:surface"))
+			items.append(QuickMenu.Item.new(_check(viewpoint == Viewpoint.CENTRE, "Earth centre"), "view:centre"))
+			items.append(QuickMenu.Item.new("Higher ▲", "view:up"))
+			items.append(QuickMenu.Item.new("Lower ▼", "view:down"))
+			for km: float in ALTITUDE_PRESETS_KM:
+				items.append(QuickMenu.Item.new("%s km%s" % [_thousands(roundi(km)),
+						" (GEO)" if km == GEO_ALTITUDE_KM else ""], "view:%d" % roundi(km)))
+			items.append(QuickMenu.Item.new("‹ Back", "page:main"))
+		_:
+			items.append(QuickMenu.Item.new(_heading_readout(), ""))
+			items.append(QuickMenu.Item.new("Set north…", "set_north"))
+			items.append(QuickMenu.Item.new("Sight pole star…", "star"))
+			items.append(QuickMenu.Item.new("Sky ← 1°", "sky:-1"))
+			items.append(QuickMenu.Item.new("Sky → 1°", "sky:1"))
+			items.append(QuickMenu.Item.new("Sky ← 0.1°", "sky:-0.1"))
+			items.append(QuickMenu.Item.new("Sky → 0.1°", "sky:0.1"))
+			items.append(QuickMenu.Item.new("Satellites ›", "page:sat"))
+			items.append(QuickMenu.Item.new("Aircraft ›", "page:air"))
+			items.append(QuickMenu.Item.new("View from: %s ›" % viewpoint_text(), "page:alt"))
+			items.append(QuickMenu.Item.new("Close", "close"))
 	return items
 
 
+## Begin sighting the pole star. Refuses, with a notice, when it is too low to see from here
+## (near the equator the pole star sits on the horizon). Nothing depends on this: north can
+## always be set by the other ways.
+func start_star_capture() -> void:
+	var target := PoleStar.for_latitude(observer.latitude_deg)
+	var look := PoleStar.look_angles(target, observer.latitude_deg, observer.longitude_deg, unix_now())
+	if look.elevation_deg < STAR_MIN_ELEVATION_DEG:
+		_notice = "%s is only %d° up from here: use another way to set north" % [
+				target.name, roundi(look.elevation_deg)]
+		_notice_until = _seconds() + 6.0
+		return
+	capturing_north = false
+	capturing_star = true
+	_capture_until = _seconds() + STAR_CAPTURE_TIMEOUT_S
+	quick_menu.close()
+
+
+## The tap with the star in the circle: face where the star really is.
+func calibrate_on_star() -> void:
+	capturing_star = false
+	var target := PoleStar.for_latitude(observer.latitude_deg)
+	var look := PoleStar.look_angles(target, observer.latitude_deg, observer.longitude_deg, unix_now())
+	var forward := -rig.camera.global_basis.z
+	var gaze_az := GeoMath.wrap360(rad_to_deg(atan2(forward.x, -forward.z)))
+	calibration.calibrate_from_gaze(look.azimuth_deg, gaze_az, CompassCalibration.Source.CELESTIAL)
+	print("VRAEROSCAN calibrated on %s (az %.2f°, el %.1f°): offset %.1f°" % [
+			target.name, look.azimuth_deg, look.elevation_deg, calibration.heading_offset_deg])
+	horizon_control.highlight()
+
+
+## What to say under the circle: where the star is, and how far up the head is now.
+func _star_prompt() -> String:
+	var target := PoleStar.for_latitude(observer.latitude_deg)
+	var look := PoleStar.look_angles(target, observer.latitude_deg, observer.longitude_deg, unix_now())
+	var forward := -rig.camera.global_basis.z
+	var text := "Put %s in the circle, then tap (cancel: Cancel button on the phone)\n%d° up, towards %s (you: %d° up)" % [
+			target.name, roundi(look.elevation_deg), PassPredictor.compass_point(look.azimuth_deg),
+			roundi(rad_to_deg(asin(clampf(forward.y, -1.0, 1.0))))]
+	if target.magnitude > 4.0:
+		text += "\nfaint (mag %.1f): needs a dark sky" % target.magnitude
+	return text
+
+
 func _tap() -> void:
+	if capturing_star:
+		calibrate_on_star()
+		return
 	if capturing_north:
 		capturing_north = false
 		run_command("north")
@@ -366,20 +632,33 @@ func _tap() -> void:
 			capturing_north = true
 			_capture_until = _seconds() + CAPTURE_TIMEOUT_S
 		_:
-			run_command(command)  # nudges keep the menu open, to press again
+			run_command(command)  # nudges and toggles keep the menu open, to press again
+			if quick_menu.is_open() and not command.begins_with("page:"):
+				quick_menu.set_items(_menu_items())
 
 
 ## Per frame: what the reticle is on, the live readout, timeouts.
 func update_controls() -> void:
 	if quick_menu.is_open():
 		quick_menu.set_hovered(quick_menu.row_at(-rig.camera.global_basis.z))
-		quick_menu.set_text(0, _heading_readout())
+		if _menu_page == "main":
+			quick_menu.set_text(0, _heading_readout())
 		if _seconds() > _menu_idle_until:
 			quick_menu.close()
-	if capturing_north and _seconds() > _capture_until:
+	if (capturing_north or capturing_star) and _seconds() > _capture_until:
 		capturing_north = false
-	_reticle.visible = quick_menu.is_open() or capturing_north
-	_prompt.visible = capturing_north
+		capturing_star = false
+	var noticed := not _notice.is_empty() and _seconds() < _notice_until
+	_reticle.visible = quick_menu.is_open() or capturing_north or capturing_star or noticed
+	_prompt.visible = capturing_north or capturing_star or noticed
+	_star_ring.visible = capturing_star
+	if _prompt.visible:
+		var text := _star_prompt() if capturing_star else (
+				"Face true north, then tap" if capturing_north else _notice)
+		if _prompt.text != text:
+			_prompt.text = text
+		# Under the circle when there is one, else just under the cross.
+		_prompt.position.y = -10.0 * deg_to_rad(3.4 if capturing_star else 2.2)
 
 
 func _heading_readout() -> String:
@@ -392,9 +671,13 @@ func panel_status() -> String:
 	if calibration.is_calibrated:
 		cal = "Calibrated %ds ago (%s)" % [roundi(calibration.seconds_since_fix()),
 				CompassCalibration.Source.keys()[calibration.source].to_lower().replace("_", " ")]
-	var text := "%s\n%s" % [_heading_readout(), cal]
+	var text := "%s\n%s\nView from: %s" % [_heading_readout(), cal, viewpoint_text()]
 	if capturing_north:
 		text += "\nFACE TRUE NORTH, THEN TAP"
+	if capturing_star:
+		text += "\n" + _star_prompt().replace("\n", " · ").to_upper()
+	if not _notice.is_empty() and _seconds() < _notice_until:
+		text += "\n" + _notice
 	return text
 
 
@@ -430,6 +713,18 @@ func _build_reticle() -> void:
 	]))
 	cross.material_override = ArVisuals.additive_material(Color(1.0, 0.95, 0.7))
 	_reticle.add_child(cross)
+	var ring: PackedVector3Array = []
+	var ring_r := AT * deg_to_rad(1.5)
+	for i in 48:
+		var a0 := TAU * i / 48.0
+		var a1 := TAU * (i + 1) / 48.0
+		ring.append(Vector3(cos(a0) * ring_r, sin(a0) * ring_r, 0.0))
+		ring.append(Vector3(cos(a1) * ring_r, sin(a1) * ring_r, 0.0))
+	_star_ring = MeshInstance3D.new()
+	_star_ring.mesh = ArVisuals.line_mesh(ring)
+	_star_ring.material_override = ArVisuals.additive_material(Color(1.0, 0.95, 0.7))
+	_star_ring.visible = false
+	_reticle.add_child(_star_ring)
 	_prompt = ArVisuals.create_label(_reticle, "Face true north, then tap", AT * deg_to_rad(0.9),
 			Color(1.0, 0.95, 0.7))
 	_prompt.position = Vector3(0.0, -AT * deg_to_rad(2.2), 0.0)
@@ -458,6 +753,10 @@ func travel_angle(from: LookAngles, to: LookAngles) -> float:
 func update_aircraft_markers() -> void:
 	var now := Time.get_ticks_msec() / 1000.0
 	var max_range_m := max_draw_range_nm * GeoMath.METERS_PER_NAUTICAL_MILE
+	# Off the ground, the Earth is not in the way and the feed's own radius bounds the
+	# set: nothing is culled for range or for being below the (now meaningless) horizon.
+	var at_surface := viewpoint == Viewpoint.SURFACE
+	var view := view_point()
 
 	# While the user drags the sky, dim the aircraft so the ghost N is the brightest
 	# thing in view — it is what they are lining up.
@@ -468,13 +767,16 @@ func update_aircraft_markers() -> void:
 		if hide_on_ground and ac.on_ground:
 			continue
 
+		if not aircraft_shown(ac.classification, aircraft_types):
+			continue
+
 		var position := ac.position_at(now)
-		var look := GeoMath.to_look_angles(observer, position)
-		if look.range_m > max_range_m:
+		var look := GeoMath.to_look_angles(view, position)
+		if at_surface and look.range_m > max_range_m:
 			continue
 		# Just below the horizon is kept, not skipped: SkyMarker fades it over the last
 		# degree and a half, so a climbing aircraft rises into view instead of popping.
-		if look.elevation_deg < -2.0:
+		if at_surface and look.elevation_deg < -2.0:
 			continue
 
 		seen[ac.icao24] = true
@@ -495,10 +797,11 @@ func update_aircraft_markers() -> void:
 			_icon_of[ac.icao24] = icon
 			_labelled_as[ac.icao24] = ac
 
+		marker.fades_at_horizon = at_surface
 		marker.set_brightness(brightness)
 		marker.set_look(look)
 		var directional := AircraftIcons.is_directional(_icon_of.get(ac.icao24, AircraftIcons.Icon.GENERIC))
-		marker.set_travel_angle(travel_angle(look, GeoMath.to_look_angles(observer,
+		marker.set_travel_angle(travel_angle(look, GeoMath.to_look_angles(view,
 				GeoMath.destination_point(position, ac.track_deg, 500.0))) if directional else PI / 2.0)
 
 	# Return markers whose aircraft left the feed, the range, or the sky.
@@ -545,6 +848,12 @@ func update_satellite_pointers() -> void:
 ## below the horizon: the chevron says where it will appear, the diamond where it is.
 func update_passes() -> void:
 	var now := unix_now()
+	# Rise and set mean nothing without a horizon.
+	if viewpoint != Viewpoint.SURFACE:
+		for key: int in active_rise_markers.keys():
+			_release(active_rise_markers[key])
+			active_rise_markers.erase(key)
+		return
 	_tracked_satellites()
 	pass_predictor.update(_tracked_for_passes, observer, now)
 	var lead_s := rise_lead_minutes * 60.0
@@ -643,7 +952,7 @@ func _field_color(sat: Satellite) -> Color:
 ## the tracked satellites' full markers and the few labels near the gaze.
 func update_satellite_markers() -> void:
 	var now := unix_now()
-	satellite_sky.update(observer, now)
+	satellite_sky.update(view_point(), now)
 	var brightness := 0.35 if horizon_control.is_adjusting() else 1.0
 
 	_tracked_satellites()
@@ -876,8 +1185,8 @@ func _hud_text() -> String:
 	var head := "%s%s" % [tracker.name, " (" + (tracker as VitureHeadTracker).status() + ")"
 			if tracker is VitureHeadTracker else ""]
 
-	return "%d fps   Heading %.1f°   offset %.1f°   vfov %.1f°   tracker %s\nCalibration: %s\nObserver: %s (%s)\nFeed: %s\nSatellites: %s\nPasses: %s\n%s" % [
+	return "%d fps   Heading %.1f°   offset %.1f°   vfov %.1f°   tracker %s\nCalibration: %s\nObserver: %s (%s)   View: %s\nFeed: %s\nSatellites: %s\nPasses: %s\n%s" % [
 		Engine.get_frames_per_second(), rig.current_heading_deg(), calibration.heading_offset_deg,
 		rig.vertical_fov_deg, head, cal,
-		observer, _observer_source, feed, _satellite_status(), _passes_status(),
+		observer, _observer_source, viewpoint_text(), feed, _satellite_status(), _passes_status(),
 		"Right-drag look · Left-drag turn sky (Shift = fine) · ←/→ nudge · N north · Space tap · M menu"]
