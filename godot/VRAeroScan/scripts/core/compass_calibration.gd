@@ -97,3 +97,13 @@ func _mark_fixed(fix_source: Source) -> void:
 
 static func _now() -> float:
 	return Time.get_ticks_msec() / 1000.0
+
+
+## Take a fix from what the user is looking at: they say which way that really is
+## (true_azimuth_deg) and the app knows which way it currently draws their gaze
+## (gaze_azimuth_deg, from the camera's forward vector). Unlike a raw yaw this stays right
+## when the head is pitched up at a star or tilted.
+func calibrate_from_gaze(true_azimuth_deg: float, gaze_azimuth_deg: float,
+		fix_source: Source = Source.CELESTIAL) -> void:
+	heading_offset_deg = GeoMath.wrap360(heading_offset_deg + GeoMath.bearing_delta(true_azimuth_deg, gaze_azimuth_deg))
+	_mark_fixed(fix_source)

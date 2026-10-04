@@ -1,0 +1,1012 @@
+{
+ "cases": [
+  {
+   "observerName": "Tucson",
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "star": "Polaris",
+   "unix": 1791082800.0,
+   "azimuthDeg": 0.7275636219944469,
+   "elevationDeg": 32.109406216671104
+  },
+  {
+   "observerName": "Tucson",
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791082800.0,
+   "azimuthDeg": 179.62936097695314,
+   "elevationDeg": -31.11368645984527
+  },
+  {
+   "observerName": "Tucson",
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "star": "Polaris",
+   "unix": 1791106200.0,
+   "azimuthDeg": 0.032029746142469714,
+   "elevationDeg": 32.8481229015802
+  },
+  {
+   "observerName": "Tucson",
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791106200.0,
+   "azimuthDeg": 181.34621478898956,
+   "elevationDeg": -32.05091516029659
+  },
+  {
+   "observerName": "Tucson",
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "star": "Polaris",
+   "unix": 1791122400.0,
+   "azimuthDeg": 359.32618560480444,
+   "elevationDeg": 32.4831551979241
+  },
+  {
+   "observerName": "Tucson",
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791122400.0,
+   "azimuthDeg": 180.69968253621846,
+   "elevationDeg": -33.21380544755759
+  },
+  {
+   "observerName": "Tucson",
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "star": "Polaris",
+   "unix": 1791148500.0,
+   "azimuthDeg": 359.9267433209164,
+   "elevationDeg": 31.599650661397813
+  },
+  {
+   "observerName": "Tucson",
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791148500.0,
+   "azimuthDeg": 178.66109358236633,
+   "elevationDeg": -32.44483487753107
+  },
+  {
+   "observerName": "Tucson",
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "star": "Polaris",
+   "unix": 1805608800.0,
+   "azimuthDeg": 359.3203038665881,
+   "elevationDeg": 31.999390016675317
+  },
+  {
+   "observerName": "Tucson",
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1805608800.0,
+   "azimuthDeg": 179.63918765990778,
+   "elevationDeg": -33.34468609950118
+  },
+  {
+   "observerName": "Tucson",
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "star": "Polaris",
+   "unix": 1846026000.0,
+   "azimuthDeg": 359.4966501153118,
+   "elevationDeg": 31.771045103720436
+  },
+  {
+   "observerName": "Tucson",
+   "observer": [
+    32.2226,
+    -110.9747,
+    730.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1846026000.0,
+   "azimuthDeg": 179.0927631187661,
+   "elevationDeg": -33.10892963787303
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "star": "Polaris",
+   "unix": 1791082800.0,
+   "azimuthDeg": 0.8599475604553984,
+   "elevationDeg": 47.36682291704223
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791082800.0,
+   "azimuthDeg": 179.2307769484775,
+   "elevationDeg": -46.5729073261159
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "star": "Polaris",
+   "unix": 1791106200.0,
+   "azimuthDeg": 0.22389320299044257,
+   "elevationDeg": 48.207861105117
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791106200.0,
+   "azimuthDeg": 181.59927339005776,
+   "elevationDeg": -47.203399203949836
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "star": "Polaris",
+   "unix": 1791122400.0,
+   "azimuthDeg": 359.24454660212075,
+   "elevationDeg": 47.96640145678906
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791122400.0,
+   "azimuthDeg": 181.15954192856398,
+   "elevationDeg": -48.45304229083031
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "star": "Polaris",
+   "unix": 1791148500.0,
+   "azimuthDeg": 359.7308996126905,
+   "elevationDeg": 47.00115226517723
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791148500.0,
+   "azimuthDeg": 178.41040319181394,
+   "elevationDeg": -48.03578243836137
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "star": "Polaris",
+   "unix": 1805608800.0,
+   "azimuthDeg": 359.0991427734198,
+   "elevationDeg": 47.49259951007789
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1805608800.0,
+   "azimuthDeg": 179.88609108234812,
+   "elevationDeg": -48.75986329557666
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "star": "Polaris",
+   "unix": 1846026000.0,
+   "azimuthDeg": 359.2516239527109,
+   "elevationDeg": 47.23982205562093
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1846026000.0,
+   "azimuthDeg": 179.13711179282848,
+   "elevationDeg": -48.6182773998786
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "star": "Polaris",
+   "unix": 1791082800.0,
+   "azimuthDeg": 0.28500571830254456,
+   "elevationDeg": 64.76396031330488
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791082800.0,
+   "azimuthDeg": 182.49784258008077,
+   "elevationDeg": -63.79249276585155
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "star": "Polaris",
+   "unix": 1791106200.0,
+   "azimuthDeg": 358.5650003718251,
+   "elevationDeg": 64.1803242531732
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791106200.0,
+   "azimuthDeg": 180.43940293933636,
+   "elevationDeg": -65.28749771224874
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "star": "Polaris",
+   "unix": 1791122400.0,
+   "azimuthDeg": 359.3889456197685,
+   "elevationDeg": 63.584728661075175
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791122400.0,
+   "azimuthDeg": 177.69605456750318,
+   "elevationDeg": -64.73430432079509
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "star": "Polaris",
+   "unix": 1791148500.0,
+   "azimuthDeg": 1.4221786196246082,
+   "elevationDeg": 64.07009910012874
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791148500.0,
+   "azimuthDeg": 179.45260270049528,
+   "elevationDeg": -63.02314648624238
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "star": "Polaris",
+   "unix": 1805608800.0,
+   "azimuthDeg": 0.47556853320186776,
+   "elevationDeg": 63.569071007351255
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1805608800.0,
+   "azimuthDeg": 177.44136342134397,
+   "elevationDeg": -63.84495511794474
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "star": "Polaris",
+   "unix": 1846026000.0,
+   "azimuthDeg": 1.0009838254013415,
+   "elevationDeg": 63.710983951837264
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1846026000.0,
+   "azimuthDeg": 177.98526123517652,
+   "elevationDeg": -63.3909689910471
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "star": "Polaris",
+   "unix": 1791082800.0,
+   "azimuthDeg": 0.5794583472232853,
+   "elevationDeg": 0.05742358977697119
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791082800.0,
+   "azimuthDeg": 180.32801378385435,
+   "elevationDeg": 1.2852214471332757
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "star": "Polaris",
+   "unix": 1791106200.0,
+   "azimuthDeg": 359.6865789380549,
+   "elevationDeg": 0.36195618106996696
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791106200.0,
+   "azimuthDeg": 181.05065268320948,
+   "elevationDeg": -0.2944062450566747
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "star": "Polaris",
+   "unix": 1791122400.0,
+   "azimuthDeg": 359.3796913783981,
+   "elevationDeg": -0.264220254940208
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791122400.0,
+   "azimuthDeg": 179.95999229676798,
+   "elevationDeg": -0.9721696469547789
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "star": "Polaris",
+   "unix": 1791148500.0,
+   "azimuthDeg": 0.2821649980253044,
+   "elevationDeg": -0.7389105567607299
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791148500.0,
+   "azimuthDeg": 178.9238255353024,
+   "elevationDeg": 0.593699713763018
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "star": "Polaris",
+   "unix": 1805608800.0,
+   "azimuthDeg": 359.63285358563223,
+   "elevationDeg": -0.6764907893816378
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1805608800.0,
+   "azimuthDeg": 179.1424914657798,
+   "elevationDeg": -0.6047897431293899
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "star": "Polaris",
+   "unix": 1846026000.0,
+   "azimuthDeg": 359.8812377184484,
+   "elevationDeg": -0.7899718328271427
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1846026000.0,
+   "azimuthDeg": 178.8810482721009,
+   "elevationDeg": -0.16188939712744144
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "star": "Polaris",
+   "unix": 1791082800.0,
+   "azimuthDeg": 359.6346235775398,
+   "elevationDeg": -33.37275444840589
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791082800.0,
+   "azimuthDeg": 181.2679079895256,
+   "elevationDeg": 33.45523569102863
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "star": "Polaris",
+   "unix": 1791106200.0,
+   "azimuthDeg": 359.39434919042884,
+   "elevationDeg": -34.29477878667786
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791106200.0,
+   "azimuthDeg": 179.28861860073184,
+   "elevationDeg": 32.93170862763493
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "star": "Polaris",
+   "unix": 1791122400.0,
+   "azimuthDeg": 0.19192236488721,
+   "elevationDeg": -34.52565749378056
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791122400.0,
+   "azimuthDeg": 178.62445378598431,
+   "elevationDeg": 34.09020367573234
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "star": "Polaris",
+   "unix": 1791148500.0,
+   "azimuthDeg": 0.6254408684721547,
+   "elevationDeg": -33.571347987235754
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791148500.0,
+   "azimuthDeg": 180.6584112112207,
+   "elevationDeg": 34.93688479107801
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "star": "Polaris",
+   "unix": 1805608800.0,
+   "azimuthDeg": 0.6494991998988396,
+   "elevationDeg": -34.223297682806134
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1805608800.0,
+   "azimuthDeg": 179.17574046580373,
+   "elevationDeg": 34.862617071656324
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "star": "Polaris",
+   "unix": 1846026000.0,
+   "azimuthDeg": 0.747409611432447,
+   "elevationDeg": -33.96255230153765
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1846026000.0,
+   "azimuthDeg": 179.74922246927466,
+   "elevationDeg": 35.07154451990505
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "star": "Polaris",
+   "unix": 1791082800.0,
+   "azimuthDeg": 359.7649518794838,
+   "elevationDeg": -34.465137207776124
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791082800.0,
+   "azimuthDeg": 178.73629036871668,
+   "elevationDeg": 33.398508377061894
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "star": "Polaris",
+   "unix": 1791106200.0,
+   "azimuthDeg": 0.7430272474430563,
+   "elevationDeg": -33.97941511207217
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791106200.0,
+   "azimuthDeg": 179.61161055385,
+   "elevationDeg": 34.9774868024233
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "star": "Polaris",
+   "unix": 1791122400.0,
+   "azimuthDeg": 0.4037260426687981,
+   "elevationDeg": -33.341825021814465
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791122400.0,
+   "azimuthDeg": 181.09823384465963,
+   "elevationDeg": 34.58022545596278
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "star": "Polaris",
+   "unix": 1791148500.0,
+   "azimuthDeg": 359.26831490467566,
+   "elevationDeg": -33.721240117547396
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791148500.0,
+   "azimuthDeg": 180.45280704798424,
+   "elevationDeg": 32.781029979300996
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "star": "Polaris",
+   "unix": 1805608800.0,
+   "azimuthDeg": 359.8315210967898,
+   "elevationDeg": -33.2686433798587
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1805608800.0,
+   "azimuthDeg": 181.38628774812895,
+   "elevationDeg": 33.71632749139149
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "star": "Polaris",
+   "unix": 1846026000.0,
+   "azimuthDeg": 359.53521808846483,
+   "elevationDeg": -33.38382960130343
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1846026000.0,
+   "azimuthDeg": 181.17706129105864,
+   "elevationDeg": 33.23253805800827
+  },
+  {
+   "observerName": "Ushuaia",
+   "observer": [
+    -54.8,
+    -68.3,
+    10.0
+   ],
+   "star": "Polaris",
+   "unix": 1791082800.0,
+   "azimuthDeg": 0.9090725406360444,
+   "elevationDeg": -54.46059210715661
+  },
+  {
+   "observerName": "Ushuaia",
+   "observer": [
+    -54.8,
+    -68.3,
+    10.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791082800.0,
+   "azimuthDeg": 180.92215046053872,
+   "elevationDeg": 55.82652270952133
+  },
+  {
+   "observerName": "Ushuaia",
+   "observer": [
+    -54.8,
+    -68.3,
+    10.0
+   ],
+   "star": "Polaris",
+   "unix": 1791106200.0,
+   "azimuthDeg": 359.30695270821843,
+   "elevationDeg": -54.31992119331104
+  },
+  {
+   "observerName": "Ushuaia",
+   "observer": [
+    -54.8,
+    -68.3,
+    10.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791106200.0,
+   "azimuthDeg": 181.62237516571184,
+   "elevationDeg": 54.13655643795229
+  },
+  {
+   "observerName": "Ushuaia",
+   "observer": [
+    -54.8,
+    -68.3,
+    10.0
+   ],
+   "star": "Polaris",
+   "unix": 1791122400.0,
+   "azimuthDeg": 358.9616682173894,
+   "elevationDeg": -54.98803678048265
+  },
+  {
+   "observerName": "Ushuaia",
+   "observer": [
+    -54.8,
+    -68.3,
+    10.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791122400.0,
+   "azimuthDeg": 179.59020551974618,
+   "elevationDeg": 53.67227464075526
+  },
+  {
+   "observerName": "Ushuaia",
+   "observer": [
+    -54.8,
+    -68.3,
+    10.0
+   ],
+   "star": "Polaris",
+   "unix": 1791148500.0,
+   "azimuthDeg": 0.6611009576559732,
+   "elevationDeg": -55.29855293626396
+  },
+  {
+   "observerName": "Ushuaia",
+   "observer": [
+    -54.8,
+    -68.3,
+    10.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1791148500.0,
+   "azimuthDeg": 178.26389573405015,
+   "elevationDeg": 55.3850115842876
+  },
+  {
+   "observerName": "Ushuaia",
+   "observer": [
+    -54.8,
+    -68.3,
+    10.0
+   ],
+   "star": "Polaris",
+   "unix": 1805608800.0,
+   "azimuthDeg": 359.5185345220941,
+   "elevationDeg": -55.35259397236382
+  },
+  {
+   "observerName": "Ushuaia",
+   "observer": [
+    -54.8,
+    -68.3,
+    10.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1805608800.0,
+   "azimuthDeg": 178.32151281140915,
+   "elevationDeg": 54.167191407415366
+  },
+  {
+   "observerName": "Ushuaia",
+   "observer": [
+    -54.8,
+    -68.3,
+    10.0
+   ],
+   "star": "Polaris",
+   "unix": 1846026000.0,
+   "azimuthDeg": 359.9837527840364,
+   "elevationDeg": -55.42137178075331
+  },
+  {
+   "observerName": "Ushuaia",
+   "observer": [
+    -54.8,
+    -68.3,
+    10.0
+   ],
+   "star": "Sigma Octantis",
+   "unix": 1846026000.0,
+   "azimuthDeg": 177.99211764415367,
+   "elevationDeg": 54.644427531471074
+  }
+ ]
+}
