@@ -343,7 +343,8 @@ Over adb the same actions work as key events, for example `adb shell input keyev
 ## 10. Building and installing
 
 Requirements: Godot 4.7 (headless export), JDK 17, the Android SDK, and Viture's SDK libraries
-in `vendor/viture/lib` (proprietary, copied locally, never committed).
+in `vendor/viture/lib` (Viture makes them freely available to download; they are kept out of
+this repository, which gitignores `vendor/`).
 
 ```bash
 # Build the Android plugin (needs JDK 17 and vendor/viture/lib)
@@ -379,7 +380,8 @@ View the app's status line every five seconds with
   (CelesTrak refuses over-frequent downloads).
 - **Code:** Godot 4 (MIT); the orbit propagator is a GDScript port of python-sgp4 (MIT). All
   icons and drawings are original to this project. No GPL assets are used.
-- **Viture SDK:** proprietary, used locally and never redistributed.
+- **Viture SDK:** Viture's glasses libraries are freely available from Viture. They are not in
+  this repository's source; the release APK bundles them so it runs out of the box.
 
 Accuracy is checked against independent references: look angles against live adsb.lol data,
 the satellite chain against Skyfield (0.0006°), pass times against Skyfield (0.2 s), and the
