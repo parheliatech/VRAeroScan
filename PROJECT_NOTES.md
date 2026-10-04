@@ -394,10 +394,12 @@ computes the star's real az/el (matches Skyfield to 0.0074°; fixture from
 fix from the gaze direction, so head pitch does not matter. Command `star`; phone North tab
 button and glasses-menu row. Refuses when the star is under 3° up (near the equator).
 
-**Launching on the glasses (2026-10-04):** the normal "VRAeroScan" icon opens the app on the
-phone's own screen (the glasses just mirror it) and the control panel never opens. The second
-icon, **"VRAeroScan (glasses)"** (`LaunchOnGlassesActivity`, own process), stops any running copy
-and starts the app on the VITURE display, so the panel opens on the phone. Seen working: app task
+**Launching on the glasses (2026-10-04):** Godot's own launcher entry opens the app on the
+phone's own screen (the glasses just mirror it) and the control panel never opens, so it is
+hidden (`package/show_in_app_library=false` in the export preset). The only icon, **"VRAeroScan"**,
+is the plugin's `LaunchOnGlassesActivity` (own process): it asks for location on the phone's
+screen, stops any running copy and starts the app on the VITURE display, so the panel opens on
+the phone; without glasses it starts the app on the phone's screen. Seen working: app task
 on the glasses display, panel task on display 0. Plugin manifest adds KILL_BACKGROUND_PROCESSES.
 
 **Published (2026-10-04):** https://github.com/parheliatech/VRAeroScan (public, branch `master`),
@@ -444,6 +446,11 @@ see (shadow, daylight, below the horizon — draw them through the Earth); Godot
 - CelesTrak: 17 groups per refresh (every 4 h, cached in `user://celestrak/`). Seed a
   device's cache rather than re-downloading within 2 h (debug build: `adb push` to
   /data/local/tmp, then `run-as org.vraeroscan.app cp … files/celestrak/`).
+- **Glasses go dark but the app is fine** (2026-10-04): the app kept rendering on the VITURE
+  display at ~50 fps with head tracking streaming, Android said the display was ON, yet the
+  glasses showed nothing. Unplugging and replugging the glasses fixed it. The phone was at 20%
+  battery and 44.7 °C at the time; low power is the suspect, not proven. Check with
+  `adb exec-out screencap -p -d 4615860159156968452` (shows what the app is sending).
 - Don't `pkill -f` with a pattern that appears in your own command line — it kills
   the shell running it.
 

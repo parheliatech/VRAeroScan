@@ -36,17 +36,20 @@ display and a head-motion sensor on the end of a cable.
 
 ## 2. Installing and starting the app
 
-**Install.** Download `VRAeroScan-0.1.0.apk` from the
+**Install.** Download the APK (for example `VRAeroScan-0.1.1.apk`) from the
 [latest release](https://github.com/parheliatech/VRAeroScan/releases/latest) onto the phone and
 open it (Android will ask you to allow installs from your browser or file manager), or from a
-computer run `adb install -r VRAeroScan-0.1.0.apk`. The APK is for 64-bit ARM phones, is signed
-with a debug key, and includes Viture's glasses libraries so it can talk to the glasses. On first
-run, allow **Location**.
+computer run `adb install -r VRAeroScan-0.1.1.apk`. A newer release installs over an older one. The APK is for 64-bit ARM phones, is signed
+with a debug key, and includes Viture's glasses libraries so it can talk to the glasses. The first
+time you open **VRAeroScan**, it asks for **Location** on the phone's screen: allow it.
+Without a position the app draws the sky for a built-in default place, and the panel says so in
+capitals (`NO GPS FIX`).
 
 **Start.**
 
 1. Plug the glasses into the phone and put them in 3D mode.
-2. On the phone, open the second app icon, **VRAeroScan (glasses)**.
+2. On the phone, open **VRAeroScan**. It finds the glasses and starts there. (Without the
+   glasses plugged in, it says so and starts on the phone's screen instead.)
 3. The first time (and after a phone reboot), Android asks *"Allow VRAeroScan to access the
    VITURE glasses?"*. Tick **use by default** and tap **OK**.
 4. If the glasses stay black, look at the phone for *"Mirror to external display?"* and answer
@@ -54,9 +57,9 @@ run, allow **Location**.
 5. A few seconds later the **control panel** opens on the phone's screen. The app itself keeps
    running on the glasses.
 
-> **Use the "(glasses)" icon, not the plain "VRAeroScan" icon.** The plain icon opens the app
-> on the phone's own screen. The glasses then only mirror it, and the control panel never
-> appears.
+> **Plug the glasses in before you open the app.** If the app is already running on the phone's
+> screen when they go in, the glasses only mirror it and the control panel never appears; the
+> app says so. Open VRAeroScan again from its icon and it moves to the glasses.
 
 Keep the phone's screen on and in your hand. It is not in view, so the panel is built to be
 used by feel.
@@ -113,8 +116,9 @@ which way you face. Head tilt does not matter.
 Expect to land within about a degree: the circle is about 1.5° in radius.
 
 ### 3.4 From the glasses menu
-Open the menu (§6) and choose **Set north…**, or **Sight pole star…**. For *Set north…*, the
-menu closes, you face true north, and you tap the pad.
+Open the menu (§6) and choose **Set north ›**. That page has **Face north, then tap…** (the menu
+closes, you face true north, and you tap the pad), **Sight pole star…**, and the four sky
+nudges.
 
 After any fix, the panel's status line shows how it was set and how long ago
 (*Calibrated 40s ago*).
@@ -123,18 +127,30 @@ After any fix, the panel's status line shows how it was set and how long ago
 
 ## 4. The control panel (on the phone)
 
-The panel has three tabs. Everything on it is also available in the glasses menu.
+From the top, the panel has:
 
-![The panel: North tab, North tab during a pole-star sighting, Show tab, View tab at 400 km](docs/images/panel-tabs.png)
+- **The status box**, on every tab: your heading, the calibration, the viewpoint, your position
+  (with its accuracy, and its age when it is over a minute old), and the aircraft and
+  satellite counts or what is wrong with a feed. Its last line says what is going on now: a
+  sighting, or what the identify circle has found. It always takes the same space, so the
+  buttons below never move.
+- **◎ Identify**, on every tab: turns the identify circle on and off (§5).
+- **Three tabs**, one for each job: **North** (set it), **Show** (what is drawn) and **View**
+  (where you look from).
+- **The pad**, at the bottom of every tab: **tap** to open the glasses menu, or to choose an item
+  once it is open; **drag** left or right to turn the sky (two fingers for fine).
 
-*From the left: the North tab; the North tab during a pole-star sighting (the star button has
-become **Cancel sighting**); the Show tab; the View tab at 400 km.*
+What is on (the tab you are on, the groups shown, the current view) is lit blue. Everything
+on the panel is also in the glasses menu, organised the same way.
 
-### North tab
-- **I'm facing north**, **Sight the pole star**, and the four nudge buttons (§3).
-- The big **pad**: drag to turn the sky (two fingers for fine), **tap** to open the glasses
-  menu, or to choose an item once it is open.
-- A status line at the top shows your heading, the calibration, and the viewpoint.
+![The panel: North, Show and View tabs](docs/images/panel-tabs.png)
+
+*From the left: the North tab (with Identify on, and what it found in the status box), the Show
+tab and the View tab. During a pole-star sighting the star button becomes **Cancel sighting**
+(lit).*
+
+### North tab: set north
+**I'm facing north**, **Sight the pole star (clear sky)**, and the four nudge buttons (§3).
 
 ### Show tab: what is drawn
 Tap a row to switch it on (☑) or off (☐).
@@ -161,6 +177,8 @@ Tap a row to switch it on (☑) or off (☐).
 
 **All on** and **All off** are under each list.
 
+**Label size:** **Small**, **Medium** or **Large** text on every marker, at the end of the tab.
+
 ### View tab: where you look from
 - **Surface**: your actual position (the default).
 - **Earth centre**: look out from the middle of the planet. There is no horizon, and every
@@ -171,6 +189,12 @@ Tap a row to switch it on (☑) or off (☐).
   and **GEO**.
 
 Altitude is measured above sea level (the WGS84 ellipsoid) at your latitude and longitude.
+While you view from the surface or the centre, the slider is dimmed but keeps its last height;
+moving it switches to that height.
+
+**Your choices are kept.** What is shown, where you view from and the label size are saved on
+the phone and come back the next time you start the app. North is not: the glasses' heading
+starts afresh each time, so set north every session.
 The status line at the top of the panel names the viewpoint (`View from: 400 km up`).
 
 ![The sky seen from the Earth's centre](docs/images/glasses-centre.png)
@@ -195,6 +219,33 @@ means anything:
 Everything is drawn as **outlines**, never fills, and black is invisible on a see-through
 display. Colour says **who**, shape says **what**.
 
+### Identify: what is that?
+Tap **◎ Identify** on the phone (or choose **Identify** in the glasses menu). A circle with four
+short ticks appears in the middle of the glasses. Turn your head to put an aircraft or a
+satellite in it: a card beside the circle describes the one nearest the centre. Tap
+**◎ Identify** again to turn it off.
+
+![The identify circle on a satellite, with its card](docs/images/glasses-identify.png)
+
+*The circle on ICEYE-X7, seen here from the Earth's centre.*
+
+| For an aircraft, the card shows | For a satellite, the card shows |
+|---|---|
+| Callsign and registration | Name and catalogue number |
+| Type code and kind (for example `B737 · Commercial Jet`) | What it is and its group (for example `Earth observation · LEO`), and *military* when it is |
+| Altitude, ground speed and direction of travel | Height above the Earth, orbital period and inclination |
+| Distance, how high it is in your sky, and its compass direction | Distance, how high it is in your sky, and its compass direction |
+| Its ICAO address and how old the position is | Whether it is in sunlight or in Earth's shadow |
+
+- The circle is 2.5° in radius. When nothing is in it, the card says so; the circle is
+  brighter when it has found something.
+- Only what is drawn can be identified: kinds and groups switched off on the **Show** tab are
+  ignored.
+- The phone's status box names what is in the circle too (`IDENTIFY: ISS (ZARYA) · #25544`).
+- While it is on, the small labels that normally appear near the middle of the view are hidden;
+  the card replaces them. The circle steps aside while the glasses menu is open or during a
+  north or pole-star sighting, and comes back afterwards.
+
 ### Aircraft
 A label with two lines: callsign (or registration), then type, altitude and distance, for
 example `DAL123 / A321 FL350 24nm`. Altitudes of 18,000 ft and up are flight levels; below that
@@ -210,14 +261,44 @@ sky.
 | Yellow | Glider or drone |
 | Grey | Unknown |
 
-Icons: airliner, heavy, business jet, twin propeller, light aircraft, helicopter, fighter,
-glider, balloon, or a generic shape. Aircraft are moved smoothly between feed updates
-(dead-reckoned), so they do not jump.
+The shape says what kind of aircraft it is. It is chosen from the aircraft's ICAO type code
+(for example `A321`, `C172`) and its ADS-B size category; the colour (above) is separate and
+says who flies it. The icons are drawn here in white; in the glasses they take the colour.
+
+| Icon | Name | Shown for |
+|---|---|---|
+| <img src="docs/images/icons/aircraft-airliner.png" width="48" alt="Airliner"> | **Airliner** | Narrow-body jets (A320, 737, regional jets) and any jet the app cannot place more precisely. Also an aircraft with no type code whose ADS-B category says *large*. |
+| <img src="docs/images/icons/aircraft-heavy.png" width="48" alt="Heavy"> | **Heavy** | Wide-bodies and other big jets: 747, 777, 787, A330, A350, A380, and large military transports and tankers (C-17, C-5, KC-135). Drawn 25% larger than an airliner. |
+| <img src="docs/images/icons/aircraft-bizjet.png" width="48" alt="Business jet"> | **Business jet** | Gulfstream, Citation, Learjet, Challenger, Falcon and the like, and other private jets of small or medium size. Engines on the rear fuselage and a T-tail. |
+| <img src="docs/images/icons/aircraft-fighter.png" width="48" alt="Fighter"> | **Fighter** | Fighters and jet trainers (F-16, F-35, F/A-18, T-38, A-10), and military jets in the *high performance* category. |
+| <img src="docs/images/icons/aircraft-twin-prop.png" width="48" alt="Twin propeller"> | **Twin propeller** | Twin-engine propeller aircraft: King Air, Baron, Twin Cessnas, Dash 8, ATR, C-130 and similar. |
+| <img src="docs/images/icons/aircraft-light.png" width="48" alt="Light aircraft"> | **Light aircraft** | Single-engine propeller aircraft (Cessna, Piper, Cirrus), and small aircraft known only by their ADS-B category. |
+| <img src="docs/images/icons/aircraft-helicopter.png" width="48" alt="Helicopter"> | **Helicopter** | Rotorcraft. |
+| <img src="docs/images/icons/aircraft-glider.png" width="48" alt="Glider"> | **Glider** | Gliders and sailplanes. |
+| <img src="docs/images/icons/aircraft-balloon.png" width="48" alt="Balloon"> | **Balloon** | Balloons and airships. It is the one icon that does not turn: a balloon drifts, with no nose to point. |
+| <img src="docs/images/icons/aircraft-generic.png" width="48" alt="Generic"> | **Generic** | An aircraft the feed says too little about to tell. |
+
+Aircraft are moved smoothly between feed updates (dead-reckoned), so they do not jump.
 
 ### Satellites
-Satellites are small outline icons, each drawn as what it is: ISS, space
-station, capsule, Hubble, Starlink, communications, navigation, Earth observation, rocket
-body, debris, CubeSat, or generic. Thousands are drawn at once.
+Satellites are small outline icons, each drawn as what it is. Thousands are drawn at once.
+The shape comes from the satellite's name and the CelesTrak lists it appears in (navigation,
+weather, communications and so on); the colour (below) says which orbit it is in.
+
+| Icon | Name | Shown for |
+|---|---|---|
+| <img src="docs/images/icons/satellite-iss.png" width="48" alt="ISS"> | **ISS** | The International Space Station, including its separately catalogued modules. |
+| <img src="docs/images/icons/satellite-station.png" width="48" alt="Space station"> | **Space station** | China's Tiangong station. |
+| <img src="docs/images/icons/satellite-capsule.png" width="48" alt="Capsule"> | **Capsule** | Crewed and cargo spacecraft: Crew Dragon, Dragon, Soyuz, Progress, Shenzhou, Tianzhou, Cygnus, Starliner. |
+| <img src="docs/images/icons/satellite-hubble.png" width="48" alt="Hubble"> | **Hubble** | The Hubble Space Telescope. |
+| <img src="docs/images/icons/satellite-starlink.png" width="48" alt="Starlink"> | **Starlink** | A Starlink satellite. |
+| <img src="docs/images/icons/satellite-comms.png" width="48" alt="Communications"> | **Communications** | Communications satellites: OneWeb, Iridium, Kuiper, Globalstar, geostationary comsats (Intelsat, SES, Viasat...). Also any geostationary satellite not otherwise known, since most are. |
+| <img src="docs/images/icons/satellite-navigation.png" width="48" alt="Navigation"> | **Navigation** | Navigation satellites: GPS, Galileo, GLONASS, BeiDou, QZSS, NavIC. |
+| <img src="docs/images/icons/satellite-earth-obs.png" width="48" alt="Earth observation"> | **Earth observation** | Weather and imaging satellites: NOAA, GOES, Landsat, Sentinel, imaging and radar constellations. |
+| <img src="docs/images/icons/satellite-cubesat.png" width="48" alt="CubeSat"> | **CubeSat** | CubeSats and other small satellites, including objects released from the ISS. |
+| <img src="docs/images/icons/satellite-rocket-body.png" width="48" alt="Rocket body"> | **Rocket body** | A spent rocket stage left in orbit (`R/B` in the name). The bright ones are often what you actually see moving. |
+| <img src="docs/images/icons/satellite-debris.png" width="48" alt="Debris"> | **Debris** | A piece of debris (`DEB` in the name). |
+| <img src="docs/images/icons/satellite-generic.png" width="48" alt="Generic"> | **Generic** | Anything else. |
 
 | Colour | Meaning |
 |---|---|
@@ -237,6 +318,12 @@ body, debris, CubeSat, or generic. Thousands are drawn at once.
 
 
 ### Pointers and passes
+
+| Mark | Name | Meaning |
+|---|---|---|
+| <img src="docs/images/icons/pointer.png" width="48" alt="Off-screen pointer"> | **Off-screen pointer** | At the edge of the view, pointing toward a tracked satellite that is out of sight. |
+| <img src="docs/images/icons/rise.png" width="48" alt="Rise marker"> | **Rise marker** | On the horizon where a tracked satellite will come up. |
+
 - **Off-screen pointers.** The field of view is small (about 46° diagonal). When a tracked
   satellite is outside it, a chevron at the edge of the view points toward it, with its name
   and how many degrees away it is (`ISS (ZARYA) 141°`).
@@ -261,28 +348,31 @@ clock set automatically.
 
 A small menu you aim with your head.
 
-- **Open it:** tap the pad on the **North** tab (or press **M** on a keyboard).
+- **Open it:** tap the pad at the bottom of the phone panel, on any tab (or press **M** on a
+  keyboard).
 - **Aim:** it appears where you are looking and stays put in the world. A cross sits in the
   middle of your view. Turn your head so the cross lands on a row; the row is boxed.
 - **Choose:** tap the pad.
 - **Close it:** choose **Close**, tap while looking away from the menu, or wait 20 seconds.
 
-![The glasses menu, with the Sky ← 0.1° row boxed under the cross](docs/images/glasses-menu.png)
+![The glasses menu's main page, with the Satellites row boxed under the cross](docs/images/glasses-menu.png)
 
-*The main page, with the cross resting on **Sky ← 0.1°** (boxed). **Heading…** and **Close**
-lie just above and below the view.*
+*The main page, with the cross resting on **Set north ›** (boxed). While the menu is open, satellite
+labels, edge pointers and the identify circle are hidden so nothing covers its rows.*
 
 Pages:
 
 | Page | Rows |
 |---|---|
-| **Main** | A live heading readout, **Set north…**, **Sight pole star…**, four sky nudges, **Satellites ›**, **Aircraft ›**, **View from: … ›**, **Close** |
-| **Satellites** | One ☑/☐ row per kind, **All on**, **All off**, **‹ Back** |
-| **Aircraft** | One ☑/☐ row per group, **All on**, **All off**, **‹ Back** |
-| **View from** | **Surface**, **Earth centre**, **Higher ▲**, **Lower ▼**, 100 / 400 / 1,200 / 20,200 / 35,786 km presets, **‹ Back** |
+| **Main** | A live heading readout, **☐/☑ Identify** (choosing it turns the circle on and closes the menu), **Set north ›**, **Show ›**, **View from: … ›**, **Close** |
+| **Set north** | The heading readout, **Face north, then tap…**, **Sight pole star…**, **Sky ← 1°**, **Sky → 1°**, **Sky ← 0.1°**, **Sky → 0.1°**, **‹ Back** |
+| **Show** | **Satellites ›**, **Aircraft ›**, **Labels: …** (tap to cycle Small / Medium / Large), **‹ Back** |
+| **Satellites** (under Show) | One ☑/☐ row per kind, **All on**, **All off**, **‹ Back** |
+| **Aircraft** (under Show) | One ☑/☐ row per group, **All on**, **All off**, **‹ Back** |
+| **View from** | **Surface**, **Earth centre**, **Higher ▲**, **Lower ▼**, 400 / 20,200 / 35,786 km presets, **‹ Back** |
 
-Toggles and nudges keep the menu open, so you can flip several in a row. The menu is taller
-than your view, so look up or down to reach rows at the ends.
+Toggles and nudges keep the menu open, so you can flip several in a row. Every page fits in
+the glasses' view.
 
 ---
 
@@ -306,14 +396,16 @@ than your view, so look up or down to reach rows at the ends.
 
 | Symptom | What to do |
 |---|---|
-| The phone shows what the glasses show and there are no controls | You opened the plain app icon. Close it and open **VRAeroScan (glasses)**. |
+| The phone shows what the glasses show and there are no controls | The app started before the glasses were plugged in (it says so for 20 seconds). Open **VRAeroScan** again from its icon. |
+| "Glasses not found: starting on the phone" | Plug the glasses in, switch them to 3D mode, and open VRAeroScan again. |
+| The status says `NO GPS FIX` | Allow Location for VRAeroScan (Android settings, or open VRAeroScan again), turn on location services, and give the phone a view of the sky. Until then the sky is drawn for the position shown. |
 | Glasses are black | Answer *"Mirror to external display?"* on the phone. Check the glasses are in 3D mode. |
 | Markers do not follow my head | Check the USB permission prompt was accepted (*use by default*). Unplug, replug, relaunch. |
-| The control panel did not open | It opens only after the USB prompt is answered, a few seconds after launch. Relaunch with the glasses icon. |
+| The control panel did not open | It opens only after the USB prompt is answered, a few seconds after launch. Open VRAeroScan again from its icon. |
 | The status line says `no glasses on USB` | The app cannot see the glasses. Replug them. |
 | Markers are all rotated the same wrong amount | North is not set, or is off. See §3. |
 | Markers are wrong by a few degrees and vary | Check the GPS accuracy and that the phone clock is automatic. |
-| No aircraft | Check the internet. The status shows `adsb.lol request failed` with a reason. `HTTP 429` means the service is rate-limiting; it recovers on its own. |
+| No aircraft | Check the internet. The status shows what went wrong in place of the aircraft count. `rate-limited, retry in 30s` means adsb.lol asked the app to slow down; it waits and recovers on its own. |
 | Satellite elements are `STALE` | The cached orbit data is old and could not be refreshed. Get online; the app retries every four hours. |
 | Satellites seem frozen after I move the altitude slider | They are re-positioning in batches; wait a moment. |
 | The pole star circle will not go away | Tap **Cancel sighting** on the phone (or Esc). See §3.3. |
@@ -333,6 +425,7 @@ When run on a computer with no glasses, a mock head tracker is used.
 | **N** | "I'm facing north" |
 | **Space** | The pad's tap |
 | **M** | Open or close the glasses menu |
+| **I** | Turn the identify circle on or off |
 | **Esc** | Cancel a north or pole-star sighting |
 | **[** / **]** | Step the field of view, to match the glasses' optics |
 
@@ -378,6 +471,8 @@ View the app's status line every five seconds with
 - **Aircraft:** adsb.lol public API, ODbL 1.0.
 - **Satellite orbits:** CelesTrak, refreshed every four hours and cached on the phone
   (CelesTrak refuses over-frequent downloads).
+- **This project:** MIT licence (see `LICENSE`). Viture's libraries, bundled in the release APK, are
+  Viture's and not covered by it.
 - **Code:** Godot 4 (MIT); the orbit propagator is a GDScript port of python-sgp4 (MIT). All
   icons and drawings are original to this project. No GPL assets are used.
 - **Viture SDK:** Viture's glasses libraries are freely available from Viture. They are not in
