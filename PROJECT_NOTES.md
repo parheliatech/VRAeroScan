@@ -470,9 +470,10 @@ SDK, which is what our plugin should wrap:
 - Not yet traced: the actual arguments to `initialize`/`openImu` (call sites obfuscated)
   and the pose array layout.
 
-Local copies are in `vendor/viture/` (APK + the four `.so` files), **gitignored — this is
-Viture's proprietary code. The source tree never contains it (`vendor/` stays gitignored), but
-Kendel chose on 2026-10-04 to bundle it in the public release APK so the app runs out of the box.**
+Local copies are in `vendor/viture/` (APK + the four `.so` files), **gitignored. Viture
+makes these libraries freely available to download. The source tree never contains them
+(`vendor/` stays gitignored), but the public release APK bundles them so the app runs out of the
+box (Kendel, 2026-10-04).**
 
 ### Display spike — PASSED 2026-09-23
 `godot/DisplaySpike/` (`display_spike.apk`, debug-signed arm64) on the OnePlus 7 Pro —

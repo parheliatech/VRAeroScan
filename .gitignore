@@ -1,6 +1,7 @@
-# Viture binaries, local only. vendor/viture/ holds SpaceWalker's APK and the glasses
-# libraries extracted from it (libglasses-jni.so, libglasses-internal.so) - Viture's
-# proprietary code, used locally to talk to the glasses and never redistributed.
+# Viture binaries, kept out of the source tree. vendor/viture/ holds SpaceWalker's APK and the
+# glasses libraries extracted from it (libglasses-jni.so, libglasses-internal.so, ...). Viture
+# makes them freely available; the app needs them to talk to the glasses, and the release APK
+# bundles them.
 vendor/
 
 # Editors

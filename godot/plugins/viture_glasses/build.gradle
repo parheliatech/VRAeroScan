@@ -3,9 +3,9 @@
 //
 //   ./build.sh            (sets JAVA_HOME, builds, installs the addon into a project)
 //
-// The Viture native libraries are NOT in this repository. They are Viture's proprietary
-// code, extracted locally from their SpaceWalker app into vendor/viture/lib/ (gitignored)
-// - see PROJECT_NOTES.md. They are packaged into the AAR only on this machine.
+// The Viture native libraries are NOT in this repository. Viture makes them freely
+// available; they go in vendor/viture/lib/ (gitignored) - see PROJECT_NOTES.md - and are
+// packaged into the AAR only when you build it.
 
 plugins {
     id 'com.android.library' version '8.6.1'

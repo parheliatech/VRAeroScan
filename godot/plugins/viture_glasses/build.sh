@@ -5,7 +5,7 @@
 #
 # Needs JDK 17 (Gradle 8.11 cannot run on 25) and Viture's native libraries in
 # vendor/viture/lib/ (see PROJECT_NOTES.md). Output AARs are gitignored: they contain
-# Viture's proprietary code.
+# Viture's libraries, which are kept out of the source tree.
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 
