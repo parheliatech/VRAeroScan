@@ -400,6 +400,10 @@ icon, **"VRAeroScan (glasses)"** (`LaunchOnGlassesActivity`, own process), stops
 and starts the app on the VITURE display, so the panel opens on the phone. Seen working: app task
 on the glasses display, panel task on display 0. Plugin manifest adds KILL_BACKGROUND_PROCESSES.
 
+**Published (2026-10-04):** https://github.com/parheliatech/VRAeroScan (public, branch `master`),
+release `v0.1.0` with `VRAeroScan-0.1.0.apk` (debug-signed, ~112 MB, includes Viture's libs). To
+release again: build the APK, `gh release create vX.Y.Z <apk> --repo parheliatech/VRAeroScan`.
+
 **Next, in order:**
 1. **Verify the fix on hardware:** connect glasses (3D mode), launch, tap OK on the USB
    permission prompt (tick "use by default"), confirm head tracking streams and the
@@ -467,7 +471,8 @@ SDK, which is what our plugin should wrap:
   and the pose array layout.
 
 Local copies are in `vendor/viture/` (APK + the four `.so` files), **gitignored — this is
-Viture's proprietary code, used locally and never committed or redistributed.**
+Viture's proprietary code. The source tree never contains it (`vendor/` stays gitignored), but
+Kendel chose on 2026-10-04 to bundle it in the public release APK so the app runs out of the box.**
 
 ### Display spike — PASSED 2026-09-23
 `godot/DisplaySpike/` (`display_spike.apk`, debug-signed arm64) on the OnePlus 7 Pro —
