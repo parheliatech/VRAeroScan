@@ -4,7 +4,7 @@ extends EditorPlugin
 ## is the "VitureGlasses" engine singleton; this file only matters at export time.
 ##
 ## The AAR in bin/ is built by godot/plugins/viture_glasses/build.sh and is not in git: it
-## contains Viture's proprietary native libraries.
+## contains Viture's native libraries, which are kept out of the source tree.
 
 var _export_plugin: AndroidExportPlugin
 

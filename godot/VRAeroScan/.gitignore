@@ -6,5 +6,5 @@
 export_credentials.cfg
 *.apk.idsig
 # Installed by godot/plugins/viture_glasses/build.sh; the AARs contain Viture's
-# proprietary libraries.
+# native libraries, which are kept out of the source tree.
 /addons/viture_glasses/bin/
