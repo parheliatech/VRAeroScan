@@ -12,8 +12,9 @@ extends Node3D
 ## the reticle is boxed and bright. Pure presentation: AppBootstrap decides what an item
 ## does.
 
-## Height of one row, degrees of view.
-const ROW_DEG := 2.6
+## Height of one row, degrees of view. Nine rows (the longest page) must fit the glasses'
+## 23.5° vertical field of view: rows off the edge cannot be reached without craning.
+const ROW_DEG := 2.4
 ## Width of the menu, degrees of view.
 const WIDTH_DEG := 16.0
 

@@ -48,6 +48,7 @@ func _initialize() -> void:
 	await test_controls()
 	await test_viewpoint_and_groups()
 	await test_pole_star()
+	await test_identify()
 
 	print("\n%d checks, %d failed" % [_checks, _failures])
 	quit(1 if _failures > 0 else 0)
@@ -193,6 +194,21 @@ func test_aircraft_parsing_mixed_altitude() -> void:
 	var moved := GeoMath.great_circle(ual.position(), ual.position_at(4.0))
 	near(moved[0], 450.0 * 1852.0 / 3600.0 * 4.0, 0.5, "dead reckoning distance")
 	near(moved[1], 90.0, 0.01, "dead reckoning bearing")
+
+	# A position that was already 6 s old when it arrived is extrapolated those 6 s too.
+	ual.position_age_s = 6.0
+	moved = GeoMath.great_circle(ual.position(), ual.position_at(4.0))
+	near(moved[0], 450.0 * 1852.0 / 3600.0 * 10.0, 0.5, "dead reckoning includes the feed's position age")
+	ual.position_age_s = 50.0
+	moved = GeoMath.great_circle(ual.position(), ual.position_at(4.0))
+	near(moved[0], 450.0 * 1852.0 / 3600.0 * 30.0, 0.5, "...capped at 30 s")
+
+	# 429: wait as long as the service says, never less than the floor, never absurdly long.
+	near(AdsbService.retry_after_s(PackedStringArray(["Content-Type: x", "Retry-After: 120"]), 30.0), 120.0, 0.0, "Retry-After honoured")
+	near(AdsbService.retry_after_s(PackedStringArray(["retry-after:5"]), 30.0), 30.0, 0.0, "...at least the floor")
+	near(AdsbService.retry_after_s(PackedStringArray(["Retry-After: 99999"]), 30.0), 600.0, 0.0, "...at most 10 min")
+	near(AdsbService.retry_after_s(PackedStringArray(["Retry-After: Wed, 21 Oct 2026 07:28:00 GMT"]), 30.0), 30.0, 0.0, "date form falls back")
+	near(AdsbService.retry_after_s(PackedStringArray(), 30.0), 30.0, 0.0, "absent falls back")
 
 
 func _classify(type: String, category: String, callsign := "") -> int:
@@ -979,6 +995,21 @@ func test_gaze_labels_do_not_overlap() -> void:
 	check(most >= 2, "some view carries several labels (%d)" % most)
 	check(skipped_somewhere, "and overlapping labels were skipped somewhere")
 
+	# The menu and the pole-star circle take the middle of the view: no gaze labels there.
+	var before := app.active_label_markers.size()
+	app.open_menu()
+	app.update_gaze_labels()
+	app.update_satellite_pointers()
+	check(app.pointers.active_count() == 0, "no edge pointers over the open menu")
+	check(app.active_label_markers.is_empty() and app.gaze_rects.is_empty(), "no gaze labels over the open menu")
+	app.quick_menu.close()
+	app.update_gaze_labels()
+	check(app.active_label_markers.size() == before, "they come back when it closes (%d)" % before)
+	app.capturing_star = true
+	app.update_gaze_labels()
+	check(app.active_label_markers.is_empty(), "none around the pole-star circle")
+	app.capturing_star = false
+
 	app.queue_free()
 	await process_frame
 
@@ -1426,6 +1457,9 @@ class FakePanelPlugin:
 	func getLocation() -> PackedFloat64Array:
 		return PackedFloat64Array()
 
+	func getLocationStatus() -> String:
+		return "listening"
+
 	var panels_opened := 0
 
 	func showControlPanel() -> void:
@@ -1510,6 +1544,17 @@ func test_controls() -> void:
 	near(rad_to_deg(forward.angle_to(menu.position.normalized())), 0.0, 1e-3, "menu opens where you look")
 	check(menu.row_at(forward) >= 0 or menu.items[menu.items.size() / 2].command.is_empty(), "looking at the middle hits a row")
 
+	# Setting north is a page of its own: aim at "Set north ›" and tap.
+	var nudge_row := -1
+	for i in menu.items.size():
+		if menu.items[i].command == "page:north":
+			nudge_row = i
+	_face(app, mock, (menu.global_transform * Vector3(0.0, menu._row_y(nudge_row), 0.0)).normalized())
+	await _settle()
+	fake.queued.append("tap")
+	await _settle()
+	check(app._menu_page == "north" and menu.is_open(), "the Set north page opens in place")
+
 	# Aim at "Sky → 1°" by turning the head, tap: the sky moves, the menu stays.
 	var target := -1
 	for i in menu.items.size():
@@ -1533,6 +1578,16 @@ func test_controls() -> void:
 	var beside := (menu.global_transform * Vector3(menu._width, menu._row_y(target), 0.0)).normalized()
 	check(menu.row_at(beside) == -1, "beside the menu hits nothing")
 	check(menu.row_at(-row_dir) == -1, "looking the other way hits nothing")
+
+	# Every page fits the view: the glasses show 23.5° vertically.
+	var shown_page: String = app._menu_page
+	for page in ["main", "north", "show", "sat", "air", "alt"]:
+		app._menu_page = page
+		var rows := app._menu_items().size()
+		check(rows * QuickMenu.ROW_DEG <= app.rig.vertical_fov_deg, "%s page fits the view (%d rows, %.1f°)" % [
+				page, rows, rows * QuickMenu.ROW_DEG])
+	app._menu_page = shown_page
+	menu.set_items(app._menu_items())
 
 	# "Set north…" is two steps: choose it (menu closes, prompt shows), face north, tap.
 	var set_north := -1
@@ -1661,7 +1716,8 @@ func test_viewpoint_and_groups() -> void:
 		check(look.elevation_deg < -30.0, "centre: it is well below the local level (%.1f°)" % look.elevation_deg)
 		near_vec(far_marker.global_position, app.rig.position_for_look(look), 1e-3, "centre: it sits at its direction from the middle")
 		check(far_marker.visible and not far_marker.fades_at_horizon, "centre: not faded for being 'below the horizon'")
-	check(app.adsb.radius_nm == 250, "off the ground the feed asks for its widest circle")
+	check(app.adsb.radius_nm == 250 and app.adsb.poll_interval_s == 10.0,
+			"off the ground the feed asks for its widest circle, less often")
 	check(app.active_rise_markers.is_empty(), "no rise markers without a horizon")
 
 	# Altitude: any km, clamped to the ground ... GEO; the panel is told.
@@ -1688,13 +1744,14 @@ func test_viewpoint_and_groups() -> void:
 	app.run_command("view:400")
 	app._panel_status_timer = 1.0
 	await process_frame
-	check(fake.state == "view=altitude;alt=400;sat=%d;air=%d;star=0" % [Satellite.ALL_CATEGORIES, AppBootstrap.AIRCRAFT_ALL],
+	check(fake.state == "view=altitude;alt=400;sat=%d;air=%d;star=0;labels=medium;identify=0" % [Satellite.ALL_CATEGORIES, AppBootstrap.AIRCRAFT_ALL],
 			"panel state (%s)" % fake.state)
 	check(fake.status.contains("400 km up"), "panel status names the viewpoint")
 
 	app.run_command("view:surface")
 	await _settle()
-	check(app.view_point() == app.observer and app.adsb.radius_nm == 100, "back on the ground")
+	check(app.view_point() == app.observer and app.adsb.radius_nm == 100 and app.adsb.poll_interval_s == 3.0,
+			"back on the ground")
 	check(not app.active_markers.has("far01"), "...the far side's aircraft is hidden again")
 
 	# Aircraft groups.
@@ -1752,7 +1809,9 @@ func test_viewpoint_and_groups() -> void:
 	# Glasses menu pages: toggles show their state and the menu stays open.
 	app.run_command("view:surface")
 	app.open_menu()
-	check(app._menu_items().size() >= 8, "main menu has the new pages")
+	var top: Array = app._menu_items().map(func(i: QuickMenu.Item) -> String: return i.command)
+	check(top == ["", "identify", "page:north", "page:show", "page:alt", "close"],
+			"main menu: Identify, Set north, Show, View from, Close (%s)" % [top])
 	app.run_command("page:sat")
 	check(app.quick_menu.items.size() == 9 and app.quick_menu.items[2].text.begins_with("☑"), "satellite page lists kinds, all on")
 	app.run_command("sat:1")
@@ -1762,6 +1821,64 @@ func test_viewpoint_and_groups() -> void:
 	check(app.quick_menu.items[0].text == "View from: Surface", "altitude page title")
 	app.run_command("page:main")
 	check(app.quick_menu.items[0].text.begins_with("Heading"), "back to the main page")
+
+	# Label size: every marker, pooled ones too, and the gaze-label layout scale together.
+	var some: SkyMarker = app.active_markers.values()[0] if not app.active_markers.is_empty() else null
+	var rect_medium := app.label_rect_deg(Vector3(0, 0, -1), "ABCDEF\n123")
+	app.run_command("labels:small")
+	check(app.label_size == "small" and is_equal_approx(SkyMarker.label_scale, 0.7), "labels:small")
+	if some != null:
+		near(some._label.pixel_size, app.rig.sky_radius * SkyMarker.ANGULAR_SIZE * 0.55 * 0.7 / 64.0, 1e-6,
+				"a live marker's text shrinks")
+	var rect_small := app.label_rect_deg(Vector3(0, 0, -1), "ABCDEF\n123")
+	near(rect_small.size.y, rect_medium.size.y * 0.7, 1e-6, "gaze-label layout uses the new size")
+	app.run_command("labels:next")
+	check(app.label_size == "medium", "next cycles small -> medium")
+	app.run_command("labels:huge")
+	check(app.label_size == "medium", "an unknown size changes nothing")
+	check(app.panel_state().contains("labels=medium"), "the panel is told the size")
+
+	# Settings survive a restart on the phone (persist_settings), and bad values are tamed.
+	app.persist_settings = true
+	app.run_command("labels:large")
+	app.run_command("sat:none")
+	app.run_command("view:20200")
+	app.label_size = "medium"
+	app.satellite_types = Satellite.ALL_CATEGORIES
+	app.run_command("view:surface")  # saves the surface... so write the file we want directly:
+	var cfg := ConfigFile.new()
+	cfg.set_value("show", "satellite_types", 0)
+	cfg.set_value("show", "aircraft_types", 999999999)
+	cfg.set_value("show", "label_size", "large")
+	cfg.set_value("view", "viewpoint", "altitude")
+	cfg.set_value("view", "altitude_km", 99999.0)
+	cfg.save(AppBootstrap.SETTINGS_PATH)
+	app.load_settings()
+	check(app.satellite_types == 0 and app.aircraft_types == AppBootstrap.AIRCRAFT_ALL & 999999999,
+			"loaded groups, masked to known bits")
+	check(app.label_size == "large" and app.viewpoint == AppBootstrap.Viewpoint.ALTITUDE \
+			and app.viewpoint_altitude_km == AppBootstrap.GEO_ALTITUDE_KM, "loaded label size and a clamped altitude")
+	app.run_command("labels:medium")
+	app.run_command("sat:all")
+	app.run_command("air:all")
+	app.run_command("view:surface")
+	var saved := ConfigFile.new()
+	check(saved.load(AppBootstrap.SETTINGS_PATH) == OK and saved.get_value("view", "viewpoint") == "surface"
+			and saved.get_value("show", "label_size") == "medium", "a change is saved")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(AppBootstrap.SETTINGS_PATH))
+	app.persist_settings = false
+
+	# The panel says loudly when there is no GPS fix, and which way the feeds are doing.
+	app._observer_source = "manual"
+	check(app.panel_status().contains("NO GPS FIX (listening): sky is for 47.6, -122.3"), "no-fix warning (%s)" % app.panel_status())
+	app.apply_location_fix(PackedFloat64Array([47.6, -122.3, 100.0, 8.0, 1.0]))
+	check(app.panel_status().contains("Position: GPS ±8m\n"), "GPS line")
+	app.apply_location_fix(PackedFloat64Array([47.6, -122.3, 100.0, 8.0, 436.0]))
+	check(app.panel_status().contains("Position: GPS ±8m (7m old)"), "an old fix says how old")
+	app._last_error = "rate-limited, retry in 30s"
+	check(app.panel_status().contains("aircraft rate-limited, retry in 30s"), "feed problem replaces the count")
+	app._last_error = ""
+	check(app.panel_status().split("\n").size() <= 6, "at most six lines")
 
 	app._android = null
 	app.queue_free()
@@ -1849,9 +1966,9 @@ func test_pole_star() -> void:
 
 	# Cancelling: the star command again (the panel's button is a toggle), "cancel", or Escape.
 	app.run_command("star")
-	check(app.capturing_star and app.panel_state().ends_with("star=1"), "sighting on; the panel is told")
+	check(app.capturing_star and app.panel_state().contains("star=1"), "sighting on; the panel is told")
 	app.run_command("star")
-	check(not app.capturing_star and app.panel_state().ends_with("star=0"), "star again cancels")
+	check(not app.capturing_star and app.panel_state().contains("star=0"), "star again cancels")
 	app.run_command("star")
 	app.run_command("cancel")
 	check(not app.capturing_star, "cancel ends a sighting")
@@ -1877,7 +1994,9 @@ func test_pole_star() -> void:
 	app._capture_until = 0.0
 	await _settle()
 	check(not app.capturing_star, "a sighting nobody finishes times out")
-	check(app._menu_items().any(func(i: QuickMenu.Item) -> bool: return i.command == "star"), "the glasses menu offers it")
+	app._menu_page = "north"
+	check(app._menu_items().any(func(i: QuickMenu.Item) -> bool: return i.command == "star"), "the glasses menu offers it (Set north page)")
+	app._menu_page = "main"
 
 	# Too low to use near the equator: a notice, not a sighting.
 	app.observer = GeoPoint.new(0.5, -78.0, 2800.0)
@@ -1892,6 +2011,120 @@ func test_pole_star() -> void:
 	await _settle()
 	check(app.capturing_star and app._prompt.text.begins_with("Put Sigma Octantis") and app._prompt.text.contains("faint"),
 			"south: Sigma Octantis, with the faint warning (%s)" % app._prompt.text.replace("\n", " / "))
+
+	app._android = null
+	app.queue_free()
+	await _settle()
+
+
+func test_identify() -> void:
+	var fixture: Dictionary = JSON.parse_string(
+			FileAccess.get_file_as_string("res://tests/satellite_fixture.json"))
+	var app: AppBootstrap = load("res://main.tscn").instantiate()
+	app.start_feed = false
+	app.start_satellites = false
+	app.show_debug_hud = false
+	app.latitude_deg = 47.6
+	app.longitude_deg = -122.3
+	app.altitude_m = 100.0
+	root.add_child(app)
+	await _settle()
+	var fake := FakePanelPlugin.new()
+	app._android = fake
+	var mock: MockHeadTracker = app.rig.tracker
+
+	var ac := Aircraft.new()
+	ac.icao24 = "a1b2c3"
+	ac.callsign = "SWA1298"
+	ac.registration = "N8712Q"
+	ac.type_code = "B737"
+	ac.latitude_deg = 47.70
+	ac.longitude_deg = -122.20
+	ac.altitude_ft = 35900.0
+	ac.ground_speed_kt = 0.0
+	ac.track_deg = 270.0
+	ac.received_at = AppBootstrap._seconds()
+	ac.classification = AircraftClassifier.COMMERCIAL | AircraftClassifier.JET
+	app.adsb.aircraft = {"a1b2c3": ac}
+	await _settle()
+	var look := GeoMath.to_look_angles(app.observer, ac.position())
+
+	# Off by default; on: the circle shows, and the aircraft in the middle is described.
+	check(not app.identify_on and not app.identify.visible, "identify is off to start")
+	_face(app, mock, GeoMath.sky_direction(look.azimuth_deg, look.elevation_deg + 1.0))
+	fake.queued.append("identify")
+	await _settle()
+	check(app.identify_on and app.identify.visible, "identify: on")
+	check(app.identified == ac, "the aircraft 1° off centre is identified")
+	var card := app.identify.card_text()
+	check(card.begins_with("SWA1298 · N8712Q\nB737 · Commercial Jet\nFL359 · 0 kt · heading W"), "aircraft card (%s)" % card.replace("\n", " / "))
+	check(card.contains("nm away") and card.contains("° up") and card.contains("ICAO A1B2C3"), "...with where and who")
+	check(app.panel_status().contains("IDENTIFY: SWA1298"), "the panel names it too")
+	check(app.panel_state().contains("identify=1"), "the panel's button is lit")
+	check(app.active_label_markers.is_empty(), "no gaze labels while identifying: the card says more")
+
+	# Looking away: nothing in the circle.
+	_face(app, mock, GeoMath.sky_direction(fposmod(look.azimuth_deg + 90.0, 360.0), 70.0))
+	await _settle()
+	check(app.identified == null and app.identify.card_text() == IdentifyCrosshair.HINT, "nothing centred: the hint")
+	check(app.panel_status().contains("IDENTIFY: nothing in the circle"), "...and the panel says so")
+
+	# A satellite: from the fixture, at its time, look straight at it.
+	var t0: float = fixture["cases"][0]["unix"]
+	app.fixed_unix_time = t0
+	var list: Array[Satellite] = []
+	list.assign(_fixture_satellites(fixture).values())
+	app.satellite_sky.set_catalogue(list, app.observer, t0)
+	var iss: Satellite = null
+	for sat in list:
+		if sat.norad_id == 25544:
+			iss = sat
+	var sl := app.satellite_sky.look_angles(iss, t0)
+	app.adsb.aircraft = {}
+	_face(app, mock, GeoMath.sky_direction(sl.azimuth_deg, sl.elevation_deg))
+	await _settle()
+	check(app.identified == iss, "the ISS centred is identified (got %s)" % [app.identified])
+	card = app.identify.card_text()
+	check(card.begins_with("ISS (ZARYA) · #25544\nSpace station · Manned"), "satellite card (%s)" % card.replace("\n", " / "))
+	check(card.contains("km up · orbit 9") and card.contains("52° incl."), "...with its orbit")
+	check(card.contains("km away") and (card.ends_with("in sunlight") or card.ends_with("not lit")), "...where it is and whether it is lit")
+	if sl.elevation_deg < 0.0:
+		check(card.contains("below the horizon"), "below the horizon is said so")
+	# Kinds switched off are not identified.
+	app.run_command("sat:0")
+	await _settle()
+	check(app.identified != iss, "a hidden kind is not identified")
+	app.run_command("sat:all")
+
+	# The menu and a north sighting take the middle of the view: the crosshair steps aside.
+	app.open_menu()
+	await _settle()
+	check(not app.identify.visible and app.identified == null, "hidden while the menu is open")
+	app.quick_menu.close()
+	app.run_command("star")
+	await _settle()
+	check(not app.identify.visible, "hidden during a pole-star sighting")
+	app.run_command("cancel")
+	await _settle()
+	check(app.identify.visible, "back afterwards")
+
+	# Off: from the menu's Identify row it toggles, and turning it on closes the menu.
+	app.run_command("identify:off")
+	await _settle()
+	check(not app.identify_on and not app.identify.visible, "identify:off")
+	app.open_menu()
+	var row := -1
+	for i in app.quick_menu.items.size():
+		if app.quick_menu.items[i].command == "identify":
+			row = i
+	check(app.quick_menu.items[row].text == "☐ Identify", "the menu row shows it off")
+	_face(app, mock, (app.quick_menu.global_transform * Vector3(0.0, app.quick_menu._row_y(row), 0.0)).normalized())
+	await _settle()
+	fake.queued.append("tap")
+	await _settle()
+	check(app.identify_on and not app.quick_menu.is_open(), "choosing Identify turns it on and closes the menu")
+	app.run_command("identify")
+	check(not app.identify_on, "bare identify toggles")
 
 	app._android = null
 	app.queue_free()

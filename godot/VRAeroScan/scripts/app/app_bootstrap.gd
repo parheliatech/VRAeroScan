@@ -68,6 +68,10 @@ enum Viewpoint { SURFACE, CENTRE, ALTITUDE }
 @export var gaze_labels := 8
 @export var gaze_label_deg := 8.0
 
+## Remember what is shown and where from between launches (see save_settings). On by
+## default on the phone; off on the desktop, where the tests set these freely.
+@export var persist_settings := OS.has_feature("mobile")
+
 @export_group("Debug")
 ## On-screen readout of calibration, heading and feed. Off on the phone: on the
 ## glasses, text is light in your eyes.
@@ -96,7 +100,12 @@ const SATELLITE_KINDS := [
 	["GEO", Satellite.GEO],
 ]
 ## Altitude presets for the glasses menu, km above the ellipsoid.
-const ALTITUDE_PRESETS_KM := [100.0, 400.0, 1200.0, 20200.0, GEO_ALTITUDE_KM]
+## Three, so the page fits the glasses' view; Higher/Lower reach everything between.
+const ALTITUDE_PRESETS_KM := [400.0, 20200.0, GEO_ALTITUDE_KM]
+## Label sizes: name -> scale of SkyMarker's text. Medium is the original size.
+const LABEL_SIZES := {"small": 0.7, "medium": 1.0, "large": 1.35}
+## Where the phone keeps the user's choices between launches.
+const SETTINGS_PATH := "user://settings.cfg"
 
 ## Where you are: the GPS fix, or the manual position. Feeds and passes use this; what the
 ## sky is drawn from is view_point().
@@ -165,6 +174,8 @@ func _ready() -> void:
 	quick_menu = QuickMenu.new()
 	quick_menu.initialize(rig)
 	_build_reticle()
+	identify = IdentifyCrosshair.new()
+	identify.initialize(rig.camera)
 
 	horizon_control = TouchHorizonControl.new()
 	horizon_control.name = "TouchHorizonControl"
@@ -192,9 +203,17 @@ func _ready() -> void:
 	if start_satellites:
 		celestrak.start()
 
+	load_settings()
+
 	if Engine.has_singleton("VitureGlasses"):
 		_android = Engine.get_singleton("VitureGlasses")
 		_android.startLocation()
+		# On the phone's own screen with the glasses plugged in (they were plugged in after
+		# launch, or it was started from a computer), the glasses only mirror the app and the
+		# control panel never opens: say how to get it.
+		if _android.getCurrentDisplayId() == 0 and _android.getGlassesDisplayId() > 0:
+			_notice = "No controls here: open VRAeroScan again from its icon"
+			_notice_until = _seconds() + 20.0
 		# On the glasses, the phone's screen is free: put the controls there — but not
 		# yet. See _open_panel_when_clear().
 		if _android.getCurrentDisplayId() > 0:
@@ -240,6 +259,8 @@ func view_point() -> GeoPoint:
 
 var _view: GeoPoint
 var _view_built_from := []
+## Current label size, a key of LABEL_SIZES.
+var label_size := "medium"
 
 
 func viewpoint_text() -> String:
@@ -316,6 +337,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_M:
 			if not key.echo:
 				run_command("menu")
+		KEY_I:
+			if not key.echo:
+				run_command("identify")
 		# [ and ]: step the rendered FOV, to match the glasses' optics by the nod test.
 		KEY_BRACKETLEFT, KEY_BRACKETRIGHT:
 			var step := 0.5 if key.keycode == KEY_BRACKETRIGHT else -0.5
@@ -351,6 +375,7 @@ func _process(delta: float) -> void:
 	update_satellite_pointers()
 	# Last: gaze labels fit around everything already placed.
 	update_gaze_labels()
+	update_identify()
 	if _hud != null:
 		_hud.text = _hud_text()
 
@@ -380,6 +405,13 @@ var _star_ring: MeshInstance3D
 var _notice := ""
 var _notice_until := 0.0
 
+## The identify crosshair: a circle in the middle of the view and a card describing what is
+## centred in it (IdentifyCrosshair). On until turned off.
+var identify_on := false
+var identify: IdentifyCrosshair
+## What the card describes: an Aircraft, a Satellite, or null.
+var identified: Object = null
+
 ## Waiting for a tap to take "I'm facing north now" (chosen from the glasses menu: you
 ## cannot aim at a menu item and face north at the same time, so it takes two steps).
 var capturing_north := false
@@ -402,6 +434,7 @@ var _panel_not_before := 0.0
 ##   drag_end           the pad was released
 ##   star               sight the pole star (Polaris in the north, Sigma Octantis in the
 ##                      south) in the circle, then tap: sets north from where it is now
+##   identify | identify:on | identify:off   the identify crosshair (bare: toggle)
 ##   cancel             stop sighting the star, or waiting to take north (Esc does too)
 ##   tap                the pad was tapped: open the menu, choose in it, or take north
 ##   menu               open or close the glasses menu
@@ -409,7 +442,8 @@ var _panel_not_before := 0.0
 ##   view:up | view:down                      raise or lower the altitude by a step (×1.5)
 ##   sat:<i> | air:<i>                        toggle satellite kind / aircraft group i
 ##   sat:all | sat:none | air:all | air:none  every group on or off
-##   page:<name>                              glasses menu page: main, sat, air, alt
+##   page:<name>                              glasses menu page: main, north, show, sat, air, alt
+##   labels:small | labels:medium | labels:large | labels:next   label text size
 func run_command(command: String) -> void:
 	var parts := command.split(":")
 	match parts[0]:
@@ -422,6 +456,9 @@ func run_command(command: String) -> void:
 				run_command("cancel")
 			else:
 				start_star_capture()
+		"identify":
+			var what := parts[1] if parts.size() > 1 else ""
+			identify_on = (not identify_on) if what.is_empty() else (what == "on")
 		"cancel":
 			capturing_north = false
 			capturing_star = false
@@ -452,8 +489,14 @@ func run_command(command: String) -> void:
 		"page":
 			_menu_page = parts[1] if parts.size() > 1 else "main"
 			quick_menu.set_items(_menu_items())
+		"labels":
+			set_label_size(parts[1] if parts.size() > 1 else "")
 		_:
 			push_warning("[AppBootstrap] unknown command: %s" % command)
+			return
+	# Choices about what to show and from where are kept between launches.
+	if parts[0] in ["view", "sat", "air", "labels"]:
+		save_settings()
 
 
 ## Switch to a viewpoint, or to an altitude: "surface", "centre", "up", "down", or km.
@@ -474,8 +517,55 @@ func _set_view(what: String) -> void:
 			viewpoint = Viewpoint.ALTITUDE
 			viewpoint_altitude_km = _clamp_altitude(what.to_float())
 	# The feed's circle is centred under you; from higher up, more of the ground is in view.
+	# Those aircraft are far off and move slowly across the view, and the wide circle costs
+	# adsb.lol more, so it is asked less often.
 	adsb.radius_nm = 100 if viewpoint == Viewpoint.SURFACE else 250
+	adsb.poll_interval_s = 3.0 if viewpoint == Viewpoint.SURFACE else 10.0
 	print("VRAEROSCAN viewpoint: %s" % viewpoint_text())
+
+
+## Label text size: "small", "medium", "large", or "next" to cycle. Applies to every
+## marker at once, pooled ones included, and to the gaze-label layout.
+func set_label_size(what: String) -> void:
+	var names: Array = LABEL_SIZES.keys()
+	if what == "next":
+		what = names[(names.find(label_size) + 1) % names.size()]
+	if not LABEL_SIZES.has(what):
+		push_warning("[AppBootstrap] unknown label size: %s" % what)
+		return
+	label_size = what
+	SkyMarker.label_scale = LABEL_SIZES[what]
+	for node in rig.marker_root.get_children():
+		if node is SkyMarker:
+			(node as SkyMarker).apply_label_scale()
+
+
+## Keep the user's choices (what is shown, where from, label size) for the next launch.
+## Phone only: on the desktop the tests drive these settings and must start clean.
+func save_settings() -> void:
+	if not persist_settings:
+		return
+	var cfg := ConfigFile.new()
+	cfg.set_value("show", "satellite_types", satellite_types)
+	cfg.set_value("show", "aircraft_types", aircraft_types)
+	cfg.set_value("show", "label_size", label_size)
+	cfg.set_value("view", "viewpoint", Viewpoint.keys()[viewpoint].to_lower())
+	cfg.set_value("view", "altitude_km", viewpoint_altitude_km)
+	cfg.save(SETTINGS_PATH)
+
+
+func load_settings() -> void:
+	if not persist_settings:
+		return
+	var cfg := ConfigFile.new()
+	if cfg.load(SETTINGS_PATH) != OK:
+		return
+	satellite_types = int(cfg.get_value("show", "satellite_types", satellite_types)) & Satellite.ALL_CATEGORIES
+	aircraft_types = int(cfg.get_value("show", "aircraft_types", aircraft_types)) & AIRCRAFT_ALL
+	set_label_size(str(cfg.get_value("show", "label_size", label_size)))
+	viewpoint_altitude_km = _clamp_altitude(float(cfg.get_value("view", "altitude_km", viewpoint_altitude_km)))
+	var mode := str(cfg.get_value("view", "viewpoint", "surface"))
+	_set_view(mode if mode in ["surface", "centre"] else str(viewpoint_altitude_km))
 
 
 static func _clamp_altitude(km: float) -> float:
@@ -498,9 +588,10 @@ static func _toggle_group(mask: int, groups: Array, what: String, all: int) -> i
 ## "key=value;..." for the phone panel, so its buttons show what is on: view mode and
 ## altitude, satellite kinds and aircraft groups as bitmasks.
 func panel_state() -> String:
-	return "view=%s;alt=%d;sat=%d;air=%d;star=%d" % [
+	return "view=%s;alt=%d;sat=%d;air=%d;star=%d;labels=%s;identify=%d" % [
 		Viewpoint.keys()[viewpoint].to_lower(), roundi(viewpoint_altitude_km),
-		satellite_types, aircraft_types, 1 if capturing_star else 0]
+		satellite_types, aircraft_types, 1 if capturing_star else 0, label_size,
+		1 if identify_on else 0]
 
 
 func open_menu() -> void:
@@ -522,7 +613,24 @@ static func _check(on: bool, label: String) -> String:
 ## menu open to flip several in a row.
 func _menu_items() -> Array[QuickMenu.Item]:
 	var items: Array[QuickMenu.Item] = []
+	# The same three groups as the phone panel's tabs (North, Show, View), with Identify on
+	# the top level of both, since it is used while looking around rather than set once.
 	match _menu_page:
+		"north":
+			items.append(QuickMenu.Item.new(_heading_readout(), ""))
+			items.append(QuickMenu.Item.new("Face north, then tap…", "set_north"))
+			items.append(QuickMenu.Item.new("Sight pole star…", "star"))
+			items.append(QuickMenu.Item.new("Sky ← 1°", "sky:-1"))
+			items.append(QuickMenu.Item.new("Sky → 1°", "sky:1"))
+			items.append(QuickMenu.Item.new("Sky ← 0.1°", "sky:-0.1"))
+			items.append(QuickMenu.Item.new("Sky → 0.1°", "sky:0.1"))
+			items.append(QuickMenu.Item.new("‹ Back", "page:main"))
+		"show":
+			items.append(QuickMenu.Item.new("Show", ""))
+			items.append(QuickMenu.Item.new("Satellites ›", "page:sat"))
+			items.append(QuickMenu.Item.new("Aircraft ›", "page:air"))
+			items.append(QuickMenu.Item.new("Labels: %s" % label_size.capitalize(), "labels:next"))
+			items.append(QuickMenu.Item.new("‹ Back", "page:main"))
 		"sat":
 			items.append(QuickMenu.Item.new("Satellites", ""))
 			for i in SATELLITE_KINDS.size():
@@ -530,7 +638,7 @@ func _menu_items() -> Array[QuickMenu.Item]:
 						SATELLITE_KINDS[i][0]), "sat:%d" % i))
 			items.append(QuickMenu.Item.new("All on", "sat:all"))
 			items.append(QuickMenu.Item.new("All off", "sat:none"))
-			items.append(QuickMenu.Item.new("‹ Back", "page:main"))
+			items.append(QuickMenu.Item.new("‹ Back", "page:show"))
 		"air":
 			items.append(QuickMenu.Item.new("Aircraft", ""))
 			for i in AIRCRAFT_GROUPS.size():
@@ -538,7 +646,7 @@ func _menu_items() -> Array[QuickMenu.Item]:
 						AIRCRAFT_GROUPS[i][0]), "air:%d" % i))
 			items.append(QuickMenu.Item.new("All on", "air:all"))
 			items.append(QuickMenu.Item.new("All off", "air:none"))
-			items.append(QuickMenu.Item.new("‹ Back", "page:main"))
+			items.append(QuickMenu.Item.new("‹ Back", "page:show"))
 		"alt":
 			items.append(QuickMenu.Item.new("View from: " + viewpoint_text(), ""))
 			items.append(QuickMenu.Item.new(_check(viewpoint == Viewpoint.SURFACE, "Surface"), "view:surface"))
@@ -551,14 +659,9 @@ func _menu_items() -> Array[QuickMenu.Item]:
 			items.append(QuickMenu.Item.new("‹ Back", "page:main"))
 		_:
 			items.append(QuickMenu.Item.new(_heading_readout(), ""))
-			items.append(QuickMenu.Item.new("Set north…", "set_north"))
-			items.append(QuickMenu.Item.new("Sight pole star…", "star"))
-			items.append(QuickMenu.Item.new("Sky ← 1°", "sky:-1"))
-			items.append(QuickMenu.Item.new("Sky → 1°", "sky:1"))
-			items.append(QuickMenu.Item.new("Sky ← 0.1°", "sky:-0.1"))
-			items.append(QuickMenu.Item.new("Sky → 0.1°", "sky:0.1"))
-			items.append(QuickMenu.Item.new("Satellites ›", "page:sat"))
-			items.append(QuickMenu.Item.new("Aircraft ›", "page:air"))
+			items.append(QuickMenu.Item.new(_check(identify_on, "Identify"), "identify"))
+			items.append(QuickMenu.Item.new("Set north ›", "page:north"))
+			items.append(QuickMenu.Item.new("Show ›", "page:show"))
 			items.append(QuickMenu.Item.new("View from: %s ›" % viewpoint_text(), "page:alt"))
 			items.append(QuickMenu.Item.new("Close", "close"))
 	return items
@@ -599,7 +702,7 @@ func _star_prompt() -> String:
 	var target := PoleStar.for_latitude(observer.latitude_deg)
 	var look := PoleStar.look_angles(target, observer.latitude_deg, observer.longitude_deg, unix_now())
 	var forward := -rig.camera.global_basis.z
-	var text := "Put %s in the circle, then tap (cancel: Cancel button on the phone)\n%d° up, towards %s (you: %d° up)" % [
+	var text := "Put %s in the circle, then tap\n%d° up, towards %s (you: %d° up) · cancel on the phone" % [
 			target.name, roundi(look.elevation_deg), PassPredictor.compass_point(look.azimuth_deg),
 			roundi(rad_to_deg(asin(clampf(forward.y, -1.0, 1.0))))]
 	if target.magnitude > 4.0:
@@ -631,6 +734,13 @@ func _tap() -> void:
 			quick_menu.close()
 			capturing_north = true
 			_capture_until = _seconds() + CAPTURE_TIMEOUT_S
+		"identify":
+			# Turning it on means "let me look": get the menu out of the way.
+			run_command("identify")
+			if identify_on:
+				quick_menu.close()
+			else:
+				quick_menu.set_items(_menu_items())
 		_:
 			run_command(command)  # nudges and toggles keep the menu open, to press again
 			if quick_menu.is_open() and not command.begins_with("page:"):
@@ -641,7 +751,7 @@ func _tap() -> void:
 func update_controls() -> void:
 	if quick_menu.is_open():
 		quick_menu.set_hovered(quick_menu.row_at(-rig.camera.global_basis.z))
-		if _menu_page == "main":
+		if _menu_page in ["main", "north"]:
 			quick_menu.set_text(0, _heading_readout())
 		if _seconds() > _menu_idle_until:
 			quick_menu.close()
@@ -666,19 +776,59 @@ func _heading_readout() -> String:
 
 
 ## The status line on the phone's control panel.
+##
+## Short lines, at most six: the panel gives the status a fixed height so the buttons under
+## it never move (it is used by feel). The last line is for whatever needs doing now.
 func panel_status() -> String:
-	var cal := "Not calibrated: face north, press \"I'm facing north\""
+	var cal := "Not calibrated: set north first"
 	if calibration.is_calibrated:
-		cal = "Calibrated %ds ago (%s)" % [roundi(calibration.seconds_since_fix()),
+		cal = "Calibrated %s ago (%s)" % [_ago(calibration.seconds_since_fix()),
 				CompassCalibration.Source.keys()[calibration.source].to_lower().replace("_", " ")]
-	var text := "%s\n%s\nView from: %s" % [_heading_readout(), cal, viewpoint_text()]
+	var lines := [_heading_readout(), cal, "View from: %s" % viewpoint_text(), _position_line(),
+			_feeds_line()]
 	if capturing_north:
-		text += "\nFACE TRUE NORTH, THEN TAP"
-	if capturing_star:
-		text += "\n" + _star_prompt().replace("\n", " · ").to_upper()
-	if not _notice.is_empty() and _seconds() < _notice_until:
-		text += "\n" + _notice
-	return text
+		lines.append("FACE TRUE NORTH, THEN TAP THE PAD")
+	elif capturing_star:
+		lines.append("SIGHTING %s: CENTRE IT, TAP THE PAD" % PoleStar.for_latitude(observer.latitude_deg).name.to_upper())
+	elif not _notice.is_empty() and _seconds() < _notice_until:
+		lines.append(_notice)
+	elif identify_on:
+		lines.append("IDENTIFY: " + (identify.card_text().get_slice("\n", 0) if identified != null
+				else "nothing in the circle"))
+	return "\n".join(lines)
+
+
+static func _ago(seconds: float) -> String:
+	if seconds < 120.0:
+		return "%ds" % roundi(seconds)
+	return "%dm" % roundi(seconds / 60.0)
+
+
+## Where the sky is drawn from, and loudly when it is not a real fix: without one, every
+## direction is computed for the built-in default position, and nothing else would say so.
+func _position_line() -> String:
+	if _observer_source.begins_with("GPS"):
+		# A fix can be Android's last-known one, minutes old and from somewhere else.
+		var age := _observer_source.get_slice(", ", 1).to_int()
+		return "Position: %s%s" % [_observer_source.split(",")[0],
+				" (%s old)" % _ago(age) if age > 60 else ""]
+	var why := ""
+	if _android != null:
+		why = " (%s)" % _android.getLocationStatus()
+	return "NO GPS FIX%s: sky is for %.1f, %.1f" % [why, observer.latitude_deg, observer.longitude_deg]
+
+
+## The two feeds in one line; a problem replaces the count.
+func _feeds_line() -> String:
+	var air := "%d aircraft" % active_markers.size()
+	if not _last_error.is_empty():
+		air = "aircraft " + _last_error
+	var sats := "%s satellites" % _thousands(satellite_sky.satellites.size())
+	if satellite_sky.satellites.is_empty():
+		sats = "satellites loading" if start_satellites else "satellites off"
+	elif (unix_now() - celestrak.median_epoch_unix) / 3600.0 > 72.0:
+		sats += " (STALE)"
+	return "%s · %s" % [air, sats]
 
 
 ## Open the control panel once the phone's screen is free. After a reboot Android asks
@@ -840,6 +990,9 @@ func update_satellite_pointers() -> void:
 		var marker: SkyMarker = active_satellite_markers[id]
 		targets.append(OffscreenPointers.Target.new(marker.position.normalized(), sat.name,
 				SkyMarker.color_for_sat(sat)))
+	# Not while the glasses menu is up: a pointer's label landed on its rows.
+	if quick_menu.is_open():
+		targets.clear()
 	pointers.update_targets(targets, 0.35 if horizon_control.is_adjusting() else 1.0)
 
 
@@ -996,12 +1149,71 @@ func update_satellite_markers() -> void:
 			_satellite_labelled_at.erase(key)
 
 
+## The identify crosshair: find the aircraft or satellite nearest the middle of the view,
+## within IdentifyCrosshair.RADIUS_DEG, and describe it. Hidden while the menu or a north
+## sighting has the middle of the view.
+func update_identify() -> void:
+	identify.visible = identify_on and not quick_menu.is_open() and not capturing_star \
+			and not capturing_north
+	if not identify.visible:
+		identified = null
+		return
+	var now := unix_now()
+	var forward := -rig.camera.global_basis.z
+	var best_angle := IdentifyCrosshair.RADIUS_DEG
+	var best: Object = null
+	var best_look: LookAngles = null
+
+	for key: String in active_markers:
+		var marker: SkyMarker = active_markers[key]
+		var ac: Aircraft = adsb.aircraft.get(key)
+		if ac == null or marker.look == null:
+			continue
+		var angle := rad_to_deg(forward.angle_to(GeoMath.sky_direction(marker.look.azimuth_deg, marker.look.elevation_deg)))
+		if angle < best_angle:
+			best_angle = angle
+			best = ac
+			best_look = marker.look
+
+	var gaze_el := rad_to_deg(asin(clampf(forward.y, -1.0, 1.0)))
+	var gaze_az := fposmod(rad_to_deg(atan2(forward.x, -forward.z)), 360.0)
+	# A few degrees of margin: a satellite moves between samples.
+	for sat in satellite_sky.near_direction(gaze_az, gaze_el, IdentifyCrosshair.RADIUS_DEG + 3.0):
+		if not sat.ok or not (sat.category & satellite_types):
+			continue
+		var look := satellite_sky.look_angles(sat, now)
+		var angle := rad_to_deg(forward.angle_to(GeoMath.sky_direction(look.azimuth_deg, look.elevation_deg)))
+		if angle < best_angle:
+			best_angle = angle
+			best = sat
+			best_look = look
+
+	identified = best
+	var at_surface := viewpoint == Viewpoint.SURFACE
+	if best is Aircraft:
+		identify.set_card(IdentifyCrosshair.describe_aircraft(best, best_look, _seconds(), at_surface), true)
+	elif best is Satellite:
+		identify.set_card(IdentifyCrosshair.describe_satellite(best, best_look, at_surface), true)
+	else:
+		identify.set_card(IdentifyCrosshair.HINT, false)
+
+
 ## Labels for the untracked satellites nearest the middle of the view. Their diamonds
 ## are already drawn; these add the text. Placed last each frame and nearest the gaze
 ## first, skipping any label that would overlap one already there — another gaze label,
 ## a tracked satellite's or rise marker's label, or an edge pointer — so the dense band
 ## along the horizon stays readable.
 func update_gaze_labels() -> void:
+	# The middle of the view belongs to the glasses menu, the pole-star circle or the identify
+	# crosshair while they are up: labels there were drawn straight over the menu's rows
+	# (seen on the glasses), and the identify card says more than a label would.
+	if quick_menu.is_open() or capturing_star or identify_on:
+		for key: int in active_label_markers.keys():
+			_release(active_label_markers[key])
+			active_label_markers.erase(key)
+			_satellite_labelled_at.erase(key)
+		gaze_rects.clear()
+		return
 	var now := unix_now()
 	var brightness := 0.35 if horizon_control.is_adjusting() else 1.0
 	var cam := rig.camera.global_basis
@@ -1070,8 +1282,8 @@ func label_rect_deg(v: Vector3, text: String) -> Rect2:
 	var longest := 0
 	for line in lines:
 		longest = maxi(longest, line.length())
-	var glyph := rad_to_deg(SkyMarker.ANGULAR_SIZE * 0.55)
-	var height := lines.size() * LINE_HEIGHT_DEG
+	var glyph := rad_to_deg(SkyMarker.ANGULAR_SIZE * 0.55) * SkyMarker.label_scale
+	var height := lines.size() * LINE_HEIGHT_DEG * SkyMarker.label_scale
 	# The label starts 0.8 of a marker right of the marker's centre.
 	var start := x + rad_to_deg(SkyMarker.ANGULAR_SIZE) * 0.8
 	# 0.56 glyph widths per character, measured from a rendered frame (a 15-character line

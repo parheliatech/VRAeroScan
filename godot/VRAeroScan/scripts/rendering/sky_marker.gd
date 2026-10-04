@@ -21,6 +21,8 @@ const HORIZON_FADE_DEG := 1.5
 
 ## Marker size as a fraction of dome radius, i.e. roughly radians.
 const ANGULAR_SIZE := 0.03
+## Label text size relative to the original, for every marker (AppBootstrap.set_label_size).
+static var label_scale := 1.0
 
 static var _square: ArrayMesh
 static var _diamond: ArrayMesh
@@ -76,6 +78,12 @@ func _build(rig: SkyRig, marker_kind: Kind) -> void:
 	# Beside the outline, left-aligned, so it never paints over the target.
 	_label = ArVisuals.create_label(self, "", size * 0.55, Color.WHITE, HORIZONTAL_ALIGNMENT_LEFT)
 	_label.position = Vector3(size * 0.8, 0, 0)
+	apply_label_scale()
+
+
+## Size the label for SkyMarker.label_scale.
+func apply_label_scale() -> void:
+	_label.pixel_size = _rig.sky_radius * ANGULAR_SIZE * 0.55 * label_scale / _label.font_size
 
 
 ## Show or hide the outline, leaving the label: for a satellite whose diamond
