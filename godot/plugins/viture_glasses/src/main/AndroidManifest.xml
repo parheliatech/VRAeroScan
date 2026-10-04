@@ -9,7 +9,24 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
 
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
+
     <application>
+        <!-- A second icon that starts the app on the glasses (see the class). Own process,
+             so it can stop the app's. -->
+        <activity
+            android:name="org.vraeroscan.viture.LaunchOnGlassesActivity"
+            android:exported="true"
+            android:label="VRAeroScan (glasses)"
+            android:process=":launch"
+            android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <!-- The phone-screen control panel, shown beside the app while it runs on the
              glasses. Its own task, so it lives on the phone display independently. -->
         <activity
