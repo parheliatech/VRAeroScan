@@ -380,6 +380,26 @@ tracking, SBS stereo, GPS, satellite + aircraft icons, pass prediction, pointers
 phone control panel + glasses menu for calibration. The latest build (panel-waits-for-USB-
 permission fix) is INSTALLED on the phone but not yet seen running with the glasses.
 
+**Added 2026-10-04 (uncommitted until Kendel says):** viewpoint altitude (surface / Earth
+centre / 0 km–GEO via `GeoPoint.earth_centre` and `AppBootstrap.view_point()`; rise markers
+and horizon culls are off away from the ground), satellite-kind and aircraft-group toggles,
+a phone panel with North / Show / View tabs, and glasses-menu pages for each. Commands:
+`view:`, `sat:`, `air:`, `page:` (see `run_command`). 3572 checks pass; the APK builds but
+the phone was offline, so it is **not yet installed or seen on hardware**.
+
+**Pole-star sighting (2026-10-04, uncommitted):** optional way to set north: put Polaris
+(north) or Sigma Octantis (south, mag 5.4) in a circle in the glasses and tap. `PoleStar`
+computes the star's real az/el (matches Skyfield to 0.0074°; fixture from
+`tools/validation/export_star_fixture.py`); `CompassCalibration.calibrate_from_gaze` takes the
+fix from the gaze direction, so head pitch does not matter. Command `star`; phone North tab
+button and glasses-menu row. Refuses when the star is under 3° up (near the equator).
+
+**Launching on the glasses (2026-10-04):** the normal "VRAeroScan" icon opens the app on the
+phone's own screen (the glasses just mirror it) and the control panel never opens. The second
+icon, **"VRAeroScan (glasses)"** (`LaunchOnGlassesActivity`, own process), stops any running copy
+and starts the app on the VITURE display, so the panel opens on the phone. Seen working: app task
+on the glasses display, panel task on display 0. Plugin manifest adds KILL_BACKGROUND_PROCESSES.
+
 **Next, in order:**
 1. **Verify the fix on hardware:** connect glasses (3D mode), launch, tap OK on the USB
    permission prompt (tick "use by default"), confirm head tracking streams and the
