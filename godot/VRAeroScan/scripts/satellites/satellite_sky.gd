@@ -4,7 +4,7 @@ extends RefCounted
 ## horizon or below it, all the way round to the far side of the Earth.
 ##
 ## Nothing is culled at the horizon. The app shows what is out there whether or not you
-## could see it, and that includes looking down through the ground (Kendel, 2026-09-24:
+## could see it, and that includes looking down through the ground (owner, 2026-09-24:
 ## "I should be able to look down and see satellites, even if they're directly opposite
 ## me on the earth"). From one spot, 96% of Starlink is below the horizon.
 ##

@@ -122,7 +122,7 @@ It fetches live elements for eight satellites chosen to cover every orbit class 
 distinguishes and both SDP4 resonance paths (ISS, CSS, Hubble, a Starlink, an eccentric
 rocket body, GPS, GOES 16, and the Molniya-orbit Meridian 7), then **freezes** them into
 `godot/VRAeroScan/tests/satellite_fixture.json` with Skyfield's answers from three
-observers at six times: three fixed, the next ISS pass over Tucson (LEO above the
+observers at six times: three fixed, the next ISS pass over the test site (LEO above the
 horizon), and two night passes, one with the ISS sunlit and one with it in Earth's
 shadow, so the shadow calculation is checked where it matters most: overhead, at night. The Godot test is then offline and deterministic.
 `--reuse-elements` keeps the frozen elements and only recomputes the cases.

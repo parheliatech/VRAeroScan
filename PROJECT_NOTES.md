@@ -72,7 +72,7 @@ stay glued to the real aircraft as you turn your head.
 the same day, before Unity had ever opened the project, for three reasons:
 
 1. **Licensing.** Godot is MIT: no account, no seat licence, no future terms change to
-   worry about. This was Kendel's deciding reason.
+   worry about. This was the owner's deciding reason.
 2. **Testable here.** Godot runs headless on the dev box, so the code is compiled and
    tested on every change — the Unity C# had never seen a compiler.
 3. **The Unity advantage was probably illusory.** Viture's Unity SDK appears aimed at
@@ -217,7 +217,7 @@ Both categories must be independently selectable — **some / all / none**:
    phone-tethered Pro XR glasses. The real integration path is probably the Viture
    **Android** SDK, wrapped as a Godot Android plugin (v2, AAR). Verify against the
    actual hardware early — this is an architecture assumption, not a fact.
-3. **Phone → glasses display path — RESOLVED 2026-09-23 (native SBS from Godot, see §10).** Kendel's phone is a
+3. **Phone → glasses display path — RESOLVED 2026-09-23 (native SBS from Godot, see §10).** The owner's phone is a
    **OnePlus 7 Pro (LTE)**, and Viture's SpaceWalker app drives the glasses from it
    without problems. (Several web sources claim the 7 Pro has no DP Alt Mode; direct
    observation beats them.) Still open: how a *Godot* app reaches the glasses. Requires DisplayPort Alt Mode on the
@@ -371,69 +371,117 @@ VRAeroScan/
 and Godot still exits 0, so run.sh fails the run on any `SCRIPT ERROR`. This was hit
 for real — a crashed test once reported "0 failed".
 
-### Resume here (updated 2026-09-24, end of session)
+### Handover: Play Store + ads (2026-10-07) — read this first
 
-**State:** everything committed on `master` (last: `0f2d779`, no remote). 3521 headless
-checks pass (`godot/VRAeroScan/tests/run.sh`). The app runs on the phone + glasses at
-60 fps with 16,749 satellites (CelesTrak active+visual+stations) and live aircraft: head
-tracking, SBS stereo, GPS, satellite + aircraft icons, pass prediction, pointers,
-phone control panel + glasses menu for calibration. The latest build (panel-waits-for-USB-
-permission fix) is INSTALLED on the phone but not yet seen running with the glasses.
+**The `play-release` work is COMMITTED** (`42a3b3f`, 2026-10-07, in the worktree) and pushed to the
+**private** repo https://github.com/parheliatech/VRAeroScan-play (remote `play` in that worktree;
+a branch in the public repo would be public, so it is not on `origin`). The **main tree
+(`master`) changes below were committed on 2026-10-07 at the owner's request, not yet pushed.**
+The `gh` keyring login is stored as `kendelmccarley` but is the same account as `parheliatech`
+(id 60525114, renamed).
 
-**Added 2026-10-04 (uncommitted until Kendel says):** viewpoint altitude (surface / Earth
-centre / 0 km–GEO via `GeoPoint.earth_centre` and `AppBootstrap.view_point()`; rise markers
-and horizon culls are off away from the ground), satellite-kind and aircraft-group toggles,
-a phone panel with North / Show / View tabs, and glasses-menu pages for each. Commands:
-`view:`, `sat:`, `air:`, `page:` (see `run_command`). 3572 checks pass; the APK builds but
-the phone was offline, so it is **not yet installed or seen on hardware**.
+**Two trees.**
+- `~/Vibe/VRAeroScan` (branch `master`): the parked shadow sighting (see the 2026-10-04
+  block below), plus today's privacy scrub (names, LAN IP, phone serial removed; the old commits
+  on GitHub still contain them) and the new **test site: Titan Missile Museum, 31.90306,
+  -110.99861, 880 m** (elevation approximate) in `main.tscn`, `run_tests.gd` and the
+  fixture generators. `star`, `sun` and `satellite` fixtures were regenerated with Skyfield
+  (`--reuse-elements`; venv was in the session scratchpad: `pip install sgp4 skyfield`).
+  `tests/run.sh`: **3706 checks, 0 failed.**
+- `~/Vibe/VRAeroScan-play` (git worktree, branch `play-release`, cut from v0.1.1, NO shadow
+  feature; committed and pushed to the private repo; `vendor` is a symlink to the main tree's, excluded in `.git/info/exclude`).
 
-**Pole-star sighting (2026-10-04, uncommitted):** optional way to set north: put Polaris
-(north) or Sigma Octantis (south, mag 5.4) in a circle in the glasses and tap. `PoleStar`
-computes the star's real az/el (matches Skyfield to 0.0074°; fixture from
-`tools/validation/export_star_fixture.py`); `CompassCalibration.calibrate_from_gaze` takes the
-fix from the gaze direction, so head pitch does not matter. Command `star`; phone North tab
-button and glasses-menu row. Refuses when the star is under 3° up (near the equator).
+**What the play-release tree adds:** AdMob banner (`AdBanner.java`, only in the phone
+`ControlPanelActivity`, never the glasses; Google UMP consent first; Google TEST ids in
+`plugin/src/main/res/values/ads.xml`); the "Android Play" AAB preset (0.2.0, code 3);
+`tools/release/build_play_aab.sh`; `docs/play/` (privacy-policy.md, store-listing.md,
+RELEASE.md = Console walkthrough + Data safety answers, graphics/icon-512 and
+feature-1024x500). Control-panel layout work: North and View tabs scroll (`scrollInto`), View
+page tightened (no headings), pad = 17% of screen height clamped 90-150 dp, status 6 lines,
+and under 740 dp tall the ad is dropped and controls compacted. Checked on the OnePlus 7 Pro
+at its own size and simulated 1080x1920/420 and 1080x1600/440 (`wm size`/`wm density`, reset
+afterwards). NOT tried: tablets, foldables, landscape, large font/display size.
 
-**Launching on the glasses (2026-10-04):** Godot's own launcher entry opens the app on the
-phone's own screen (the glasses just mirror it) and the control panel never opens, so it is
-hidden (`package/show_in_app_library=false` in the export preset). The only icon, **"VRAeroScan"**,
-is the plugin's `LaunchOnGlassesActivity` (own process): it asks for location on the phone's
-screen, stops any running copy and starts the app on the VITURE display, so the panel opens on
-the phone; without glasses it starts the app on the phone's screen. Seen working: app task
-on the glasses display, panel task on display 0. Plugin manifest adds KILL_BACKGROUND_PROCESSES.
+**Signed bundle:** `~/Vibe/VRAeroScan-play/godot/VRAeroScan/vraeroscan.aab` (43 MB, upload
+key CN=VRAeroScan Upload; built 2026-10-06 with all of the above). Rebuild: plugin
+`godot/plugins/viture_glasses/build.sh ../../VRAeroScan` (JDK 17, needs `vendor/viture/lib`),
+then `tools/release/build_play_aab.sh`. Keystore + `signing.env` live in `~/.config/vraeroscan/`
+(outside git): **owner must back that folder up.**
 
-**Published (2026-10-04):** https://github.com/parheliatech/VRAeroScan (public, branch `master`),
-release `v0.1.0` with `VRAeroScan-0.1.0.apk` (debug-signed, ~112 MB, includes Viture's libs). To
-release again: build the APK, `gh release create vX.Y.Z <apk> --repo parheliatech/VRAeroScan`.
+**Live:** privacy policy at https://parheliatech.github.io/VRAeroScan/ (branch `gh-pages`,
+only index.html + .nojekyll; pushed with the `gh` login `kendelmccarley`, commit author
+`parheliatech`). It is a copy of `docs/play/privacy-policy.md`: edit both.
 
-**Next, in order:**
-1. **Verify the fix on hardware:** connect glasses (3D mode), launch, tap OK on the USB
-   permission prompt (tick "use by default"), confirm head tracking streams and the
-   control panel opens by itself a few seconds later.
-2. **Outdoor calibration + truth test:** calibrate north (panel "I'm facing north" or
-   drag the pad until the ghost N sits on true north — the Catalinas are north), then
-   check a marker against a real aircraft, and an ISS pass (the panel/HUD list passes).
-3. **More HUD options** (Kendel chose "both" inputs; calibration was first): satellite
-   filters (kinds, groups), aircraft filters, display (label size — labels are large;
-   ~2× smaller was suggested — gaze-label radius/count, horizon ring, pointers).
-4. Smaller ideas: CRJ/E145 rear-engine regional jets → business-jet silhouette; aircraft
-   off-screen pointers (OffscreenPointers already takes any direction); a terrain/
-   obstruction horizon for rise times; profile the phone with the whole catalogue over a
-   long session (it was 60 fps at launch).
+**Still to do (owner; the signed AAB and ad ids are not in git):**
+1. Play Console account ($25, ID check) and AdMob account; make a Banner ad unit; put the real
+   ids in `ads.xml`; rebuild plugin + AAB. Never tap own live ads.
+2. Closed test: 12+ testers for 14 days if it is a personal account (confirm current rule).
+3. Fill Data safety / content rating / ads declaration per `docs/play/RELEASE.md`.
+4. Check adsb.lol allows ad-supported commercial use (ODbL data; terms unchecked).
+5. Test on a real small phone; decide whether ads should show on 700-740 dp phones.
+6. Decide the release order: commit the shadow feature first or after; ControlPanelActivity.java
+   is edited in both trees, so expect a small merge. Consider rounding the position sent to
+   adsb.lol (now 5 decimals, about 1 m) for privacy.
 
-**Kendel's standing rules (do not regress):** never hide or dim satellites the eye cannot
+**Device now:** phone `<phone-ip>`:5555 over Wi-Fi (the test APK with ads, debug-signed, is
+installed; app may still be running on the glasses). Running Godot restarts adb, so reconnect.
+Note: `adb exec-out screencap -d <id>` ids are in the working-with-the-phone notes below.
+
+### Resume here (updated 2026-10-04, end of session)
+
+**Published:** https://github.com/parheliatech/VRAeroScan (public, MIT, branch `master`),
+latest release **v0.1.1** (`VRAeroScan-0.1.1.apk`, versionCode 2, debug-signed, bundles
+Viture's libs). Commits use the `parheliatech` no-reply identity (repo-local git config);
+history was rewritten to drop the owner's email: never commit with the global identity here.
+
+**Committed 2026-10-07 (it was parked uncommitted until the owner said to commit; still not tried on hardware):** the **shadow
+sighting**: set north by looking along a shadow (it points away from the Sun; the app knows
+the Sun's az/el). Command `shadow` (toggle/cancel like `star`), phone North-tab button
+"Sight your shadow (sunny day)", glasses Set north page row. Refuses with the Sun < 3° or
+> 75° up, and a tap within ~14° of straight down. Files: `app_bootstrap.gd`, `run_tests.gd`,
+`ControlPanelActivity.java`, `README.md` (§3.4, safety warning), new
+`tests/sun_fixture.json` + `tools/validation/export_sun_fixture.py` (Sun matches Skyfield to
+0.0055°). 3714 checks pass. The APK in the repo root (`vraeroscan.apk`, gitignored) is built
+with it, but it is **not installed or tried on hardware**: the phone was unreachable over
+Wi-Fi at the end. When resuming: install, try it on a sunny morning/afternoon, then ask
+the owner whether to commit and release as v0.1.2 (bump `version/code`=3, `version/name` in
+the export preset).
+
+**What the app is now (all on hardware unless noted):** phone + glasses at ~50–60 fps;
+~16,760 satellites, live aircraft; one launcher icon ("VRAeroScan" = `LaunchOnGlassesActivity`)
+that asks for location on the phone and starts on the glasses (or the phone without them);
+phone panel = status box (position/feeds, `NO GPS FIX` warning) + ◎ Identify + North / Show /
+View tabs + pad on every tab; glasses menu with the same structure (all pages fit 23.5° vfov);
+identify crosshair with info card; viewpoint surface / Earth centre / up to GEO; group
+toggles and label sizes, kept between launches (`user://settings.cfg`, phone only); pole-star
+sighting; adsb.lol 429 handling (Retry-After, adaptive interval, 10 s polls off the ground).
+
+**Reddit post** (written, not posted by me): images and APK in `~/Vibe/vraeroscan-reddit/`
+(01–08 JPGs incl. icon tables). Post text is in the 2026-10-04 conversation; it credits
+Claude Opus 5.5 and Sonnet 5.5. If the shadow method ships, add it to the post.
+
+**Open items / ideas:**
+1. Outdoor truth test: calibrate, then check a marker against a real aircraft and an ISS pass.
+2. Privacy: scrubbed 2026-10-06 (names, LAN IP, phone serial, home paths) from the working
+   tree; the earlier commits still contain them. The test site is the Titan Missile Museum (31.90306, -110.99861).
+3. Release signing: releases are debug-signed; a real keystore would mean one uninstall.
+4. Glasses replug mid-session needs an app relaunch (USB connects once at start).
+5. Smaller: CRJ/E145 → business-jet silhouette; aircraft off-screen pointers; terrain horizon
+   for rise times; long-session phone profiling.
+
+**The owner's standing rules (do not regress):** never hide or dim satellites the eye cannot
 see (shadow, daylight, below the horizon — draw them through the Earth); Godot/MIT only
 (no GPL assets; Unity removed); validate against live data / Skyfield, not assumptions.
 
 **Working with the phone (OnePlus 7 Pro, Android 16):**
-- Wi-Fi adb `192.168.86.114:5555`; after a phone reboot re-enable it over USB:
-  `adb -s dee0f13e tcpip 5555 && adb connect 192.168.86.114:5555`. The first connect
+- Wi-Fi adb `<phone-ip>:5555`; after a phone reboot re-enable it over USB:
+  `adb -s <usb-serial> tcpip 5555 && adb connect <phone-ip>:5555`. The first connect
   can fail while the phone's Wi-Fi wakes — ping, then retry.
 - **Running Godot (export, `--import`, tests) restarts the adb server**, dropping the
   Wi-Fi connection: reconnect afterwards, and wrap adb calls in `timeout`.
 - Build + install: `godot --headless --path godot/VRAeroScan --export-debug "Android"
   vraeroscan.apk`, then `adb install -r` (USB is far faster for the 111 MB APK).
-- Launch on the glasses: `ADB=adb ADB_SERIAL=192.168.86.114:5555
+- Launch on the glasses: `ADB=adb ADB_SERIAL=<phone-ip>:5555
   godot/DisplaySpike/launch_on_glasses.sh org.vraeroscan.app`. Status every 5 s:
   `adb logcat -s godot | grep VRAEROSCAN`. Capture: `adb exec-out screencap -p -d
   4615860159156968452` (glasses), `-d 4630946797824131201` (phone screen).
@@ -454,12 +502,12 @@ see (shadow, daylight, below the horizon — draw them through the Earth); Godot
 - Don't `pkill -f` with a pattern that appears in your own command line — it kills
   the shell running it.
 
-**Pending on Kendel's side:** Unity Hub apt package (528 MB) still installed; needs
+**Pending on the owner's side:** Unity Hub apt package (528 MB) still installed; needs
 `sudo apt purge -y unityhub` plus removing `/etc/apt/sources.list.d/unityhub.*` and
 `/usr/share/keyrings/Unity_Technologies_ApS.gpg`.
 
 ### Viture SDK — found inside SpaceWalker (2026-09-23)
-Kendel's `~/Vibe/SpaceJumper/` has SpaceWalker 1.7.2.0 (Viture's official app) already
+The owner's local `SpaceJumper` folder has SpaceWalker 1.7.2.0 (Viture's official app) already
 decompiled (`apk_source/jadx`, `apk_source/apktool`). It bundles Viture's Android glasses
 SDK, which is what our plugin should wrap:
 
@@ -480,19 +528,19 @@ SDK, which is what our plugin should wrap:
 Local copies are in `vendor/viture/` (APK + the four `.so` files), **gitignored. Viture
 makes these libraries freely available to download. The source tree never contains them
 (`vendor/` stays gitignored), but the public release APK bundles them so the app runs out of the
-box (Kendel, 2026-10-04).**
+box (the owner, 2026-10-04).**
 
 ### Display spike — PASSED 2026-09-23
 `godot/DisplaySpike/` (`display_spike.apk`, debug-signed arm64) on the OnePlus 7 Pro —
-which runs **Android 16** (custom ROM; OnePlus stopped at 12), `adb` serial `dee0f13e`,
-Wi-Fi adb at `192.168.86.114:5555`.
+which runs **Android 16** (custom ROM; OnePlus stopped at 12), `adb` serial `<usb-serial>`,
+Wi-Fi adb at `<phone-ip>:5555`.
 
 | Test | Result |
 |---|---|
 | Glasses as an Android display | **Separate EXTERNAL display "VITURE"**, not just a mirror |
 | Normal launch (mirrored) | 1920×886 letterboxed inside 1920×1080 — wastes 18% of FOV |
 | `am start --display <id>` onto glasses, 2D | **1920×1080 native, 60 fps**, phone screen stays free |
-| Same, glasses in 3D mode | **3840×1080 SBS, 60 fps; Kendel confirmed L/R per eye and the horizon lines fuse** |
+| Same, glasses in 3D mode | **3840×1080 SBS, 60 fps; the owner confirmed L/R per eye and the horizon lines fuse** |
 | Phone gyro / accel / magnetometer in Godot | All live |
 
 Behaviours the app must handle (all observed in logs):
@@ -523,7 +571,7 @@ satellites are drawn exactly like lit ones (see §6).
 | Whole chain vs Skyfield (8 sats × 3 observers × 6 times, frozen live elements) | az **0.0006°**, el **0.0004°**, range 40 m, sun 0.007°, shadow **144/144** |
 | Mutation tests: GMST sign, ω×r sign, shadow off, docking dedupe off | each fails the suite |
 | `live_satellite_check.gd`, ISS vs wheretheiss.at | **0.8 km**, shadow state agrees |
-| Rendered frame, Tucson | rocket body at az 227.5 el 37.6 drawn 4° left / 2° up at heading 231.5 |
+| Rendered frame, test site | rocket body at az 227.5 el 37.6 drawn 4° left / 2° up at heading 231.5 |
 
 Design points:
 - **Groups** default to `stations` + `visual` + `starlink` (~11,300 objects; Starlink on
@@ -536,7 +584,7 @@ Design points:
 - **Docked vehicles and station modules** (ISS, POISK, NAUKA, Dragon, Soyuz…) share a
   position; MANNED satellites within 5 km collapse to the lowest catalogue number.
 - **The whole sky, through the Earth (2026-09-24).** Every satellite is drawn wherever it
-  is, below the horizon and on the far side of the planet included — Kendel's rule; a
+  is, below the horizon and on the far side of the planet included — the owner's rule; a
   horizon cut had hidden 96% of Starlink. (Checked first that nothing was being moved
   above the horizon: drawn elevations matched SGP4 to 0.04°; the pile-up along the
   horizon is real geometry — 60% of the Starlinks above the horizon are within 10° of it.)
@@ -597,7 +645,7 @@ business jet, twin prop, light single, helicopter, fighter, glider, balloon, gen
 tar1090 is GPL-2.0+, and its shapes have mixed attributions. Outline-only line meshes,
 top-down planform (also the view from below).
 - Chosen from the classifier + ADS-B emitter category + an ICAO type-prefix table (own,
-  not tar1090's). Live Tucson traffic mapped sensibly (737/E175/CRJ → airliner, B763 →
+  not tar1090's). Live traffic near the test site mapped sensibly (737/E175/CRJ → airliner, B763 →
   heavy, C172/P28A/SR20/C208 → light, B350/E120 → twin prop).
 - **The nose points along the aircraft's motion across YOUR view** (track projected
   into the marker plane via a point 500 m ahead), not map-north-up. Balloons stay upright.

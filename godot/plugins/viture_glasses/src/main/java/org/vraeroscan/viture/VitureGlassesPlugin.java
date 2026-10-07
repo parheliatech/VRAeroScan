@@ -259,7 +259,7 @@ public class VitureGlassesPlugin extends GodotPlugin {
      *
      * Altitude is above mean sea level where Android can provide it (API 34+), which
      * matches the barometric altitudes aircraft report; otherwise it is WGS84 ellipsoidal,
-     * which differs by the local geoid height (about -30 m in Arizona) — negligible for
+     * which differs by the local geoid height (about -30 m in the US Southwest) — negligible for
      * pointing at aircraft kilometres away.
      */
     @UsedByGodot

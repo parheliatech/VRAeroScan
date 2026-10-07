@@ -1,148 +1,148 @@
 {
  "cases": [
   {
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
    "star": "Polaris",
    "unix": 1791082800.0,
-   "azimuthDeg": 0.7275636219944469,
-   "elevationDeg": 32.109406216671104
+   "azimuthDeg": 0.7249812159751081,
+   "elevationDeg": 31.789635076465963
   },
   {
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
    "star": "Sigma Octantis",
    "unix": 1791082800.0,
-   "azimuthDeg": 179.62936097695314,
-   "elevationDeg": -31.11368645984527
+   "azimuthDeg": 179.63005945587946,
+   "elevationDeg": -30.79428405372946
   },
   {
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
    "star": "Polaris",
    "unix": 1791106200.0,
-   "azimuthDeg": 0.032029746142469714,
-   "elevationDeg": 32.8481229015802
+   "azimuthDeg": 0.03222523085455713,
+   "elevationDeg": 32.528571621434025
   },
   {
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
    "star": "Sigma Octantis",
    "unix": 1791106200.0,
-   "azimuthDeg": 181.34621478898956,
-   "elevationDeg": -32.05091516029659
+   "azimuthDeg": 181.34146359628247,
+   "elevationDeg": -31.730987810170237
   },
   {
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
    "star": "Polaris",
    "unix": 1791122400.0,
-   "azimuthDeg": 359.32618560480444,
-   "elevationDeg": 32.4831551979241
+   "azimuthDeg": 359.32868709818575,
+   "elevationDeg": 32.16387509395821
   },
   {
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
    "star": "Sigma Octantis",
    "unix": 1791122400.0,
-   "azimuthDeg": 180.69968253621846,
-   "elevationDeg": -33.21380544755759
+   "azimuthDeg": 180.6976391271522,
+   "elevationDeg": -32.89404209689992
   },
   {
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
    "star": "Polaris",
    "unix": 1791148500.0,
-   "azimuthDeg": 359.9267433209164,
-   "elevationDeg": 31.599650661397813
+   "azimuthDeg": 359.92668880330814,
+   "elevationDeg": 31.28013687182744
   },
   {
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
    "star": "Sigma Octantis",
    "unix": 1791148500.0,
-   "azimuthDeg": 178.66109358236633,
-   "elevationDeg": -32.44483487753107
+   "azimuthDeg": 178.66590856942977,
+   "elevationDeg": -32.125854384607216
   },
   {
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
    "star": "Polaris",
    "unix": 1805608800.0,
-   "azimuthDeg": 359.3203038665881,
-   "elevationDeg": 31.999390016675317
+   "azimuthDeg": 359.32254375037814,
+   "elevationDeg": 31.680112434372038
   },
   {
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
    "star": "Sigma Octantis",
    "unix": 1805608800.0,
-   "azimuthDeg": 179.63918765990778,
-   "elevationDeg": -33.34468609950118
+   "azimuthDeg": 179.64105920414377,
+   "elevationDeg": -33.025279640321834
   },
   {
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
    "star": "Polaris",
    "unix": 1846026000.0,
-   "azimuthDeg": 359.4966501153118,
-   "elevationDeg": 31.771045103720436
+   "azimuthDeg": 359.49815389174984,
+   "elevationDeg": 31.451695173201628
   },
   {
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
    "star": "Sigma Octantis",
    "unix": 1846026000.0,
-   "azimuthDeg": 179.0927631187661,
-   "elevationDeg": -33.10892963787303
+   "azimuthDeg": 179.0964746121122,
+   "elevationDeg": -32.78974967403529
   },
   {
    "observerName": "Seattle",

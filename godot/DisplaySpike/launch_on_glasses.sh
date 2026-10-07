@@ -4,7 +4,7 @@
 #
 #   launch_on_glasses.sh [package]      default: org.vraeroscan.displayspike
 #
-# Set ADB_SERIAL for Wi-Fi adb (e.g. 192.168.86.114:5555). If the glasses stay black,
+# Set ADB_SERIAL for Wi-Fi adb (e.g. <phone-ip>:5555). If the glasses stay black,
 # check the phone for Android 16's "Mirror to external display?" prompt: until it is
 # answered the display is disabled.
 set -eu

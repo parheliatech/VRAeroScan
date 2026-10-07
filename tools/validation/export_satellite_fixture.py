@@ -42,7 +42,7 @@ CATALOG_NUMBERS = [
 ]
 
 OBSERVERS = [
-    ("Tucson", 32.2226, -110.9747, 730.0),
+    ("Titan Missile Museum", 31.90306, -110.99861, 880.0),
     ("Sydney", -33.8688, 151.2093, 30.0),
     ("Tromso", 69.65, 18.96, 20.0),
 ]
@@ -93,26 +93,26 @@ def main():
     iss = next(r for r in records if r["NORAD_CAT_ID"] == 25544)
     base = ts.utc(*[int(x) for x in iss["EPOCH"][:13].replace("T", "-").split("-")])
 
-    # Plus the next ISS pass over Tucson, at culmination, so LEO satellites are covered
+    # Plus the next ISS pass over the site, at culmination, so LEO satellites are covered
     # ABOVE the horizon too, where the app actually draws them.
     iss_sat = EarthSatellite.from_omm(ts, iss)
-    tucson = wgs84.latlon(*OBSERVERS[0][1:3], elevation_m=OBSERVERS[0][3])
-    times, events = iss_sat.find_events(tucson, base, ts.tt_jd(base.tt + 2.0), altitude_degrees=10.0)
+    site = wgs84.latlon(*OBSERVERS[0][1:3], elevation_m=OBSERVERS[0][3])
+    times, events = iss_sat.find_events(site, base, ts.tt_jd(base.tt + 2.0), altitude_degrees=10.0)
     culmination = next(t for t, e in zip(times, events) if e == 1)
     offsets_h = OFFSETS_H + [(culmination.tt - base.tt) * 24.0]
 
-    # And two night-time moments: the ISS up in a dark Tucson sky and sunlit, and up in
+    # And two night-time moments: the ISS up in a dark sky over the site and sunlit, and up in
     # a dark sky but in Earth's shadow, so the app's shadow flag (a label, never a
     # filter) is checked at night overhead. Searched over ten days; both are common.
-    times, events = iss_sat.find_events(tucson, base, ts.tt_jd(base.tt + 10.0), altitude_degrees=10.0)
-    sun_el = lambda t: (earth + tucson).at(t).observe(sun).apparent().altaz()[0].degrees
+    times, events = iss_sat.find_events(site, base, ts.tt_jd(base.tt + 10.0), altitude_degrees=10.0)
+    sun_el = lambda t: (earth + site).at(t).observe(sun).apparent().altaz()[0].degrees
     wanted = {True: None, False: None}
     for t, e in zip(times, events):
         if e == 1 and sun_el(t) < -12.0 and wanted[bool(iss_sat.at(t).is_sunlit(eph))] is None:
             wanted[bool(iss_sat.at(t).is_sunlit(eph))] = t
     for lit, t in wanted.items():
         if t is None:
-            print(f"  no {'sunlit' if lit else 'eclipsed'} night pass of the ISS over Tucson found")
+            print(f"  no {'sunlit' if lit else 'eclipsed'} night pass of the ISS over the site found")
         else:
             offsets_h.append((t.tt - base.tt) * 24.0)
 

@@ -49,6 +49,7 @@ func _initialize() -> void:
 	await test_viewpoint_and_groups()
 	await test_pole_star()
 	await test_identify()
+	await test_shadow_sighting()
 
 	print("\n%d checks, %d failed" % [_checks, _failures])
 	quit(1 if _failures > 0 else 0)
@@ -275,7 +276,7 @@ func test_viture_pose_mapping() -> void:
 # --- Satellites -------------------------------------------------------------------
 
 func test_ecef_geodetic_round_trip() -> void:
-	for p: Array in [[32.2226, -110.9747, 730.0], [-33.9, 151.2, 420000.0], [89.9, 10.0, 0.0],
+	for p: Array in [[31.90306, -110.99861, 880.0], [-33.9, 151.2, 420000.0], [89.9, 10.0, 0.0],
 			[0.0, -179.9, 35786000.0], [-70.0, 45.0, 20200000.0]]:
 		var e := GeoMath.geodetic_to_ecef(GeoPoint.new(p[0], p[1], p[2]))
 		var g := GeoMath.ecef_to_geodetic(e[0], e[1], e[2])
@@ -472,12 +473,12 @@ func test_satellite_sky_scheduling() -> void:
 	var fixture: Dictionary = JSON.parse_string(
 			FileAccess.get_file_as_string("res://tests/satellite_fixture.json"))
 	var list := _spread_catalogue(fixture)
-	var tucson := GeoPoint.new(32.2226, -110.9747, 730.0)
-	var frame := GeoMath.local_frame(tucson)
+	var site := GeoPoint.new(31.90306, -110.99861, 880.0)
+	var frame := GeoMath.local_frame(site)
 	var t0: float = fixture["cases"][0]["unix"]
 
 	var sky := SatelliteSky.new()
-	sky.set_catalogue(list, tucson, t0)
+	sky.set_catalogue(list, site, t0)
 	var below := list.filter(func(s: Satellite) -> bool: return s.sampled_elevation_deg < 0.0).size()
 	check(below > list.size() / 2 and below < list.size(), "catalogue spans above and below the horizon (%d of %d below)" % [below, list.size()])
 
@@ -492,7 +493,7 @@ func test_satellite_sky_scheduling() -> void:
 		last[sat.norad_id] = sat.sampled_unix
 	for f in 1800:
 		var t := t0 + (f + 1) / 30.0
-		sky.update(tucson, t)
+		sky.update(site, t)
 		for sat in sky.resampled:
 			longest_gap = maxf(longest_gap, sat.sampled_unix - last[sat.norad_id])
 			last[sat.norad_id] = sat.sampled_unix
@@ -529,7 +530,7 @@ func test_satellite_sky_scheduling() -> void:
 
 	# Moving the observer 1 km resamples everything, spread over frames by the budget.
 	sky.budget_usec = 200
-	var moved := GeoPoint.new(32.2316, -110.9747, 730.0)
+	var moved := GeoPoint.new(31.91206, -110.99861, 880.0)
 	sky.update(moved, t_end + 0.01)
 	check(sky.backlog() > 0 and sky.resampled.size() < list.size(), "observer move: resampling spread over frames")
 	var frames := 0
@@ -541,7 +542,7 @@ func test_satellite_sky_scheduling() -> void:
 	# Between samples, straight-line extrapolation must stay on the true orbit.
 	var iss := Satellite.from_omm(fixture["omm"][0])
 	var one: Array[Satellite] = [iss]
-	sky.set_catalogue(one, tucson, t0)
+	sky.set_catalogue(one, site, t0)
 	var extrapolated := iss.ecef_at(t0 + 2.0)
 	var truth := iss.ecef_position_at(t0 + 2.0)
 	var err_m := Vector3(extrapolated[0] - truth[0], extrapolated[1] - truth[1],
@@ -599,9 +600,9 @@ func test_aircraft_icon_points_along_travel() -> void:
 	app.start_feed = false
 	app.start_satellites = false
 	app.show_debug_hud = false
-	app.latitude_deg = 32.2226
-	app.longitude_deg = -110.9747
-	app.altitude_m = 730.0
+	app.latitude_deg = 31.90306
+	app.longitude_deg = -110.99861
+	app.altitude_m = 880.0
 	root.add_child(app)
 	await process_frame
 	var mock: MockHeadTracker = app.rig.tracker
@@ -622,7 +623,7 @@ func test_aircraft_icon_points_along_travel() -> void:
 		ac.type_code = "A320"
 		ac.emitter_category = "A3"
 		ac.latitude_deg = 32.33
-		ac.longitude_deg = -110.9747
+		ac.longitude_deg = -110.99861
 		ac.altitude_ft = 20000.0
 		ac.ground_speed_kt = 250.0
 		ac.track_deg = c[0]
@@ -714,11 +715,11 @@ func test_app_places_marker_on_aircraft() -> void:
 	# Phone location: a good fix becomes the observer; coarse or malformed ones do not.
 	var manual := app.observer
 	check(not app.apply_location_fix(PackedFloat64Array([1.0, 2.0])), "short fix rejected")
-	check(not app.apply_location_fix(PackedFloat64Array([32.3, -110.9, 800.0, 1500.0, 1.0])),
+	check(not app.apply_location_fix(PackedFloat64Array([31.98, -110.9, 800.0, 1500.0, 1.0])),
 			"1.5 km cell fix rejected")
 	check(app.observer == manual, "rejected fixes leave the manual observer")
-	check(app.apply_location_fix(PackedFloat64Array([32.3, -110.9, 800.0, 6.0, 1.0])), "6 m GPS fix accepted")
-	near(app.observer.latitude_deg, 32.3, 1e-9, "GPS fix becomes the observer")
+	check(app.apply_location_fix(PackedFloat64Array([31.98, -110.9, 800.0, 6.0, 1.0])), "6 m GPS fix accepted")
+	near(app.observer.latitude_deg, 31.98, 1e-9, "GPS fix becomes the observer")
 	app.observer = manual  # the marker checks below were computed for the manual position
 
 	# The N key declares "facing north now": heading must read 0 afterwards.
@@ -749,13 +750,13 @@ func test_app_places_marker_on_aircraft() -> void:
 func test_app_places_marker_on_satellite() -> void:
 	var fixture: Dictionary = JSON.parse_string(
 			FileAccess.get_file_as_string("res://tests/satellite_fixture.json"))
-	# A fixture case with a satellite well up in Tucson's sky.
+	# A fixture case with a satellite well up in the site's sky.
 	var case_: Dictionary = {}
 	for c: Dictionary in fixture["cases"]:
-		if c["observerName"] == "Tucson" and c["elevationDeg"] > 15.0 and int(c["norad"]) != 41866:
+		if c["observerName"] == "Titan Missile Museum" and c["elevationDeg"] > 15.0 and int(c["norad"]) != 41866:
 			case_ = c
 			break
-	check(not case_.is_empty(), "fixture has a satellite high over Tucson")
+	check(not case_.is_empty(), "fixture has a satellite high over the site")
 	if case_.is_empty():
 		return
 
@@ -763,9 +764,9 @@ func test_app_places_marker_on_satellite() -> void:
 	app.start_feed = false
 	app.start_satellites = false
 	app.show_debug_hud = false
-	app.latitude_deg = 32.2226
-	app.longitude_deg = -110.9747
-	app.altitude_m = 730.0
+	app.latitude_deg = 31.90306
+	app.longitude_deg = -110.99861
+	app.altitude_m = 880.0
 	app.fixed_unix_time = case_["unix"]
 	root.add_child(app)
 	await process_frame
@@ -805,7 +806,7 @@ func test_app_places_marker_on_satellite() -> void:
 
 func test_app_draws_whole_sky() -> void:
 	# Every satellite is drawn wherever it is — below the horizon and on the far side of
-	# the Earth included (Kendel, 2026-09-24). Untracked ones are SatelliteField
+	# the Earth included (owner, 2026-09-24). Untracked ones are SatelliteField
 	# instances; tracked ones are full markers.
 	var fixture: Dictionary = JSON.parse_string(
 			FileAccess.get_file_as_string("res://tests/satellite_fixture.json"))
@@ -813,9 +814,9 @@ func test_app_draws_whole_sky() -> void:
 	app.start_feed = false
 	app.start_satellites = false
 	app.show_debug_hud = false
-	app.latitude_deg = 32.2226
-	app.longitude_deg = -110.9747
-	app.altitude_m = 730.0
+	app.latitude_deg = 31.90306
+	app.longitude_deg = -110.99861
+	app.altitude_m = 880.0
 	var t0: float = fixture["cases"][0]["unix"]
 	app.fixed_unix_time = t0
 	root.add_child(app)
@@ -943,9 +944,9 @@ func test_gaze_labels_do_not_overlap() -> void:
 	app.start_feed = false
 	app.start_satellites = false
 	app.show_debug_hud = false
-	app.latitude_deg = 32.2226
-	app.longitude_deg = -110.9747
-	app.altitude_m = 730.0
+	app.latitude_deg = 31.90306
+	app.longitude_deg = -110.99861
+	app.altitude_m = 880.0
 	var t0: float = fixture["cases"][0]["unix"]
 	app.fixed_unix_time = t0
 	root.add_child(app)
@@ -1021,11 +1022,11 @@ func test_app_draws_eclipsed_satellite() -> void:
 			FileAccess.get_file_as_string("res://tests/satellite_fixture.json"))
 	var eclipsed: Dictionary = {}
 	for c: Dictionary in fixture["cases"]:
-		if c["observerName"] == "Tucson" and int(c["norad"]) == 25544 and c["elevationDeg"] > 10.0 \
+		if c["observerName"] == "Titan Missile Museum" and int(c["norad"]) == 25544 and c["elevationDeg"] > 10.0 \
 				and not c["sunlit"]:
 			eclipsed = c
 			break
-	check(not eclipsed.is_empty(), "fixture has the ISS up over Tucson in Earth's shadow")
+	check(not eclipsed.is_empty(), "fixture has the ISS up over the site in Earth's shadow")
 	if eclipsed.is_empty():
 		return
 
@@ -1033,9 +1034,9 @@ func test_app_draws_eclipsed_satellite() -> void:
 	app.start_feed = false
 	app.start_satellites = false
 	app.show_debug_hud = false
-	app.latitude_deg = 32.2226
-	app.longitude_deg = -110.9747
-	app.altitude_m = 730.0
+	app.latitude_deg = 31.90306
+	app.longitude_deg = -110.99861
+	app.altitude_m = 880.0
 	app.fixed_unix_time = eclipsed["unix"]
 	root.add_child(app)
 	await process_frame
@@ -1129,32 +1130,32 @@ func test_pass_predictor_scheduling() -> void:
 	var sats := _fixture_satellites(fixture)
 	var iss: Satellite = sats[25544]
 	var hst: Satellite = sats[20580]
-	var tucson := GeoPoint.new(32.2226, -110.9747, 730.0)
+	var site := GeoPoint.new(31.90306, -110.99861, 880.0)
 	var t0: float = fixture["passes"][0]["fromUnix"]
 	var tracked: Array[Satellite] = [iss, hst]
 
 	# Sliced over frames, it reaches the same answer as the one-shot search.
 	var predictor := PassPredictor.new()
 	var frames := 0
-	predictor.update(tracked, tucson, t0)
+	predictor.update(tracked, site, t0)
 	while not predictor.is_idle() and frames < 1000:
-		predictor.update(tracked, tucson, t0)
+		predictor.update(tracked, site, t0)
 		frames += 1
 	check(predictor.is_idle(), "predictions finish (%d frames at %d µs)" % [frames, predictor.budget_usec])
 	check(frames > 5, "work is spread over frames, not done at once (%d)" % frames)
-	var one_shot := PassPredictor.next_pass(iss, tucson, t0)
+	var one_shot := PassPredictor.next_pass(iss, site, t0)
 	var sliced: PassPredictor.SatellitePass = predictor.passes.get(25544)
 	check(sliced != null and absf(sliced.rise_unix - one_shot.rise_unix) < 1e-6, "sliced = one-shot")
 
 	# Idle means no work: nothing re-searched while predictions are current.
-	predictor.update(tracked, tucson, t0 + 60.0)
+	predictor.update(tracked, site, t0 + 60.0)
 	check(predictor.is_idle(), "current predictions are not re-searched")
 
 	# Once the pass has set, the next one is found.
 	var after := sliced.set_unix + 1.0
-	predictor.update(tracked, tucson, after)
+	predictor.update(tracked, site, after)
 	while not predictor.is_idle():
-		predictor.update(tracked, tucson, after)
+		predictor.update(tracked, site, after)
 	var next: PassPredictor.SatellitePass = predictor.passes[25544]
 	check(next.rise_unix > sliced.set_unix, "after the pass sets, the next pass is predicted")
 
@@ -1162,21 +1163,21 @@ func test_pass_predictor_scheduling() -> void:
 	# (Checked by what was searched, not by is_idle(): a short search can finish within
 	# the same frame.)
 	var fresh := Satellite.from_omm(fixture["omm"][0])
-	predictor.update([fresh, hst] as Array[Satellite], tucson, after)
+	predictor.update([fresh, hst] as Array[Satellite], site, after)
 	check(predictor._searched[25544][0] == fresh, "new elements trigger a re-search")
 	while not predictor.is_idle():
-		predictor.update([fresh, hst] as Array[Satellite], tucson, after)
-	var moved := GeoPoint.new(32.3, -110.9747, 730.0)
+		predictor.update([fresh, hst] as Array[Satellite], site, after)
+	var moved := GeoPoint.new(31.98, -110.99861, 880.0)
 	predictor.update([fresh, hst] as Array[Satellite], moved, after)
 	check(predictor._searched[25544][2] == GeoMath.geodetic_to_ecef(moved), "observer moving 8 km triggers a re-search")
 	while not predictor.is_idle():
 		predictor.update([fresh, hst] as Array[Satellite], moved, after)
 	var searched_at: float = predictor._searched[25544][1]
-	predictor.update([fresh, hst] as Array[Satellite], GeoPoint.new(32.301, -110.9747, 730.0), after + 5.0)
+	predictor.update([fresh, hst] as Array[Satellite], GeoPoint.new(31.981, -110.99861, 880.0), after + 5.0)
 	check(predictor._searched[25544][1] == searched_at, "moving 100 m does not")
 
 	# Untracked satellites are forgotten.
-	predictor.update([fresh] as Array[Satellite], tucson, after)
+	predictor.update([fresh] as Array[Satellite], site, after)
 	check(not predictor.passes.has(20580), "untracked satellite's pass dropped")
 
 
@@ -1185,7 +1186,7 @@ func test_app_shows_rise_marker() -> void:
 			FileAccess.get_file_as_string("res://tests/satellite_fixture.json"))
 	var iss_pass: Dictionary = {}
 	for p: Dictionary in fixture["passes"]:
-		if int(p["norad"]) == 25544 and p["observerName"] == "Tucson":
+		if int(p["norad"]) == 25544 and p["observerName"] == "Titan Missile Museum":
 			iss_pass = p
 			break
 	var rise_unix: float = iss_pass["rise"][0]
@@ -1194,9 +1195,9 @@ func test_app_shows_rise_marker() -> void:
 	app.start_feed = false
 	app.start_satellites = false
 	app.show_debug_hud = false
-	app.latitude_deg = 32.2226
-	app.longitude_deg = -110.9747
-	app.altitude_m = 730.0
+	app.latitude_deg = 31.90306
+	app.longitude_deg = -110.99861
+	app.altitude_m = 880.0
 	app.fixed_unix_time = rise_unix - 300.0  # five minutes before the ISS rises
 	root.add_child(app)
 	await process_frame
@@ -1339,10 +1340,10 @@ func test_app_points_at_offscreen_station() -> void:
 			FileAccess.get_file_as_string("res://tests/satellite_fixture.json"))
 	var pass_: Dictionary = {}
 	for c: Dictionary in fixture["cases"]:
-		if c["observerName"] == "Tucson" and int(c["norad"]) == 25544 and c["elevationDeg"] > 10.0:
+		if c["observerName"] == "Titan Missile Museum" and int(c["norad"]) == 25544 and c["elevationDeg"] > 10.0:
 			pass_ = c
 			break
-	check(not pass_.is_empty(), "fixture has the ISS up over Tucson")
+	check(not pass_.is_empty(), "fixture has the ISS up over the site")
 	if pass_.is_empty():
 		return
 
@@ -1350,9 +1351,9 @@ func test_app_points_at_offscreen_station() -> void:
 	app.start_feed = false
 	app.start_satellites = false
 	app.show_debug_hud = false
-	app.latitude_deg = 32.2226
-	app.longitude_deg = -110.9747
-	app.altitude_m = 730.0
+	app.latitude_deg = 31.90306
+	app.longitude_deg = -110.99861
+	app.altitude_m = 880.0
 	app.fixed_unix_time = pass_["unix"]
 	root.add_child(app)
 	await process_frame
@@ -1744,7 +1745,7 @@ func test_viewpoint_and_groups() -> void:
 	app.run_command("view:400")
 	app._panel_status_timer = 1.0
 	await process_frame
-	check(fake.state == "view=altitude;alt=400;sat=%d;air=%d;star=0;labels=medium;identify=0" % [Satellite.ALL_CATEGORIES, AppBootstrap.AIRCRAFT_ALL],
+	check(fake.state == "view=altitude;alt=400;sat=%d;air=%d;star=0;labels=medium;identify=0;shadow=0" % [Satellite.ALL_CATEGORIES, AppBootstrap.AIRCRAFT_ALL],
 			"panel state (%s)" % fake.state)
 	check(fake.status.contains("400 km up"), "panel status names the viewpoint")
 
@@ -1915,8 +1916,8 @@ func test_pole_star() -> void:
 	# Polaris is up by about your latitude, and never far from north.
 	var t0: float = fixture["cases"][0]["unix"]
 	for i in 24:
-		var look := PoleStar.look_angles(PoleStar.POLARIS, 32.2226, -110.9747, t0 + i * 3600.0)
-		check(absf(look.elevation_deg - 32.2226) < 1.0, "Polaris is %.1f° up at hour %d" % [look.elevation_deg, i])
+		var look := PoleStar.look_angles(PoleStar.POLARIS, 31.90306, -110.99861, t0 + i * 3600.0)
+		check(absf(look.elevation_deg - 31.90306) < 1.0, "Polaris is %.1f° up at hour %d" % [look.elevation_deg, i])
 		check(absf(GeoMath.bearing_delta(look.azimuth_deg, 0.0)) < 1.5, "...and within 1.5° of north (%.2f°)" % look.azimuth_deg)
 
 	# Calibrating from the gaze: whatever the head's yaw, pitched up, the offset makes it
@@ -1933,16 +1934,16 @@ func test_pole_star() -> void:
 	app.start_feed = false
 	app.start_satellites = false
 	app.show_debug_hud = false
-	app.latitude_deg = 32.2226
-	app.longitude_deg = -110.9747
-	app.altitude_m = 730.0
+	app.latitude_deg = 31.90306
+	app.longitude_deg = -110.99861
+	app.altitude_m = 880.0
 	app.fixed_unix_time = t0
 	root.add_child(app)
 	await _settle()
 	var fake := FakePanelPlugin.new()
 	app._android = fake
 	var mock: MockHeadTracker = app.rig.tracker
-	var want := PoleStar.look_angles(PoleStar.POLARIS, 32.2226, -110.9747, t0)
+	var want := PoleStar.look_angles(PoleStar.POLARIS, 31.90306, -110.99861, t0)
 
 	fake.queued.append("star")
 	await _settle()
@@ -2125,6 +2126,115 @@ func test_identify() -> void:
 	check(app.identify_on and not app.quick_menu.is_open(), "choosing Identify turns it on and closes the menu")
 	app.run_command("identify")
 	check(not app.identify_on, "bare identify toggles")
+
+	app._android = null
+	app.queue_free()
+	await _settle()
+
+
+func test_shadow_sighting() -> void:
+	# The Sun's direction against Skyfield, at seven places through the day and the seasons.
+	var fixture: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/sun_fixture.json"))
+	var worst := 0.0
+	var up := 0
+	for c: Dictionary in fixture["cases"]:
+		var o: Array = c["observer"]
+		var look := Solar.sun_look_angles(GeoMath.local_frame(GeoPoint.new(o[0], o[1], o[2])),
+				Sgp4.unix_to_jd(c["unix"]))
+		var err := maxf(absf(GeoMath.bearing_delta(look.azimuth_deg, c["azimuthDeg"])) * cos(deg_to_rad(c["elevationDeg"])),
+				absf(look.elevation_deg - c["elevationDeg"]))
+		worst = maxf(worst, err)
+		if c["elevationDeg"] > 0.0:
+			up += 1
+		if err > 0.05:
+			check(false, "Sun from %s at %d: %.3f/%.3f vs Skyfield %.3f/%.3f" % [c["observerName"], c["unix"],
+					look.azimuth_deg, look.elevation_deg, c["azimuthDeg"], c["elevationDeg"]])
+	print("Sun vs Skyfield: worst %.4f° over %d cases (%d with the Sun up)" % [worst, fixture["cases"].size(), up])
+	check(worst < 0.05 and up >= 20, "the Sun matches Skyfield to 0.05° (worst %.4f°)" % worst)
+
+	# In the app: from the test site at a mid-morning time, look along the shadow and tap.
+	var app: AppBootstrap = load("res://main.tscn").instantiate()
+	app.start_feed = false
+	app.start_satellites = false
+	app.show_debug_hud = false
+	app.latitude_deg = 31.90306
+	app.longitude_deg = -110.99861
+	app.altitude_m = 880.0
+	var morning := 0.0
+	var high := 0.0
+	var night := 0.0
+	for c: Dictionary in fixture["cases"]:
+		if c["observerName"] != "Titan Missile Museum":
+			continue
+		if c["elevationDeg"] > 20.0 and c["elevationDeg"] < 60.0 and morning == 0.0:
+			morning = c["unix"]
+		if c["elevationDeg"] > 75.0:
+			high = c["unix"]
+		if c["elevationDeg"] < -10.0:
+			night = c["unix"]
+	check(morning > 0.0 and night > 0.0, "fixture has a site morning and night")
+	app.fixed_unix_time = morning
+	root.add_child(app)
+	await _settle()
+	var fake := FakePanelPlugin.new()
+	app._android = fake
+	var mock: MockHeadTracker = app.rig.tracker
+	var sun := app.sun_look()
+	var shadow_az := GeoMath.wrap360(sun.azimuth_deg + 180.0)
+
+	fake.queued.append("shadow")
+	await _settle()
+	check(app.capturing_shadow and app._shadow_line.visible and app._prompt.visible, "shadow: guide line and prompt shown")
+	check(app._prompt.text.begins_with("Look along your shadow") and app._prompt.text.contains("never look at the Sun"),
+			"the prompt, with the warning (%s)" % app._prompt.text.replace("\n", " / "))
+	check(app.panel_state().contains("shadow=1") and app.panel_status().contains("LOOK ALONG YOUR SHADOW"), "the panel is told")
+
+	# Straight down gives no direction: the tap is refused and the sighting goes on.
+	mock._yaw = 40.0
+	mock._pitch = -89.0
+	await _settle()
+	fake.queued.append("tap")
+	await _settle()
+	check(app.capturing_shadow and not app.calibration.is_calibrated, "straight down: refused, still sighting")
+	check(app._prompt.text.contains("not straight down"), "...with a hint (%s)" % app._prompt.text)
+
+	# Looking down along it at 40°, whatever the glasses think the yaw is.
+	mock._yaw = 211.0
+	mock._pitch = -40.0
+	await _settle()
+	fake.queued.append("tap")
+	await _settle()
+	check(not app.capturing_shadow and not app._shadow_line.visible, "the tap takes the sighting")
+	var fwd := -app.rig.camera.global_basis.z
+	near(absf(GeoMath.bearing_delta(GeoMath.wrap360(rad_to_deg(atan2(fwd.x, -fwd.z))), shadow_az)), 0.0, 1e-3,
+			"now facing directly away from the Sun")
+	check(app.calibration.source == CompassCalibration.Source.CELESTIAL, "recorded as a celestial fix")
+	mock._yaw = fposmod(211.0 - shadow_az, 360.0)
+	mock._pitch = 0.0
+	await _settle()
+	near(absf(GeoMath.bearing_delta(app.rig.current_heading_deg(), 0.0)), 0.0, 1e-2, "so north is north")
+
+	# Toggle and cancel, as with the pole star; the glasses menu offers it.
+	app.run_command("shadow")
+	app.run_command("shadow")
+	check(not app.capturing_shadow, "shadow again cancels")
+	app.run_command("shadow")
+	app.run_command("cancel")
+	check(not app.capturing_shadow, "cancel ends it")
+	app._menu_page = "north"
+	check(app._menu_items().any(func(i: QuickMenu.Item) -> bool: return i.command == "shadow"), "Set north page offers it")
+	app._menu_page = "main"
+
+	# Refused at night, and when the Sun is too high for a useful shadow.
+	app.fixed_unix_time = night
+	app.run_command("shadow")
+	await _settle()
+	check(not app.capturing_shadow and app._prompt.text.contains("The Sun is down"), "refused at night (%s)" % app._prompt.text)
+	if high > 0.0:
+		app._notice_until = 0.0
+		app.fixed_unix_time = high
+		app.run_command("shadow")
+		check(not app.capturing_shadow and app._notice.contains("too short"), "refused with the Sun nearly overhead")
 
 	app._android = null
 	app.queue_free()

@@ -158,116 +158,116 @@
   {
    "norad": 25544,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790159400.000014,
-   "azimuthDeg": 37.28571519744723,
-   "elevationDeg": -56.56526558870053,
-   "rangeKm": 11154.264209879377,
+   "azimuthDeg": 37.358993911289865,
+   "elevationDeg": -56.70540420249288,
+   "rangeKm": 11170.641192619203,
    "subLatDeg": 22.206292149011382,
    "subLonDeg": 32.79039800600201,
    "altitudeKm": 422.0319903908243,
    "sunlit": true,
-   "sunAzimuthDeg": 64.84423077997253,
-   "sunElevationDeg": -34.26125586415695
+   "sunAzimuthDeg": 65.02338859146515,
+   "sunElevationDeg": -34.414985078647994
   },
   {
    "norad": 25544,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790183700.000014,
-   "azimuthDeg": 349.50654705156535,
-   "elevationDeg": -64.29111095712283,
-   "rangeKm": 11961.98078691395,
+   "azimuthDeg": 349.4268237501971,
+   "elevationDeg": -64.45328643371484,
+   "rangeKm": 11977.006791238393,
    "subLatDeg": 16.795270046278667,
    "subLonDeg": 77.37764810919901,
    "altitudeKm": 415.90661642613895,
    "sunlit": false,
-   "sunAzimuthDeg": 132.63544272504544,
-   "sunElevationDeg": 46.703387729983476
+   "sunAzimuthDeg": 132.35722880519904,
+   "sunElevationDeg": 46.904317348422786
   },
   {
    "norad": 25544,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790269199.999987,
-   "azimuthDeg": 210.52000134725813,
-   "elevationDeg": -45.56429049945507,
-   "rangeKm": 9663.21944607796,
+   "azimuthDeg": 210.4959147492404,
+   "elevationDeg": -45.41342064916664,
+   "rangeKm": 9641.118672889792,
    "subLatDeg": -50.39789212742305,
    "subLonDeg": -163.1027935838995,
    "altitudeKm": 436.8861791746192,
    "sunlit": true,
-   "sunAzimuthDeg": 128.97966612906038,
-   "sunElevationDeg": 44.061197221164676
+   "sunAzimuthDeg": 128.712996703754,
+   "sunElevationDeg": 44.24584814012766
   },
   {
    "norad": 25544,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 128.20323381010462,
-   "elevationDeg": 21.417298866033704,
-   "rangeKm": 984.6822456314883,
-   "subLatDeg": 27.22670857891363,
-   "subLonDeg": -104.13768039063223,
-   "altitudeKm": 422.42748138779024,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790192940.857395,
+   "azimuthDeg": 128.28032018844627,
+   "elevationDeg": 22.0294194605464,
+   "rangeKm": 965.8385900494955,
+   "subLatDeg": 27.022484594426988,
+   "subLonDeg": -104.34089988375197,
+   "altitudeKm": 422.40943124508084,
    "sunlit": true,
-   "sunAzimuthDeg": 195.05357444473557,
-   "sunElevationDeg": 56.53897083762404
+   "sunAzimuthDeg": 195.10514998371698,
+   "sunElevationDeg": 56.856844149409696
   },
   {
    "norad": 25544,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 31.669312100553565,
-   "elevationDeg": 13.291471806319453,
-   "rangeKm": 1305.373383900152,
-   "subLatDeg": 41.20118876040334,
-   "subLonDeg": -103.49320686802302,
-   "altitudeKm": 420.81921023594816,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790389361.901029,
+   "azimuthDeg": 31.702176648464548,
+   "elevationDeg": 12.696670095305098,
+   "rangeKm": 1335.8348079490129,
+   "subLatDeg": 41.108620016051134,
+   "subLonDeg": -103.32668016141594,
+   "altitudeKm": 420.79147753731536,
    "sunlit": true,
-   "sunAzimuthDeg": 278.117737526087,
-   "sunElevationDeg": -14.835364258705518
+   "sunAzimuthDeg": 278.0262862192972,
+   "sunElevationDeg": -14.868964285552511
   },
   {
    "norad": 25544,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 39.8739113637895,
-   "elevationDeg": 34.31628591747354,
-   "rangeKm": 698.5916960277224,
-   "subLatDeg": 35.91420889915061,
-   "subLonDeg": -107.12601956470063,
-   "altitudeKm": 419.1411869923401,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790222303.229453,
+   "azimuthDeg": 39.9411707797001,
+   "elevationDeg": 32.771745492534656,
+   "rangeKm": 722.3335710675814,
+   "subLatDeg": 35.78289515147545,
+   "subLonDeg": -106.9480084423276,
+   "altitudeKm": 419.10787068929227,
    "sunlit": false,
-   "sunAzimuthDeg": 294.1238236027186,
-   "sunElevationDeg": -33.67499093348374
+   "sunAzimuthDeg": 293.9206757841222,
+   "sunElevationDeg": -33.796704635276335
   },
   {
    "norad": 25544,
@@ -334,16 +334,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 73.84316559504242,
-   "elevationDeg": -56.94757669129234,
-   "rangeKm": 11175.127993230197,
-   "subLatDeg": 27.22670857891363,
-   "subLonDeg": -104.13768039063223,
-   "altitudeKm": 422.42748138779024,
+   "unix": 1790192940.857395,
+   "azimuthDeg": 73.9552271706014,
+   "elevationDeg": -56.815132946296345,
+   "rangeKm": 11159.793427768001,
+   "subLatDeg": 27.022484594426988,
+   "subLonDeg": -104.34089988375197,
+   "altitudeKm": 422.40943124508084,
    "sunlit": true,
-   "sunAzimuthDeg": 90.03316462861726,
-   "sunElevationDeg": 0.5221990820115414
+   "sunAzimuthDeg": 90.04334496429287,
+   "sunElevationDeg": 0.5069956861099659
   },
   {
    "norad": 25544,
@@ -353,16 +353,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 59.35535309071519,
-   "elevationDeg": -60.074489189749826,
-   "rangeKm": 11512.094268395891,
-   "subLatDeg": 41.20118876040334,
-   "subLonDeg": -103.49320686802302,
-   "altitudeKm": 420.81921023594816,
+   "unix": 1790389361.901029,
+   "azimuthDeg": 59.50744906714238,
+   "elevationDeg": -60.120453330215796,
+   "rangeKm": 11517.051526731566,
+   "subLatDeg": 41.108620016051134,
+   "subLonDeg": -103.32668016141594,
+   "altitudeKm": 420.79147753731536,
    "sunlit": true,
-   "sunAzimuthDeg": 343.62955904350537,
-   "sunElevationDeg": 56.263399312599766
+   "sunAzimuthDeg": 343.6112260647233,
+   "sunElevationDeg": 56.26095810118783
   },
   {
    "norad": 25544,
@@ -372,16 +372,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 63.82725624512842,
-   "elevationDeg": -57.68411985740715,
-   "rangeKm": 11249.519500431788,
-   "subLatDeg": 35.91420889915061,
-   "subLonDeg": -107.12601956470063,
-   "altitudeKm": 419.1411869923401,
+   "unix": 1790222303.229453,
+   "azimuthDeg": 64.02830049128444,
+   "elevationDeg": -57.72568470192091,
+   "rangeKm": 11254.341909773673,
+   "subLatDeg": 35.78289515147545,
+   "subLonDeg": -106.9480084423276,
+   "altitudeKm": 419.10787068929227,
    "sunlit": false,
-   "sunAzimuthDeg": 310.4976825125477,
-   "sunElevationDeg": 44.63712708674626
+   "sunAzimuthDeg": 310.48340644885076,
+   "sunElevationDeg": 44.62887158534888
   },
   {
    "norad": 25544,
@@ -448,16 +448,16 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 309.5616664007555,
-   "elevationDeg": -35.02086584455864,
-   "rangeKm": 8029.1060237248275,
-   "subLatDeg": 27.22670857891363,
-   "subLonDeg": -104.13768039063223,
-   "altitudeKm": 422.42748138779024,
+   "unix": 1790192940.857395,
+   "azimuthDeg": 309.6766962446488,
+   "elevationDeg": -35.155858877009386,
+   "rangeKm": 8051.702815361285,
+   "subLatDeg": 27.022484594426988,
+   "subLonDeg": -104.34089988375197,
+   "altitudeKm": 422.40943124508084,
    "sunlit": true,
-   "sunAzimuthDeg": 316.2479411654975,
-   "sunElevationDeg": -15.330255356980036
+   "sunAzimuthDeg": 316.2295315743461,
+   "sunElevationDeg": -15.325835280529068
   },
   {
    "norad": 25544,
@@ -467,16 +467,16 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 313.77086224222035,
-   "elevationDeg": -27.656871004110585,
-   "rangeKm": 6758.133642005432,
-   "subLatDeg": 41.20118876040334,
-   "subLonDeg": -103.49320686802302,
-   "altitudeKm": 420.81921023594816,
+   "unix": 1790389361.901029,
+   "azimuthDeg": 313.60142141261383,
+   "elevationDeg": -27.682367500788878,
+   "rangeKm": 6762.554891058147,
+   "subLatDeg": 41.108620016051134,
+   "subLonDeg": -103.32668016141594,
+   "altitudeKm": 420.79147753731536,
    "sunlit": true,
-   "sunAzimuthDeg": 58.7935325344499,
-   "sunElevationDeg": -12.1423487145458
+   "sunAzimuthDeg": 58.80376064096612,
+   "sunElevationDeg": -12.139244479830682
   },
   {
    "norad": 25544,
@@ -486,130 +486,130 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 314.89054974039976,
-   "elevationDeg": -30.947165338898923,
-   "rangeKm": 7329.906687635653,
-   "subLatDeg": 35.91420889915061,
-   "subLonDeg": -107.12601956470063,
-   "altitudeKm": 419.1411869923401,
+   "unix": 1790222303.229453,
+   "azimuthDeg": 314.6987052696694,
+   "elevationDeg": -30.9918922859187,
+   "rangeKm": 7337.572387846697,
+   "subLatDeg": 35.78289515147545,
+   "subLonDeg": -106.9480084423276,
+   "altitudeKm": 419.10787068929227,
    "sunlit": false,
-   "sunAzimuthDeg": 81.24765417518151,
-   "sunElevationDeg": -3.7141202603750627
+   "sunAzimuthDeg": 81.2599774053103,
+   "sunElevationDeg": -3.7096342172251924
   },
   {
    "norad": 48274,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790159400.000014,
-   "azimuthDeg": 25.537528468596623,
-   "elevationDeg": -49.4172365219785,
-   "rangeKm": 10201.166479440652,
+   "azimuthDeg": 25.550334426739433,
+   "elevationDeg": -49.574269523397504,
+   "rangeKm": 10222.680047405056,
    "subLatDeg": 39.85904816205286,
    "subLonDeg": 35.66573417804582,
    "altitudeKm": 390.78203337854785,
    "sunlit": true,
-   "sunAzimuthDeg": 64.84423077997253,
-   "sunElevationDeg": -34.26125586415695
+   "sunAzimuthDeg": 65.02338859146515,
+   "sunElevationDeg": -34.414985078647994
   },
   {
    "norad": 48274,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790183700.000014,
-   "azimuthDeg": 137.75220380825698,
-   "elevationDeg": -86.30142980191795,
-   "rangeKm": 13112.454596118954,
+   "azimuthDeg": 139.51222459276505,
+   "elevationDeg": -86.18450057541573,
+   "rangeKm": 13110.959186435835,
    "subLatDeg": -37.73351702120158,
    "subLonDeg": 62.9400018516995,
    "altitudeKm": 397.0782490388778,
    "sunlit": false,
-   "sunAzimuthDeg": 132.63544272504544,
-   "sunElevationDeg": 46.703387729983476
+   "sunAzimuthDeg": 132.35722880519904,
+   "sunElevationDeg": 46.904317348422786
   },
   {
    "norad": 48274,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790269199.999987,
-   "azimuthDeg": 275.99990606198713,
-   "elevationDeg": -1.9198584284651246,
-   "rangeKm": 2481.022539148564,
+   "azimuthDeg": 276.79573168200085,
+   "elevationDeg": -1.9374650811614156,
+   "rangeKm": 2482.7315070580394,
    "subLatDeg": 31.90672312784962,
    "subLonDeg": -136.3766044720662,
    "altitudeKm": 387.9036797710295,
    "sunlit": true,
-   "sunAzimuthDeg": 128.97966612906038,
-   "sunElevationDeg": 44.061197221164676
+   "sunAzimuthDeg": 128.712996703754,
+   "sunElevationDeg": 44.24584814012766
   },
   {
    "norad": 48274,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 83.86880584862865,
-   "elevationDeg": -6.089586657515721,
-   "rangeKm": 3037.3734849891953,
-   "subLatDeg": 31.163642837678033,
-   "subLonDeg": -79.76697393091312,
-   "altitudeKm": 389.15816939529685,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790192940.857395,
+   "azimuthDeg": 83.00972458485754,
+   "elevationDeg": -5.937966698623071,
+   "rangeKm": 3015.462427255505,
+   "subLatDeg": 31.302422415165346,
+   "subLonDeg": -80.04050513568623,
+   "altitudeKm": 389.18191076898825,
    "sunlit": true,
-   "sunAzimuthDeg": 195.05357444473557,
-   "sunElevationDeg": 56.53897083762404
+   "sunAzimuthDeg": 195.10514998371698,
+   "sunElevationDeg": 56.856844149409696
   },
   {
    "norad": 48274,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 108.95872086146916,
-   "elevationDeg": -56.049405371821166,
-   "rangeKm": 11033.629660850615,
-   "subLatDeg": -28.302961703188437,
-   "subLonDeg": -8.64400184958159,
-   "altitudeKm": 392.4107338883804,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790389361.901029,
+   "azimuthDeg": 108.94058866976513,
+   "elevationDeg": -56.04786739414,
+   "rangeKm": 11033.605621924624,
+   "subLatDeg": -28.21648689589259,
+   "subLonDeg": -8.49717463875627,
+   "altitudeKm": 392.37745692880355,
    "sunlit": false,
-   "sunAzimuthDeg": 278.117737526087,
-   "sunElevationDeg": -14.835364258705518
+   "sunAzimuthDeg": 278.0262862192972,
+   "sunElevationDeg": -14.868964285552511
   },
   {
    "norad": 48274,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 178.69339954435145,
-   "elevationDeg": -31.03649573374295,
-   "rangeKm": 7253.109461457586,
-   "subLatDeg": -35.034589186062604,
-   "subLonDeg": -109.51226613415855,
-   "altitudeKm": 396.2061735712136,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790222303.229453,
+   "azimuthDeg": 178.47955383757125,
+   "elevationDeg": -30.91054493720449,
+   "rangeKm": 7231.200390129798,
+   "subLatDeg": -35.117624537773395,
+   "subLonDeg": -109.29799801212756,
+   "altitudeKm": 396.23442458381356,
    "sunlit": false,
-   "sunAzimuthDeg": 294.1238236027186,
-   "sunElevationDeg": -33.67499093348374
+   "sunAzimuthDeg": 293.9206757841222,
+   "sunElevationDeg": -33.796704635276335
   },
   {
    "norad": 48274,
@@ -676,16 +676,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 79.45194954092099,
-   "elevationDeg": -68.01180012120955,
-   "rangeKm": 12232.20348825253,
-   "subLatDeg": 31.163642837678033,
-   "subLonDeg": -79.76697393091312,
-   "altitudeKm": 389.15816939529685,
+   "unix": 1790192940.857395,
+   "azimuthDeg": 79.15109600350897,
+   "elevationDeg": -67.91891501454097,
+   "rangeKm": 12224.601573575175,
+   "subLatDeg": 31.302422415165346,
+   "subLonDeg": -80.04050513568623,
+   "altitudeKm": 389.18191076898825,
    "sunlit": true,
-   "sunAzimuthDeg": 90.03316462861726,
-   "sunElevationDeg": 0.5221990820115414
+   "sunAzimuthDeg": 90.04334496429287,
+   "sunElevationDeg": 0.5069956861099659
   },
   {
    "norad": 48274,
@@ -695,16 +695,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 199.533452486769,
-   "elevationDeg": -56.38193441040595,
-   "rangeKm": 11098.989342720708,
-   "subLatDeg": -28.302961703188437,
-   "subLonDeg": -8.64400184958159,
-   "altitudeKm": 392.4107338883804,
+   "unix": 1790389361.901029,
+   "azimuthDeg": 199.69877360233036,
+   "elevationDeg": -56.403227470608265,
+   "rangeKm": 11101.465857032901,
+   "subLatDeg": -28.21648689589259,
+   "subLonDeg": -8.49717463875627,
+   "altitudeKm": 392.37745692880355,
    "sunlit": false,
-   "sunAzimuthDeg": 343.62955904350537,
-   "sunElevationDeg": 56.263399312599766
+   "sunAzimuthDeg": 343.6112260647233,
+   "sunElevationDeg": 56.26095810118783
   },
   {
    "norad": 48274,
@@ -714,16 +714,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 124.2468054387437,
-   "elevationDeg": -36.79780572983594,
-   "rangeKm": 8278.929520919692,
-   "subLatDeg": -35.034589186062604,
-   "subLonDeg": -109.51226613415855,
-   "altitudeKm": 396.2061735712136,
+   "unix": 1790222303.229453,
+   "azimuthDeg": 124.41557470835615,
+   "elevationDeg": -36.852414485489156,
+   "rangeKm": 8288.025204036008,
+   "subLatDeg": -35.117624537773395,
+   "subLonDeg": -109.29799801212756,
+   "altitudeKm": 396.23442458381356,
    "sunlit": false,
-   "sunAzimuthDeg": 310.4976825125477,
-   "sunElevationDeg": 44.63712708674626
+   "sunAzimuthDeg": 310.48340644885076,
+   "sunElevationDeg": 44.62887158534888
   },
   {
    "norad": 48274,
@@ -790,16 +790,16 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 289.6865271284609,
-   "elevationDeg": -29.19574402056424,
-   "rangeKm": 6969.571644891301,
-   "subLatDeg": 31.163642837678033,
-   "subLonDeg": -79.76697393091312,
-   "altitudeKm": 389.15816939529685,
+   "unix": 1790192940.857395,
+   "azimuthDeg": 289.98599267747954,
+   "elevationDeg": -29.174374854968082,
+   "rangeKm": 6965.907410056864,
+   "subLatDeg": 31.302422415165346,
+   "subLonDeg": -80.04050513568623,
+   "altitudeKm": 389.18191076898825,
    "sunlit": true,
-   "sunAzimuthDeg": 316.2479411654975,
-   "sunElevationDeg": -15.330255356980036
+   "sunAzimuthDeg": 316.2295315743461,
+   "sunElevationDeg": -15.325835280529068
   },
   {
    "norad": 48274,
@@ -809,16 +809,16 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 204.54551909684162,
-   "elevationDeg": -48.47412997503271,
-   "rangeKm": 10036.567796873289,
-   "subLatDeg": -28.302961703188437,
-   "subLonDeg": -8.64400184958159,
-   "altitudeKm": 392.4107338883804,
+   "unix": 1790389361.901029,
+   "azimuthDeg": 204.4298885853421,
+   "elevationDeg": -48.41831905483315,
+   "rangeKm": 10028.722792456376,
+   "subLatDeg": -28.21648689589259,
+   "subLonDeg": -8.49717463875627,
+   "altitudeKm": 392.37745692880355,
    "sunlit": false,
-   "sunAzimuthDeg": 58.7935325344499,
-   "sunElevationDeg": -12.1423487145458
+   "sunAzimuthDeg": 58.80376064096612,
+   "sunElevationDeg": -12.139244479830682
   },
   {
    "norad": 48274,
@@ -828,130 +828,130 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 293.69207893326154,
-   "elevationDeg": -67.00679007915075,
-   "rangeKm": 12153.252239933057,
-   "subLatDeg": -35.034589186062604,
-   "subLonDeg": -109.51226613415855,
-   "altitudeKm": 396.2061735712136,
+   "unix": 1790222303.229453,
+   "azimuthDeg": 293.4153726048978,
+   "elevationDeg": -67.01117396428445,
+   "rangeKm": 12153.57080343459,
+   "subLatDeg": -35.117624537773395,
+   "subLonDeg": -109.29799801212756,
+   "altitudeKm": 396.23442458381356,
    "sunlit": false,
-   "sunAzimuthDeg": 81.24765417518151,
-   "sunElevationDeg": -3.7141202603750627
+   "sunAzimuthDeg": 81.2599774053103,
+   "sunElevationDeg": -3.7096342172251924
   },
   {
    "norad": 20580,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790159400.000014,
-   "azimuthDeg": 37.69804019238846,
-   "elevationDeg": -54.212840253397914,
-   "rangeKm": 10925.8515010304,
+   "azimuthDeg": 37.75638978831919,
+   "elevationDeg": -54.35331070501175,
+   "rangeKm": 10943.142592820264,
    "subLatDeg": 25.515179021104363,
    "subLonDeg": 29.83435440073609,
    "altitudeKm": 468.9112546146221,
    "sunlit": true,
-   "sunAzimuthDeg": 64.84423077997253,
-   "sunElevationDeg": -34.26125586415695
+   "sunAzimuthDeg": 65.02338859146515,
+   "sunElevationDeg": -34.414985078647994
   },
   {
    "norad": 20580,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790183700.000014,
-   "azimuthDeg": 40.649375021067144,
-   "elevationDeg": -68.76825940198994,
-   "rangeKm": 12395.547154594979,
+   "azimuthDeg": 40.861670492093715,
+   "elevationDeg": -68.90177628592501,
+   "rangeKm": 12405.91148609272,
    "subLatDeg": 0.8605324615886539,
    "subLonDeg": 43.73551495274006,
    "altitudeKm": 467.76736483812147,
    "sunlit": false,
-   "sunAzimuthDeg": 132.63544272504544,
-   "sunElevationDeg": 46.703387729983476
+   "sunAzimuthDeg": 132.35722880519904,
+   "sunElevationDeg": 46.904317348422786
   },
   {
    "norad": 20580,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790269199.999987,
-   "azimuthDeg": 272.80422263246254,
-   "elevationDeg": -73.65884040225843,
-   "rangeKm": 12726.545813724966,
+   "azimuthDeg": 272.26784858307076,
+   "elevationDeg": -73.65589774720894,
+   "rangeKm": 12726.496209036457,
    "subLatDeg": -25.94736938236507,
    "subLonDeg": 104.47440689393,
    "altitudeKm": 475.48522634818033,
    "sunlit": false,
-   "sunAzimuthDeg": 128.97966612906038,
-   "sunElevationDeg": 44.061197221164676
+   "sunAzimuthDeg": 128.712996703754,
+   "sunElevationDeg": 44.24584814012766
   },
   {
    "norad": 20580,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 239.28333981048561,
-   "elevationDeg": 2.502851513334327,
-   "rangeKm": 2224.3520618793814,
-   "subLatDeg": 21.30518555995113,
-   "subLonDeg": -128.39432124876993,
-   "altitudeKm": 468.8201535127418,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790192940.857395,
+   "azimuthDeg": 240.28427209431064,
+   "elevationDeg": 2.415640946387447,
+   "rangeKm": 2232.648471959486,
+   "subLatDeg": 21.210934528230105,
+   "subLonDeg": -128.65956820865188,
+   "altitudeKm": 468.81703532567747,
    "sunlit": true,
-   "sunAzimuthDeg": 195.05357444473557,
-   "sunElevationDeg": 56.53897083762404
+   "sunAzimuthDeg": 195.10514998371698,
+   "sunElevationDeg": 56.856844149409696
   },
   {
    "norad": 20580,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 344.1426871075717,
-   "elevationDeg": -70.07105980377965,
-   "rangeKm": 12497.056884991707,
-   "subLatDeg": 4.920491601778607,
-   "subLonDeg": 78.84804150235874,
-   "altitudeKm": 469.4582124816167,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790389361.901029,
+   "azimuthDeg": 343.81654117675777,
+   "elevationDeg": -70.17450798849863,
+   "rangeKm": 12504.635118434111,
+   "subLatDeg": 4.996546865701349,
+   "subLonDeg": 78.97966486125055,
+   "altitudeKm": 469.45173638246865,
    "sunlit": true,
-   "sunAzimuthDeg": 278.117737526087,
-   "sunElevationDeg": -14.835364258705518
+   "sunAzimuthDeg": 278.0262862192972,
+   "sunElevationDeg": -14.868964285552511
   },
   {
    "norad": 20580,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 274.62899939750343,
-   "elevationDeg": -21.607608890142735,
-   "rangeKm": 5772.171987104269,
-   "subLatDeg": 22.592041312014775,
-   "subLonDeg": -168.7445173346603,
-   "altitudeKm": 467.675752503923,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790222303.229453,
+   "azimuthDeg": 274.70454718437924,
+   "elevationDeg": -21.530512104095596,
+   "rangeKm": 5758.45667729359,
+   "subLatDeg": 22.529695301304713,
+   "subLonDeg": -168.5509546972988,
+   "altitudeKm": 467.667367126991,
    "sunlit": true,
-   "sunAzimuthDeg": 294.1238236027186,
-   "sunElevationDeg": -33.67499093348374
+   "sunAzimuthDeg": 293.9206757841222,
+   "sunElevationDeg": -33.796704635276335
   },
   {
    "norad": 20580,
@@ -1018,16 +1018,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 67.33849921503509,
-   "elevationDeg": -45.197705274554494,
-   "rangeKm": 9676.452281124539,
-   "subLatDeg": 21.30518555995113,
-   "subLonDeg": -128.39432124876993,
-   "altitudeKm": 468.8201535127418,
+   "unix": 1790192940.857395,
+   "azimuthDeg": 67.273711219405,
+   "elevationDeg": -45.06083136358211,
+   "rangeKm": 9656.29659555359,
+   "subLatDeg": 21.210934528230105,
+   "subLonDeg": -128.65956820865188,
+   "altitudeKm": 468.81703532567747,
    "sunlit": true,
-   "sunAzimuthDeg": 90.03316462861726,
-   "sunElevationDeg": 0.5221990820115414
+   "sunAzimuthDeg": 90.04334496429287,
+   "sunElevationDeg": 0.5069956861099659
   },
   {
    "norad": 20580,
@@ -1037,16 +1037,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 283.96599664854716,
-   "elevationDeg": -36.62518113730937,
-   "rangeKm": 8348.102878380429,
-   "subLatDeg": 4.920491601778607,
-   "subLonDeg": 78.84804150235874,
-   "altitudeKm": 469.4582124816167,
+   "unix": 1790389361.901029,
+   "azimuthDeg": 284.1073697802183,
+   "elevationDeg": -36.591956131574825,
+   "rangeKm": 8342.572689853028,
+   "subLatDeg": 4.996546865701349,
+   "subLonDeg": 78.97966486125055,
+   "altitudeKm": 469.45173638246865,
    "sunlit": true,
-   "sunAzimuthDeg": 343.62955904350537,
-   "sunElevationDeg": 56.263399312599766
+   "sunAzimuthDeg": 343.6112260647233,
+   "sunElevationDeg": 56.26095810118783
   },
   {
    "norad": 20580,
@@ -1056,16 +1056,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 39.99810658338063,
-   "elevationDeg": -31.04050567600648,
-   "rangeKm": 7387.6053793344045,
-   "subLatDeg": 22.592041312014775,
-   "subLonDeg": -168.7445173346603,
-   "altitudeKm": 467.675752503923,
+   "unix": 1790222303.229453,
+   "azimuthDeg": 40.19469873145315,
+   "elevationDeg": -31.06956854743634,
+   "rangeKm": 7392.663792607161,
+   "subLatDeg": 22.529695301304713,
+   "subLonDeg": -168.5509546972988,
+   "altitudeKm": 467.667367126991,
    "sunlit": true,
-   "sunAzimuthDeg": 310.4976825125477,
-   "sunElevationDeg": 44.63712708674626
+   "sunAzimuthDeg": 310.48340644885076,
+   "sunElevationDeg": 44.62887158534888
   },
   {
    "norad": 20580,
@@ -1132,16 +1132,16 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 329.7885988425556,
-   "elevationDeg": -40.81825333014675,
-   "rangeKm": 9040.050624278207,
-   "subLatDeg": 21.30518555995113,
-   "subLonDeg": -128.39432124876993,
-   "altitudeKm": 468.8201535127418,
+   "unix": 1790192940.857395,
+   "azimuthDeg": 330.0141121818873,
+   "elevationDeg": -40.89271256152276,
+   "rangeKm": 9051.693751082137,
+   "subLatDeg": 21.210934528230105,
+   "subLonDeg": -128.65956820865188,
+   "altitudeKm": 468.81703532567747,
    "sunlit": true,
-   "sunAzimuthDeg": 316.2479411654975,
-   "sunElevationDeg": -15.330255356980036
+   "sunAzimuthDeg": 316.2295315743461,
+   "sunElevationDeg": -15.325835280529068
   },
   {
    "norad": 20580,
@@ -1151,16 +1151,16 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 116.88510046463657,
-   "elevationDeg": -34.93337514029735,
-   "rangeKm": 8071.289144929987,
-   "subLatDeg": 4.920491601778607,
-   "subLonDeg": 78.84804150235874,
-   "altitudeKm": 469.4582124816167,
+   "unix": 1790389361.901029,
+   "azimuthDeg": 116.73176595824205,
+   "elevationDeg": -34.91625588230729,
+   "rangeKm": 8068.484278493216,
+   "subLatDeg": 4.996546865701349,
+   "subLonDeg": 78.97966486125055,
+   "altitudeKm": 469.45173638246865,
    "sunlit": true,
-   "sunAzimuthDeg": 58.7935325344499,
-   "sunElevationDeg": -12.1423487145458
+   "sunAzimuthDeg": 58.80376064096612,
+   "sunElevationDeg": -12.139244479830682
   },
   {
    "norad": 20580,
@@ -1170,130 +1170,130 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 7.10788177799195,
-   "elevationDeg": -41.61991801046802,
-   "rangeKm": 9164.53870501512,
-   "subLatDeg": 22.592041312014775,
-   "subLonDeg": -168.7445173346603,
-   "altitudeKm": 467.675752503923,
+   "unix": 1790222303.229453,
+   "azimuthDeg": 6.932239535600749,
+   "elevationDeg": -41.657652387133545,
+   "rangeKm": 9170.364176466783,
+   "subLatDeg": 22.529695301304713,
+   "subLonDeg": -168.5509546972988,
+   "altitudeKm": 467.667367126991,
    "sunlit": true,
-   "sunAzimuthDeg": 81.24765417518151,
-   "sunElevationDeg": -3.7141202603750627
+   "sunAzimuthDeg": 81.2599774053103,
+   "sunElevationDeg": -3.7096342172251924
   },
   {
    "norad": 44714,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790159400.000014,
-   "azimuthDeg": 197.10899816314972,
-   "elevationDeg": -79.23878380625727,
-   "rangeKm": 12905.283298201275,
+   "azimuthDeg": 196.90320953566732,
+   "elevationDeg": -79.07809938793206,
+   "rangeKm": 12898.932260338457,
    "subLatDeg": -52.20730326015791,
    "subLonDeg": 78.84387018949798,
    "altitudeKm": 392.043291993016,
    "sunlit": true,
-   "sunAzimuthDeg": 64.84423077997253,
-   "sunElevationDeg": -34.26125586415695
+   "sunAzimuthDeg": 65.02338859146515,
+   "sunElevationDeg": -34.414985078647994
   },
   {
    "norad": 44714,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790183700.000014,
-   "azimuthDeg": 337.5776736638359,
-   "elevationDeg": -46.14554154025573,
-   "rangeKm": 9714.246504278037,
+   "azimuthDeg": 337.5511062701265,
+   "elevationDeg": -46.29810724674824,
+   "rangeKm": 9736.420924390797,
    "subLatDeg": 46.91968089257183,
    "subLonDeg": 102.77616457870229,
    "altitudeKm": 375.4243915224346,
    "sunlit": false,
-   "sunAzimuthDeg": 132.63544272504544,
-   "sunElevationDeg": 46.703387729983476
+   "sunAzimuthDeg": 132.35722880519904,
+   "sunElevationDeg": 46.904317348422786
   },
   {
    "norad": 44714,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790269199.999987,
-   "azimuthDeg": 158.82949896843417,
-   "elevationDeg": -40.11610931621363,
-   "rangeKm": 8760.724525375557,
+   "azimuthDeg": 158.8021502324014,
+   "elevationDeg": -39.96201530796645,
+   "rangeKm": 8736.147931293757,
    "subLatDeg": -46.83054181020592,
    "subLonDeg": -79.53263334637217,
    "altitudeKm": 390.17884875339576,
    "sunlit": true,
-   "sunAzimuthDeg": 128.97966612906038,
-   "sunElevationDeg": 44.061197221164676
+   "sunAzimuthDeg": 128.712996703754,
+   "sunElevationDeg": 44.24584814012766
   },
   {
    "norad": 44714,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 125.73618756110855,
-   "elevationDeg": -51.77117835283767,
-   "rangeKm": 10477.741130474638,
-   "subLatDeg": -38.733252686152774,
-   "subLonDeg": -25.94452876509396,
-   "altitudeKm": 385.65588167580177,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790192940.857395,
+   "azimuthDeg": 126.07097468519663,
+   "elevationDeg": -51.63413365176872,
+   "rangeKm": 10459.708939773032,
+   "subLatDeg": -38.91658512571037,
+   "subLonDeg": -26.20733449047343,
+   "altitudeKm": 385.7409493989213,
    "sunlit": true,
-   "sunAzimuthDeg": 195.05357444473557,
-   "sunElevationDeg": 56.53897083762404
+   "sunAzimuthDeg": 195.10514998371698,
+   "sunElevationDeg": 56.856844149409696
   },
   {
    "norad": 44714,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 356.472537210037,
-   "elevationDeg": -68.16566364550293,
-   "rangeKm": 12249.59220195198,
-   "subLatDeg": 10.005915394588047,
-   "subLonDeg": 71.44168138395324,
-   "altitudeKm": 372.46281345538875,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790389361.901029,
+   "azimuthDeg": 356.27166604018174,
+   "elevationDeg": -68.39514665478038,
+   "rangeKm": 12267.896678753254,
+   "subLatDeg": 9.875016748760432,
+   "subLonDeg": 71.5324741566529,
+   "altitudeKm": 372.4713077425514,
    "sunlit": true,
-   "sunAzimuthDeg": 278.117737526087,
-   "sunElevationDeg": -14.835364258705518
+   "sunAzimuthDeg": 278.0262862192972,
+   "sunElevationDeg": -14.868964285552511
   },
   {
    "norad": 44714,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 54.511384718628015,
-   "elevationDeg": -15.389637491494568,
-   "rangeKm": 4484.222901582264,
-   "subLatDeg": 46.4346885372199,
-   "subLonDeg": -61.94094952407416,
-   "altitudeKm": 375.20722622503337,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790222303.229453,
+   "azimuthDeg": 54.06171943866772,
+   "elevationDeg": -15.625893880981737,
+   "rangeKm": 4524.674681419234,
+   "subLatDeg": 46.53643933058802,
+   "subLonDeg": -61.69597753862864,
+   "altitudeKm": 375.2309763614603,
    "sunlit": false,
-   "sunAzimuthDeg": 294.1238236027186,
-   "sunElevationDeg": -33.67499093348374
+   "sunAzimuthDeg": 293.9206757841222,
+   "sunElevationDeg": -33.796704635276335
   },
   {
    "norad": 44714,
@@ -1360,16 +1360,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 182.32659552667496,
-   "elevationDeg": -52.450720458150634,
-   "rangeKm": 10602.473280192004,
-   "subLatDeg": -38.733252686152774,
-   "subLonDeg": -25.94452876509396,
-   "altitudeKm": 385.65588167580177,
+   "unix": 1790192940.857395,
+   "azimuthDeg": 182.10441507273904,
+   "elevationDeg": -52.35950275334098,
+   "rangeKm": 10590.701529825643,
+   "subLatDeg": -38.91658512571037,
+   "subLonDeg": -26.20733449047343,
+   "altitudeKm": 385.7409493989213,
    "sunlit": true,
-   "sunAzimuthDeg": 90.03316462861726,
-   "sunElevationDeg": 0.5221990820115414
+   "sunAzimuthDeg": 90.04334496429287,
+   "sunElevationDeg": 0.5069956861099659
   },
   {
    "norad": 44714,
@@ -1379,16 +1379,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 283.7931450050446,
-   "elevationDeg": -41.87936377592075,
-   "rangeKm": 9048.51837935403,
-   "subLatDeg": 10.005915394588047,
-   "subLonDeg": 71.44168138395324,
-   "altitudeKm": 372.46281345538875,
+   "unix": 1790389361.901029,
+   "azimuthDeg": 283.73802183992865,
+   "elevationDeg": -41.800674131809025,
+   "rangeKm": 9036.279229073436,
+   "subLatDeg": 9.875016748760432,
+   "subLonDeg": 71.5324741566529,
+   "altitudeKm": 372.4713077425514,
    "sunlit": true,
-   "sunAzimuthDeg": 343.62955904350537,
-   "sunElevationDeg": 56.263399312599766
+   "sunAzimuthDeg": 343.6112260647233,
+   "sunElevationDeg": 56.26095810118783
   },
   {
    "norad": 44714,
@@ -1398,16 +1398,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 54.046292454163975,
-   "elevationDeg": -75.66821126439318,
-   "rangeKm": 12722.719527595184,
-   "subLatDeg": 46.4346885372199,
-   "subLonDeg": -61.94094952407416,
-   "altitudeKm": 375.20722622503337,
+   "unix": 1790222303.229453,
+   "azimuthDeg": 53.744467953284065,
+   "elevationDeg": -75.73965532136256,
+   "rangeKm": 12726.50127368537,
+   "subLatDeg": 46.53643933058802,
+   "subLonDeg": -61.69597753862864,
+   "altitudeKm": 375.2309763614603,
    "sunlit": false,
-   "sunAzimuthDeg": 310.4976825125477,
-   "sunElevationDeg": 44.63712708674626
+   "sunAzimuthDeg": 310.48340644885076,
+   "sunElevationDeg": 44.62887158534888
   },
   {
    "norad": 44714,
@@ -1474,16 +1474,16 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 216.94684324580126,
-   "elevationDeg": -55.43662171826739,
-   "rangeKm": 10936.187485018538,
-   "subLatDeg": -38.733252686152774,
-   "subLonDeg": -25.94452876509396,
-   "altitudeKm": 385.65588167580177,
+   "unix": 1790192940.857395,
+   "azimuthDeg": 217.10908990632996,
+   "elevationDeg": -55.55715548946755,
+   "rangeKm": 10950.798253547586,
+   "subLatDeg": -38.91658512571037,
+   "subLonDeg": -26.20733449047343,
+   "altitudeKm": 385.7409493989213,
    "sunlit": true,
-   "sunAzimuthDeg": 316.2479411654975,
-   "sunElevationDeg": -15.330255356980036
+   "sunAzimuthDeg": 316.2295315743461,
+   "sunElevationDeg": -15.325835280529068
   },
   {
    "norad": 44714,
@@ -1493,16 +1493,16 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 122.63537601432111,
-   "elevationDeg": -31.639876300913567,
-   "rangeKm": 7355.283240915864,
-   "subLatDeg": 10.005915394588047,
-   "subLonDeg": 71.44168138395324,
-   "altitudeKm": 372.46281345538875,
+   "unix": 1790389361.901029,
+   "azimuthDeg": 122.5851037584393,
+   "elevationDeg": -31.722208040346622,
+   "rangeKm": 7369.561998514995,
+   "subLatDeg": 9.875016748760432,
+   "subLonDeg": 71.5324741566529,
+   "altitudeKm": 372.4713077425514,
    "sunlit": true,
-   "sunAzimuthDeg": 58.7935325344499,
-   "sunElevationDeg": -12.1423487145458
+   "sunAzimuthDeg": 58.80376064096612,
+   "sunElevationDeg": -12.139244479830682
   },
   {
    "norad": 44714,
@@ -1512,130 +1512,130 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 282.45173039939425,
-   "elevationDeg": -18.051283695557185,
-   "rangeKm": 4958.294812143039,
-   "subLatDeg": 46.4346885372199,
-   "subLonDeg": -61.94094952407416,
-   "altitudeKm": 375.20722622503337,
+   "unix": 1790222303.229453,
+   "azimuthDeg": 282.31293008249287,
+   "elevationDeg": -17.948017838687218,
+   "rangeKm": 4940.116904989529,
+   "subLatDeg": 46.53643933058802,
+   "subLonDeg": -61.69597753862864,
+   "altitudeKm": 375.2309763614603,
    "sunlit": false,
-   "sunAzimuthDeg": 81.24765417518151,
-   "sunElevationDeg": -3.7141202603750627
+   "sunAzimuthDeg": 81.2599774053103,
+   "sunElevationDeg": -3.7096342172251924
   },
   {
    "norad": 694,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790159400.000014,
-   "azimuthDeg": 86.95278879878103,
-   "elevationDeg": -52.85329357283758,
-   "rangeKm": 10826.42010130595,
+   "azimuthDeg": 87.05091571609951,
+   "elevationDeg": -52.873389691618556,
+   "rangeKm": 10829.02006699725,
    "subLatDeg": -7.73996334240951,
    "subLonDeg": -3.268164812290071,
    "altitudeKm": 537.5102926696794,
    "sunlit": true,
-   "sunAzimuthDeg": 64.84423077997253,
-   "sunElevationDeg": -34.26125586415695
+   "sunAzimuthDeg": 65.02338859146515,
+   "sunElevationDeg": -34.414985078647994
   },
   {
    "norad": 694,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790183700.000014,
-   "azimuthDeg": 183.47701113077125,
-   "elevationDeg": -15.694582647152627,
-   "rangeKm": 4986.6240799557645,
+   "azimuthDeg": 183.46326109409657,
+   "elevationDeg": -15.486097162094895,
+   "rangeKm": 4952.461570429898,
    "subLatDeg": -11.597358568932718,
    "subLonDeg": -113.42086561289656,
    "altitudeKm": 584.8447208477805,
    "sunlit": true,
-   "sunAzimuthDeg": 132.63544272504544,
-   "sunElevationDeg": 46.703387729983476
+   "sunAzimuthDeg": 132.35722880519904,
+   "sunElevationDeg": 46.904317348422786
   },
   {
    "norad": 694,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790269199.999987,
-   "azimuthDeg": 186.10289021304354,
-   "elevationDeg": -15.04272946745813,
-   "rangeKm": 4965.133564870796,
+   "azimuthDeg": 186.10475880919725,
+   "elevationDeg": -14.830409494043149,
+   "rangeKm": 4930.89414220203,
    "subLatDeg": -11.08999106857763,
    "subLonDeg": -115.22855127029138,
    "altitudeKm": 624.4120079582353,
    "sunlit": true,
-   "sunAzimuthDeg": 128.97966612906038,
-   "sunElevationDeg": 44.061197221164676
+   "sunAzimuthDeg": 128.712996703754,
+   "sunElevationDeg": 44.24584814012766
   },
   {
    "norad": 694,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 42.49323174832135,
-   "elevationDeg": -64.68168738823401,
-   "rangeKm": 12793.234518428506,
-   "subLatDeg": 4.811744550204337,
-   "subLonDeg": 39.5277776943043,
-   "altitudeKm": 1153.8913387336236,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790192940.857395,
+   "azimuthDeg": 42.789458695333295,
+   "elevationDeg": -64.70803643262914,
+   "rangeKm": 12794.412703627482,
+   "subLatDeg": 4.931380056438922,
+   "subLonDeg": 39.33947910491179,
+   "altitudeKm": 1152.806947337368,
    "sunlit": false,
-   "sunAzimuthDeg": 195.05357444473557,
-   "sunElevationDeg": 56.53897083762404
+   "sunAzimuthDeg": 195.10514998371698,
+   "sunElevationDeg": 56.856844149409696
   },
   {
    "norad": 694,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 109.13187001372835,
-   "elevationDeg": -46.379158372745316,
-   "rangeKm": 10832.780864072756,
-   "subLatDeg": -22.245179079427185,
-   "subLonDeg": -21.569540962013566,
-   "altitudeKm": 1247.5441189561047,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790389361.901029,
+   "azimuthDeg": 109.16447766428044,
+   "elevationDeg": -46.40094049740227,
+   "rangeKm": 10835.772847848539,
+   "subLatDeg": -22.29361215569448,
+   "subLonDeg": -21.446393561168648,
+   "altitudeKm": 1247.5488419026353,
    "sunlit": false,
-   "sunAzimuthDeg": 278.117737526087,
-   "sunElevationDeg": -14.835364258705518
+   "sunAzimuthDeg": 278.0262862192972,
+   "sunElevationDeg": -14.868964285552511
   },
   {
    "norad": 694,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 276.55098869636095,
-   "elevationDeg": -7.642765392695962,
-   "rangeKm": 4064.168505753403,
-   "subLatDeg": 29.579232201285087,
-   "subLonDeg": -151.39160334079602,
-   "altitudeKm": 713.8899433055865,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790222303.229453,
+   "azimuthDeg": 276.877314397061,
+   "elevationDeg": -7.511550791277387,
+   "rangeKm": 4048.253981450299,
+   "subLatDeg": 29.55315975237637,
+   "subLonDeg": -151.18629200510264,
+   "altitudeKm": 715.1017843650524,
    "sunlit": true,
-   "sunAzimuthDeg": 294.1238236027186,
-   "sunElevationDeg": -33.67499093348374
+   "sunAzimuthDeg": 293.9206757841222,
+   "sunElevationDeg": -33.796704635276335
   },
   {
    "norad": 694,
@@ -1702,16 +1702,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 261.491011930703,
-   "elevationDeg": -51.99256926400767,
-   "rangeKm": 11452.850121529693,
-   "subLatDeg": 4.811744550204337,
-   "subLonDeg": 39.5277776943043,
-   "altitudeKm": 1153.8913387336236,
+   "unix": 1790192940.857395,
+   "azimuthDeg": 261.4820930008345,
+   "elevationDeg": -52.12003151009222,
+   "rangeKm": 11467.091215772138,
+   "subLatDeg": 4.931380056438922,
+   "subLonDeg": 39.33947910491179,
+   "altitudeKm": 1152.806947337368,
    "sunlit": false,
-   "sunAzimuthDeg": 90.03316462861726,
-   "sunElevationDeg": 0.5221990820115414
+   "sunAzimuthDeg": 90.04334496429287,
+   "sunElevationDeg": 0.5069956861099659
   },
   {
    "norad": 694,
@@ -1721,16 +1721,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 188.00899236171335,
-   "elevationDeg": -58.96536362649602,
-   "rangeKm": 12356.096396498602,
-   "subLatDeg": -22.245179079427185,
-   "subLonDeg": -21.569540962013566,
-   "altitudeKm": 1247.5441189561047,
+   "unix": 1790389361.901029,
+   "azimuthDeg": 188.13705794558686,
+   "elevationDeg": -58.93070490126249,
+   "rangeKm": 12352.533172057256,
+   "subLatDeg": -22.29361215569448,
+   "subLonDeg": -21.446393561168648,
+   "altitudeKm": 1247.5488419026353,
    "sunlit": false,
-   "sunAzimuthDeg": 343.62955904350537,
-   "sunElevationDeg": 56.263399312599766
+   "sunAzimuthDeg": 343.6112260647233,
+   "sunElevationDeg": 56.26095810118783
   },
   {
    "norad": 694,
@@ -1740,16 +1740,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 47.73943495113977,
-   "elevationDeg": -38.31134883188464,
-   "rangeKm": 8954.095227422971,
-   "subLatDeg": 29.579232201285087,
-   "subLonDeg": -151.39160334079602,
-   "altitudeKm": 713.8899433055865,
+   "unix": 1790222303.229453,
+   "azimuthDeg": 47.88577725813371,
+   "elevationDeg": -38.36597981453113,
+   "rangeKm": 8964.394130619376,
+   "subLatDeg": 29.55315975237637,
+   "subLonDeg": -151.18629200510264,
+   "altitudeKm": 715.1017843650524,
    "sunlit": true,
-   "sunAzimuthDeg": 310.4976825125477,
-   "sunElevationDeg": 44.63712708674626
+   "sunAzimuthDeg": 310.48340644885076,
+   "sunElevationDeg": 44.62887158534888
   },
   {
    "norad": 694,
@@ -1816,16 +1816,16 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 157.46900213123303,
-   "elevationDeg": -25.799971436300986,
-   "rangeKm": 7643.307507078261,
-   "subLatDeg": 4.811744550204337,
-   "subLonDeg": 39.5277776943043,
-   "altitudeKm": 1153.8913387336236,
+   "unix": 1790192940.857395,
+   "azimuthDeg": 157.65527555736602,
+   "elevationDeg": -25.714895313023845,
+   "rangeKm": 7628.289731054176,
+   "subLatDeg": 4.931380056438922,
+   "subLonDeg": 39.33947910491179,
+   "altitudeKm": 1152.806947337368,
    "sunlit": false,
-   "sunAzimuthDeg": 316.2479411654975,
-   "sunElevationDeg": -15.330255356980036
+   "sunAzimuthDeg": 316.2295315743461,
+   "sunElevationDeg": -15.325835280529068
   },
   {
    "norad": 694,
@@ -1835,16 +1835,16 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 217.33056363815228,
-   "elevationDeg": -43.520638711241226,
-   "rangeKm": 10434.88965502536,
-   "subLatDeg": -22.245179079427185,
-   "subLonDeg": -21.569540962013566,
-   "altitudeKm": 1247.5441189561047,
+   "unix": 1790389361.901029,
+   "azimuthDeg": 217.20763281926926,
+   "elevationDeg": -43.53298550204777,
+   "rangeKm": 10436.569830667318,
+   "subLatDeg": -22.29361215569448,
+   "subLonDeg": -21.446393561168648,
+   "altitudeKm": 1247.5488419026353,
    "sunlit": false,
-   "sunAzimuthDeg": 58.7935325344499,
-   "sunElevationDeg": -12.1423487145458
+   "sunAzimuthDeg": 58.80376064096612,
+   "sunElevationDeg": -12.139244479830682
   },
   {
    "norad": 694,
@@ -1854,130 +1854,130 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 351.5099530894351,
-   "elevationDeg": -36.63527908175244,
-   "rangeKm": 8731.896359025466,
-   "subLatDeg": 29.579232201285087,
-   "subLonDeg": -151.39160334079602,
-   "altitudeKm": 713.8899433055865,
+   "unix": 1790222303.229453,
+   "azimuthDeg": 351.32782957477656,
+   "elevationDeg": -36.638151900877226,
+   "rangeKm": 8734.094892163748,
+   "subLatDeg": 29.55315975237637,
+   "subLonDeg": -151.18629200510264,
+   "altitudeKm": 715.1017843650524,
    "sunlit": true,
-   "sunAzimuthDeg": 81.24765417518151,
-   "sunElevationDeg": -3.7141202603750627
+   "sunAzimuthDeg": 81.2599774053103,
+   "sunElevationDeg": -3.7096342172251924
   },
   {
    "norad": 39166,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790159400.000014,
-   "azimuthDeg": 309.5283665053251,
-   "elevationDeg": -30.028110362800227,
-   "rangeKm": 28829.419416516503,
+   "azimuthDeg": 309.43128336806626,
+   "elevationDeg": -30.19517331317006,
+   "rangeKm": 28847.47783995906,
    "subLatDeg": 20.408140527798544,
    "subLonDeg": 120.5975940185475,
    "altitudeKm": 19840.01822512658,
    "sunlit": true,
-   "sunAzimuthDeg": 64.84423077997253,
-   "sunElevationDeg": -34.26125586415695
+   "sunAzimuthDeg": 65.02338859146515,
+   "sunElevationDeg": -34.414985078647994
   },
   {
    "norad": 39166,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790183700.000014,
-   "azimuthDeg": 205.00417881057183,
-   "elevationDeg": 0.24633978228520395,
-   "rangeKm": 26134.662114477615,
+   "azimuthDeg": 205.02067332540236,
+   "elevationDeg": 0.5446513544559655,
+   "rangeKm": 26101.593008667176,
    "subLatDeg": -38.06330187599002,
    "subLonDeg": -142.3346890598014,
    "altitudeKm": 20573.969298156655,
    "sunlit": true,
-   "sunAzimuthDeg": 132.63544272504544,
-   "sunElevationDeg": 46.703387729983476
+   "sunAzimuthDeg": 132.35722880519904,
+   "sunElevationDeg": 46.904317348422786
   },
   {
    "norad": 39166,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790269199.999987,
-   "azimuthDeg": 208.28280866513097,
-   "elevationDeg": 2.7448874327172286,
-   "rangeKm": 25855.934887555075,
+   "azimuthDeg": 208.30974809734107,
+   "elevationDeg": 3.0391287731045424,
+   "rangeKm": 25823.694936687276,
    "subLatDeg": -34.384985158492135,
    "subLonDeg": -144.3500632288978,
    "altitudeKm": 20569.36138434577,
    "sunlit": true,
-   "sunAzimuthDeg": 128.97966612906038,
-   "sunElevationDeg": 44.061197221164676
+   "sunAzimuthDeg": 128.712996703754,
+   "sunElevationDeg": 44.24584814012766
   },
   {
    "norad": 39166,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 153.63708738167793,
-   "elevationDeg": -4.9632996388682145,
-   "rangeKm": 26434.188384208803,
-   "subLatDeg": -41.918247848140716,
-   "subLonDeg": -74.89462050184555,
-   "altitudeKm": 20298.589857616767,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790192940.857395,
+   "azimuthDeg": 153.6238174649677,
+   "elevationDeg": -4.7037045880803685,
+   "rangeKm": 26405.130348484105,
+   "subLatDeg": -41.940946882535755,
+   "subLonDeg": -74.9144865945589,
+   "altitudeKm": 20298.833181574406,
    "sunlit": true,
-   "sunAzimuthDeg": 195.05357444473557,
-   "sunElevationDeg": 56.53897083762404
+   "sunAzimuthDeg": 195.10514998371698,
+   "sunElevationDeg": 56.856844149409696
   },
   {
    "norad": 39166,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 41.88895568763679,
-   "elevationDeg": -31.51061474996715,
-   "rangeKm": 29390.328013856662,
-   "subLatDeg": 24.387420789964587,
-   "subLonDeg": 25.378747711360678,
-   "altitudeKm": 20231.879105220396,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790389361.901029,
+   "azimuthDeg": 41.95559856219463,
+   "elevationDeg": -31.746880155275313,
+   "rangeKm": 29415.693451168747,
+   "subLatDeg": 24.3713043457787,
+   "subLonDeg": 25.382919692091487,
+   "altitudeKm": 20232.01425801977,
    "sunlit": true,
-   "sunAzimuthDeg": 278.117737526087,
-   "sunElevationDeg": -14.835364258705518
+   "sunAzimuthDeg": 278.0262862192972,
+   "sunElevationDeg": -14.868964285552511
   },
   {
    "norad": 39166,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 67.6671188578784,
-   "elevationDeg": -55.554112453373705,
-   "rangeKm": 31874.20004897336,
-   "subLatDeg": -10.394716164614065,
-   "subLonDeg": 29.881219931944056,
-   "altitudeKm": 20479.407826287705,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790222303.229453,
+   "azimuthDeg": 67.99657259358783,
+   "elevationDeg": -55.68257660294224,
+   "rangeKm": 31884.057185767084,
+   "subLatDeg": -10.41544200219271,
+   "subLonDeg": 29.883537719828695,
+   "altitudeKm": 20479.521171956374,
    "sunlit": true,
-   "sunAzimuthDeg": 294.1238236027186,
-   "sunElevationDeg": -33.67499093348374
+   "sunAzimuthDeg": 293.9206757841222,
+   "sunElevationDeg": -33.796704635276335
   },
   {
    "norad": 39166,
@@ -2044,16 +2044,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 147.51299096997892,
-   "elevationDeg": -16.484762500044607,
-   "rangeKm": 27782.985031623884,
-   "subLatDeg": -41.918247848140716,
-   "subLonDeg": -74.89462050184555,
-   "altitudeKm": 20298.589857616767,
+   "unix": 1790192940.857395,
+   "azimuthDeg": 147.51475601341437,
+   "elevationDeg": -16.459392911481725,
+   "rangeKm": 27780.3335514634,
+   "subLatDeg": -41.940946882535755,
+   "subLonDeg": -74.9144865945589,
+   "altitudeKm": 20298.833181574406,
    "sunlit": true,
-   "sunAzimuthDeg": 90.03316462861726,
-   "sunElevationDeg": 0.5221990820115414
+   "sunAzimuthDeg": 90.04334496429287,
+   "sunElevationDeg": 0.5069956861099659
   },
   {
    "norad": 39166,
@@ -2063,16 +2063,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 273.44271724951204,
-   "elevationDeg": -50.948599788953985,
-   "rangeKm": 31248.937903718783,
-   "subLatDeg": 24.387420789964587,
-   "subLonDeg": 25.378747711360678,
-   "altitudeKm": 20231.879105220396,
+   "unix": 1790389361.901029,
+   "azimuthDeg": 273.4250702245776,
+   "elevationDeg": -50.94001397995665,
+   "rangeKm": 31248.368844899207,
+   "subLatDeg": 24.3713043457787,
+   "subLonDeg": 25.382919692091487,
+   "altitudeKm": 20232.01425801977,
    "sunlit": true,
-   "sunAzimuthDeg": 343.62955904350537,
-   "sunElevationDeg": 56.263399312599766
+   "sunAzimuthDeg": 343.6112260647233,
+   "sunElevationDeg": 56.26095810118783
   },
   {
    "norad": 39166,
@@ -2082,16 +2082,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 242.6106167119407,
-   "elevationDeg": -30.682798499140198,
-   "rangeKm": 29551.999939697398,
-   "subLatDeg": -10.394716164614065,
-   "subLonDeg": 29.881219931944056,
-   "altitudeKm": 20479.407826287705,
+   "unix": 1790222303.229453,
+   "azimuthDeg": 242.59581905783773,
+   "elevationDeg": -30.66904499023299,
+   "rangeKm": 29550.640106594405,
+   "subLatDeg": -10.41544200219271,
+   "subLonDeg": 29.883537719828695,
+   "altitudeKm": 20479.521171956374,
    "sunlit": true,
-   "sunAzimuthDeg": 310.4976825125477,
-   "sunElevationDeg": 44.63712708674626
+   "sunAzimuthDeg": 310.48340644885076,
+   "sunElevationDeg": 44.62887158534888
   },
   {
    "norad": 39166,
@@ -2158,16 +2158,16 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 256.04190459394397,
-   "elevationDeg": -49.033127999407036,
-   "rangeKm": 31138.519769449216,
-   "subLatDeg": -41.918247848140716,
-   "subLonDeg": -74.89462050184555,
-   "altitudeKm": 20298.589857616767,
+   "unix": 1790192940.857395,
+   "azimuthDeg": 256.04570495363953,
+   "elevationDeg": -49.05584101300937,
+   "rangeKm": 31140.713074242656,
+   "subLatDeg": -41.940946882535755,
+   "subLonDeg": -74.9144865945589,
+   "altitudeKm": 20298.833181574406,
    "sunlit": true,
-   "sunAzimuthDeg": 316.2479411654975,
-   "sunElevationDeg": -15.330255356980036
+   "sunAzimuthDeg": 316.2295315743461,
+   "sunElevationDeg": -15.325835280529068
   },
   {
    "norad": 39166,
@@ -2177,16 +2177,16 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 171.778383195611,
-   "elevationDeg": 32.99522999254028,
-   "rangeKm": 22593.118754234165,
-   "subLatDeg": 24.387420789964587,
-   "subLonDeg": 25.378747711360678,
-   "altitudeKm": 20231.879105220396,
+   "unix": 1790389361.901029,
+   "azimuthDeg": 171.77428971315013,
+   "elevationDeg": 32.976514675307506,
+   "rangeKm": 22594.76948923165,
+   "subLatDeg": 24.3713043457787,
+   "subLonDeg": 25.382919692091487,
+   "altitudeKm": 20232.01425801977,
    "sunlit": true,
-   "sunAzimuthDeg": 58.7935325344499,
-   "sunElevationDeg": -12.1423487145458
+   "sunAzimuthDeg": 58.80376064096612,
+   "sunElevationDeg": -12.139244479830682
   },
   {
    "norad": 39166,
@@ -2196,130 +2196,130 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 169.09912767451237,
-   "elevationDeg": -4.052970439195359,
-   "rangeKm": 26532.51265708612,
-   "subLatDeg": -10.394716164614065,
-   "subLonDeg": 29.881219931944056,
-   "altitudeKm": 20479.407826287705,
+   "unix": 1790222303.229453,
+   "azimuthDeg": 169.09822323282148,
+   "elevationDeg": -4.0733726679900535,
+   "rangeKm": 26534.923484749816,
+   "subLatDeg": -10.41544200219271,
+   "subLonDeg": 29.883537719828695,
+   "altitudeKm": 20479.521171956374,
    "sunlit": true,
-   "sunAzimuthDeg": 81.24765417518151,
-   "sunElevationDeg": -3.7141202603750627
+   "sunAzimuthDeg": 81.2599774053103,
+   "sunElevationDeg": -3.7096342172251924
   },
   {
    "norad": 41866,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790159400.000014,
-   "azimuthDeg": 168.41979362802797,
-   "elevationDeg": 51.567347444209034,
-   "rangeKm": 36982.780243423964,
+   "azimuthDeg": 168.27664547104982,
+   "elevationDeg": 51.917746477945165,
+   "rangeKm": 36961.45418974137,
    "subLatDeg": -0.30324850239091183,
    "subLonDeg": -104.6924079279327,
    "altitudeKm": 35793.51042201463,
    "sunlit": true,
-   "sunAzimuthDeg": 64.84423077997253,
-   "sunElevationDeg": -34.26125586415695
+   "sunAzimuthDeg": 65.02338859146515,
+   "sunElevationDeg": -34.414985078647994
   },
   {
    "norad": 41866,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790183700.000014,
-   "azimuthDeg": 168.1771732962736,
-   "elevationDeg": 52.51537345647905,
-   "rangeKm": 36914.55646681195,
+   "azimuthDeg": 168.02764072648523,
+   "elevationDeg": 52.86597633784103,
+   "rangeKm": 36893.701390511815,
    "subLatDeg": 0.5433874477973982,
    "subLonDeg": -104.7069754344272,
    "altitudeKm": 35782.189302640305,
    "sunlit": true,
-   "sunAzimuthDeg": 132.63544272504544,
-   "sunElevationDeg": 46.703387729983476
+   "sunAzimuthDeg": 132.35722880519904,
+   "sunElevationDeg": 46.904317348422786
   },
   {
    "norad": 41866,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790269199.999987,
-   "azimuthDeg": 168.18662549286086,
-   "elevationDeg": 52.50468812292126,
-   "rangeKm": 36915.523557795175,
+   "azimuthDeg": 168.03722477810896,
+   "elevationDeg": 52.855300051729245,
+   "rangeKm": 36894.6624683449,
    "subLatDeg": 0.533210134085529,
    "subLonDeg": -104.71030127785652,
    "altitudeKm": 35782.521698944394,
    "sunlit": true,
-   "sunAzimuthDeg": 128.97966612906038,
-   "sunElevationDeg": 44.061197221164676
+   "sunAzimuthDeg": 128.712996703754,
+   "sunElevationDeg": 44.24584814012766
   },
   {
    "norad": 41866,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 168.15276947154496,
-   "elevationDeg": 52.51880890416312,
-   "rangeKm": 36910.97559756049,
-   "subLatDeg": 0.5490383106565758,
-   "subLonDeg": -104.69476716545753,
-   "altitudeKm": 35778.82544579761,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790192940.857395,
+   "azimuthDeg": 168.00300133150034,
+   "elevationDeg": 52.86944324201257,
+   "rangeKm": 36890.121573278244,
+   "subLatDeg": 0.5490969794966474,
+   "subLonDeg": -104.69477411439824,
+   "altitudeKm": 35778.82635477815,
    "sunlit": true,
-   "sunAzimuthDeg": 195.05357444473557,
-   "sunElevationDeg": 56.53897083762404
+   "sunAzimuthDeg": 195.10514998371698,
+   "sunElevationDeg": 56.856844149409696
   },
   {
    "norad": 41866,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 168.38070378145423,
-   "elevationDeg": 51.5878572472051,
-   "rangeKm": 36972.64528005762,
-   "subLatDeg": -0.28068657964371535,
-   "subLonDeg": -104.67468164729586,
-   "altitudeKm": 35784.65695825537,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790389361.901029,
+   "azimuthDeg": 168.23716122307835,
+   "elevationDeg": 51.93810993993198,
+   "rangeKm": 36951.340446946575,
+   "subLatDeg": -0.28077951678391955,
+   "subLonDeg": -104.67468128957711,
+   "altitudeKm": 35784.65836709192,
    "sunlit": true,
-   "sunAzimuthDeg": 278.117737526087,
-   "sunElevationDeg": -14.835364258705518
+   "sunAzimuthDeg": 278.0262862192972,
+   "sunElevationDeg": -14.868964285552511
   },
   {
    "norad": 41866,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 168.42419072634632,
-   "elevationDeg": 51.397212884660576,
-   "rangeKm": 36987.23311567195,
-   "subLatDeg": -0.45077058427455824,
-   "subLonDeg": -104.6694536446074,
-   "altitudeKm": 35787.647026156425,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790222303.229453,
+   "azimuthDeg": 168.2818522492738,
+   "elevationDeg": 51.74742401018807,
+   "rangeKm": 36965.83441619842,
+   "subLatDeg": -0.45085384335605233,
+   "subLonDeg": -104.66945456228032,
+   "altitudeKm": 35787.64878127245,
    "sunlit": true,
-   "sunAzimuthDeg": 294.1238236027186,
-   "sunElevationDeg": -33.67499093348374
+   "sunAzimuthDeg": 293.9206757841222,
+   "sunElevationDeg": -33.796704635276335
   },
   {
    "norad": 41866,
@@ -2386,16 +2386,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 97.53244024802129,
-   "elevationDeg": -20.135218579617682,
-   "rangeKm": 43926.2410484811,
-   "subLatDeg": 0.5490383106565758,
-   "subLonDeg": -104.69476716545753,
-   "altitudeKm": 35778.82544579761,
+   "unix": 1790192940.857395,
+   "azimuthDeg": 97.53238689740981,
+   "elevationDeg": -20.135244594222385,
+   "rangeKm": 43926.244806899944,
+   "subLatDeg": 0.5490969794966474,
+   "subLonDeg": -104.69477411439824,
+   "altitudeKm": 35778.82635477815,
    "sunlit": true,
-   "sunAzimuthDeg": 90.03316462861726,
-   "sunElevationDeg": 0.5221990820115414
+   "sunAzimuthDeg": 90.04334496429287,
+   "sunElevationDeg": 0.5069956861099659
   },
   {
    "norad": 41866,
@@ -2405,16 +2405,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 98.24038481861636,
-   "elevationDeg": -19.701650670663664,
-   "rangeKm": 43884.68979062692,
-   "subLatDeg": -0.28068657964371535,
-   "subLonDeg": -104.67468164729586,
-   "altitudeKm": 35784.65695825537,
+   "unix": 1790389361.901029,
+   "azimuthDeg": 98.24046288420372,
+   "elevationDeg": -19.701600370795834,
+   "rangeKm": 43884.685703387,
+   "subLatDeg": -0.28077951678391955,
+   "subLonDeg": -104.67468128957711,
+   "altitudeKm": 35784.65836709192,
    "sunlit": true,
-   "sunAzimuthDeg": 343.62955904350537,
-   "sunElevationDeg": 56.263399312599766
+   "sunAzimuthDeg": 343.6112260647233,
+   "sunElevationDeg": 56.26095810118783
   },
   {
    "norad": 41866,
@@ -2424,16 +2424,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 98.3858638076408,
-   "elevationDeg": -19.613050492014732,
-   "rangeKm": 43878.00492764241,
-   "subLatDeg": -0.45077058427455824,
-   "subLonDeg": -104.6694536446074,
-   "altitudeKm": 35787.647026156425,
+   "unix": 1790222303.229453,
+   "azimuthDeg": 98.38593297594474,
+   "elevationDeg": -19.61300432854516,
+   "rangeKm": 43878.00164068601,
+   "subLatDeg": -0.45085384335605233,
+   "subLonDeg": -104.66945456228032,
+   "altitudeKm": 35787.64878127245,
    "sunlit": true,
-   "sunAzimuthDeg": 310.4976825125477,
-   "sunElevationDeg": 44.63712708674626
+   "sunAzimuthDeg": 310.48340644885076,
+   "sunElevationDeg": 44.62887158534888
   },
   {
    "norad": 41866,
@@ -2500,16 +2500,16 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 302.1543107217507,
-   "elevationDeg": -18.7944828253625,
-   "rangeKm": 43781.08183084967,
-   "subLatDeg": 0.5490383106565758,
-   "subLonDeg": -104.69476716545753,
-   "altitudeKm": 35778.82544579761,
+   "unix": 1790192940.857395,
+   "azimuthDeg": 302.1543350279578,
+   "elevationDeg": -18.79443122324343,
+   "rangeKm": 43781.07706687648,
+   "subLatDeg": 0.5490969794966474,
+   "subLonDeg": -104.69477411439824,
+   "altitudeKm": 35778.82635477815,
    "sunlit": true,
-   "sunAzimuthDeg": 316.2479411654975,
-   "sunElevationDeg": -15.330255356980036
+   "sunAzimuthDeg": 316.2295315743461,
+   "sunElevationDeg": -15.325835280529068
   },
   {
    "norad": 41866,
@@ -2519,16 +2519,16 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 301.8858484856053,
-   "elevationDeg": -19.541940351397265,
-   "rangeKm": 43869.18216148549,
-   "subLatDeg": -0.28068657964371535,
-   "subLonDeg": -104.67468164729586,
-   "altitudeKm": 35784.65695825537,
+   "unix": 1790389361.901029,
+   "azimuthDeg": 301.8858201775675,
+   "elevationDeg": -19.542024378599713,
+   "rangeKm": 43869.19281335162,
+   "subLatDeg": -0.28077951678391955,
+   "subLonDeg": -104.67468128957711,
+   "altitudeKm": 35784.65836709192,
    "sunlit": true,
-   "sunAzimuthDeg": 58.7935325344499,
-   "sunElevationDeg": -12.1423487145458
+   "sunAzimuthDeg": 58.80376064096612,
+   "sunElevationDeg": -12.139244479830682
   },
   {
    "norad": 41866,
@@ -2538,130 +2538,130 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 301.82955400159034,
-   "elevationDeg": -19.694325369073475,
-   "rangeKm": 43888.93291829027,
-   "subLatDeg": -0.45077058427455824,
-   "subLonDeg": -104.6694536446074,
-   "altitudeKm": 35787.647026156425,
+   "unix": 1790222303.229453,
+   "azimuthDeg": 301.82952981810274,
+   "elevationDeg": -19.694400871337088,
+   "rangeKm": 43888.94297882133,
+   "subLatDeg": -0.45085384335605233,
+   "subLonDeg": -104.66945456228032,
+   "altitudeKm": 35787.64878127245,
    "sunlit": true,
-   "sunAzimuthDeg": 81.24765417518151,
-   "sunElevationDeg": -3.7141202603750627
+   "sunAzimuthDeg": 81.2599774053103,
+   "sunElevationDeg": -3.7096342172251924
   },
   {
    "norad": 40296,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790159400.000014,
-   "azimuthDeg": 359.97243609484207,
-   "elevationDeg": -31.06508947860825,
-   "rangeKm": 30289.219605116577,
+   "azimuthDeg": 359.9523840422212,
+   "elevationDeg": -31.35014424054675,
+   "rangeKm": 30319.60564123742,
    "subLatDeg": 38.171628051593736,
    "subLonDeg": 69.0583246726076,
    "altitudeKm": 21158.927539393524,
    "sunlit": true,
-   "sunAzimuthDeg": 64.84423077997253,
-   "sunElevationDeg": -34.26125586415695
+   "sunAzimuthDeg": 65.02338859146515,
+   "sunElevationDeg": -34.414985078647994
   },
   {
    "norad": 40296,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790183700.000014,
-   "azimuthDeg": 354.51590296277305,
-   "elevationDeg": -11.729284682632256,
-   "rangeKm": 38729.37918085726,
+   "azimuthDeg": 354.50105344269525,
+   "elevationDeg": -12.034961713147192,
+   "rangeKm": 38763.71769977795,
    "subLatDeg": 55.1507447536593,
    "subLonDeg": 78.64315962468476,
    "altitudeKm": 31567.420912743928,
    "sunlit": true,
-   "sunAzimuthDeg": 132.63544272504544,
-   "sunElevationDeg": 46.703387729983476
+   "sunAzimuthDeg": 132.35722880519904,
+   "sunElevationDeg": 46.904317348422786
   },
   {
    "norad": 40296,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "unix": 1790269199.999987,
-   "azimuthDeg": 354.6945439512864,
-   "elevationDeg": -10.409986159126454,
-   "rangeKm": 39427.99864920865,
+   "azimuthDeg": 354.68074167591226,
+   "elevationDeg": -10.717151387870071,
+   "rangeKm": 39462.507970900515,
    "subLatDeg": 56.319559300970646,
    "subLonDeg": 78.61899584290644,
    "altitudeKm": 32403.759937073686,
    "sunlit": true,
-   "sunAzimuthDeg": 128.97966612906038,
-   "sunElevationDeg": 44.061197221164676
+   "sunAzimuthDeg": 128.712996703754,
+   "sunElevationDeg": 44.24584814012766
   },
   {
    "norad": 40296,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 340.773665544965,
-   "elevationDeg": -59.37324582200955,
-   "rangeKm": 21775.476570904397,
-   "subLatDeg": 7.816392938066175,
-   "subLonDeg": 81.85880982797427,
-   "altitudeKm": 10222.104681664021,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790192940.857395,
+   "azimuthDeg": 340.667461423802,
+   "elevationDeg": -59.54454345317032,
+   "rangeKm": 21803.586157495327,
+   "subLatDeg": 7.879377103009982,
+   "subLonDeg": 81.84509497495822,
+   "altitudeKm": 10236.925715762563,
    "sunlit": false,
-   "sunAzimuthDeg": 195.05357444473557,
-   "sunElevationDeg": 56.53897083762404
+   "sunAzimuthDeg": 195.10514998371698,
+   "sunElevationDeg": 56.856844149409696
   },
   {
    "norad": 40296,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 3.5918760560200287,
-   "elevationDeg": 53.73773119173985,
-   "rangeKm": 38814.583643826,
-   "subLatDeg": 63.472886561835516,
-   "subLonDeg": -106.79061101929143,
-   "altitudeKm": 37743.37962889428,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790389361.901029,
+   "azimuthDeg": 3.5814891534698905,
+   "elevationDeg": 53.374967826836325,
+   "rangeKm": 38835.67463846546,
+   "subLatDeg": 63.47303885160707,
+   "subLonDeg": -106.78833326671696,
+   "altitudeKm": 37743.479945342944,
    "sunlit": true,
-   "sunAzimuthDeg": 278.117737526087,
-   "sunElevationDeg": -14.835364258705518
+   "sunAzimuthDeg": 278.0262862192972,
+   "sunElevationDeg": -14.868964285552511
   },
   {
    "norad": 40296,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 8.109898954172,
-   "elevationDeg": 55.546065113682715,
-   "rangeKm": 37059.89630545471,
-   "subLatDeg": 61.30577727495658,
-   "subLonDeg": -102.63875961496807,
-   "altitudeKm": 36096.988891827365,
+   "observerName": "Titan Missile Museum",
+   "unix": 1790222303.229453,
+   "azimuthDeg": 8.056823412443023,
+   "elevationDeg": 55.1843016340611,
+   "rangeKm": 37077.60824572646,
+   "subLatDeg": 61.30294648441595,
+   "subLonDeg": -102.63697209878795,
+   "altitudeKm": 36094.85525828169,
    "sunlit": true,
-   "sunAzimuthDeg": 294.1238236027186,
-   "sunElevationDeg": -33.67499093348374
+   "sunAzimuthDeg": 293.9206757841222,
+   "sunElevationDeg": -33.796704635276335
   },
   {
    "norad": 40296,
@@ -2728,16 +2728,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 288.2748047688174,
-   "elevationDeg": -9.838834871440854,
-   "rangeKm": 16449.169693499898,
-   "subLatDeg": 7.816392938066175,
-   "subLonDeg": 81.85880982797427,
-   "altitudeKm": 10222.104681664021,
+   "unix": 1790192940.857395,
+   "azimuthDeg": 288.3176407531234,
+   "elevationDeg": -9.865018620656787,
+   "rangeKm": 16468.228922798062,
+   "subLatDeg": 7.879377103009982,
+   "subLonDeg": 81.84509497495822,
+   "altitudeKm": 10236.925715762563,
    "sunlit": false,
-   "sunAzimuthDeg": 90.03316462861726,
-   "sunElevationDeg": 0.5221990820115414
+   "sunAzimuthDeg": 90.04334496429287,
+   "sunElevationDeg": 0.5069956861099659
   },
   {
    "norad": 40296,
@@ -2747,16 +2747,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 32.33979886808478,
-   "elevationDeg": -41.38478965718704,
-   "rangeKm": 48043.12014917734,
-   "subLatDeg": 63.472886561835516,
-   "subLonDeg": -106.79061101929143,
-   "altitudeKm": 37743.37962889428,
+   "unix": 1790389361.901029,
+   "azimuthDeg": 32.339757982534735,
+   "elevationDeg": -41.385715611038414,
+   "rangeKm": 48043.30586349368,
+   "subLatDeg": 63.47303885160707,
+   "subLonDeg": -106.78833326671696,
+   "altitudeKm": 37743.479945342944,
    "sunlit": true,
-   "sunAzimuthDeg": 343.62955904350537,
-   "sunElevationDeg": 56.263399312599766
+   "sunAzimuthDeg": 343.6112260647233,
+   "sunElevationDeg": 56.26095810118783
   },
   {
    "norad": 40296,
@@ -2766,16 +2766,16 @@
     30.0
    ],
    "observerName": "Sydney",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 35.24358808435766,
-   "elevationDeg": -43.15086579917316,
-   "rangeKm": 46548.086682316476,
-   "subLatDeg": 61.30577727495658,
-   "subLonDeg": -102.63875961496807,
-   "altitudeKm": 36096.988891827365,
+   "unix": 1790222303.229453,
+   "azimuthDeg": 35.247207686292995,
+   "elevationDeg": -43.15172007902584,
+   "rangeKm": 46546.018186317335,
+   "subLatDeg": 61.30294648441595,
+   "subLonDeg": -102.63697209878795,
+   "altitudeKm": 36094.85525828169,
    "sunlit": true,
-   "sunAzimuthDeg": 310.4976825125477,
-   "sunElevationDeg": 44.63712708674626
+   "sunAzimuthDeg": 310.48340644885076,
+   "sunElevationDeg": 44.62887158534888
   },
   {
    "norad": 40296,
@@ -2842,16 +2842,16 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790192945.247635,
-   "azimuthDeg": 113.04344900996233,
-   "elevationDeg": -5.894264248991138,
-   "rangeKm": 15994.699285249577,
-   "subLatDeg": 7.816392938066175,
-   "subLonDeg": 81.85880982797427,
-   "altitudeKm": 10222.104681664021,
+   "unix": 1790192940.857395,
+   "azimuthDeg": 113.03571666725746,
+   "elevationDeg": -5.812751269724745,
+   "rangeKm": 16001.346195434937,
+   "subLatDeg": 7.879377103009982,
+   "subLonDeg": 81.84509497495822,
+   "altitudeKm": 10236.925715762563,
    "sunlit": false,
-   "sunAzimuthDeg": 316.2479411654975,
-   "sunElevationDeg": -15.330255356980036
+   "sunAzimuthDeg": 316.2295315743461,
+   "sunElevationDeg": -15.325835280529068
   },
   {
    "norad": 40296,
@@ -2861,16 +2861,16 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790389359.388229,
-   "azimuthDeg": 326.89038097945485,
-   "elevationDeg": 42.27422350610966,
-   "rangeKm": 39582.6669919042,
-   "subLatDeg": 63.472886561835516,
-   "subLonDeg": -106.79061101929143,
-   "altitudeKm": 37743.37962889428,
+   "unix": 1790389361.901029,
+   "azimuthDeg": 326.8890910824976,
+   "elevationDeg": 42.2748715736738,
+   "rangeKm": 39582.71960360981,
+   "subLatDeg": 63.47303885160707,
+   "subLonDeg": -106.78833326671696,
+   "altitudeKm": 37743.479945342944,
    "sunlit": true,
-   "sunAzimuthDeg": 58.7935325344499,
-   "sunElevationDeg": -12.1423487145458
+   "sunAzimuthDeg": 58.80376064096612,
+   "sunElevationDeg": -12.139244479830682
   },
   {
    "norad": 40296,
@@ -2880,178 +2880,178 @@
     20.0
    ],
    "observerName": "Tromso",
-   "unix": 1790222300.088493,
-   "azimuthDeg": 322.91092918788206,
-   "elevationDeg": 40.757555174597464,
-   "rangeKm": 38040.37296469349,
-   "subLatDeg": 61.30577727495658,
-   "subLonDeg": -102.63875961496807,
-   "altitudeKm": 36096.988891827365,
+   "unix": 1790222303.229453,
+   "azimuthDeg": 322.90796779084724,
+   "elevationDeg": 40.75477959242063,
+   "rangeKm": 38038.43677771708,
+   "subLatDeg": 61.30294648441595,
+   "subLonDeg": -102.63697209878795,
+   "altitudeKm": 36094.85525828169,
    "sunlit": true,
-   "sunAzimuthDeg": 81.24765417518151,
-   "sunElevationDeg": -3.7141202603750627
+   "sunAzimuthDeg": 81.2599774053103,
+   "sunElevationDeg": -3.7096342172251924
   }
  ],
  "passes": [
   {
    "norad": 25544,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790192643.914085,
-    196.1727371624177
+    1790192638.423469,
+    196.72565037450101
    ],
    "max": [
-    1790192945.093582,
-    128.27409728811844,
-    21.41729880348873
+    1790192940.919193,
+    128.25121504162365,
+    22.0294236441007
    ],
    "set": [
-    1790193247.488763,
-    60.55960850605738
+    1790193244.357861,
+    60.034910696007785
    ]
   },
   {
    "norad": 25544,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790198433.173128,
-    248.88303607760685
+    1790198430.971692,
+    249.52324834572948
    ],
    "max": [
-    1790198745.453671,
-    321.9380020627958,
-    26.614994477616833
+    1790198741.905391,
+    321.84728930615825,
+    25.59073391071423
    ],
    "set": [
-    1790199058.949255,
-    35.1458374070957
+    1790199054.17145,
+    34.39607459861513
    ]
   },
   {
    "norad": 25544,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790204407.020428,
-    300.9216439327257
+    1790204411.337685,
+    302.2990684929474
    ],
    "max": [
-    1790204610.517212,
-    339.86627854952627,
-    4.609795528409172
+    1790204608.221268,
+    339.78735360142616,
+    4.237687627921527
    ],
    "set": [
-    1790204814.049643,
-    18.815778212479795
+    1790204805.283486,
+    17.30990115692371
    ]
   },
   {
    "norad": 25544,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790210434.181621,
-    344.15925604412035
+    1790210455.25107,
+    348.05916779790454
    ],
    "max": [
-    1790210528.804684,
-    1.2684448415180327,
-    0.8135326262637996
+    1790210528.595955,
+    1.2544500952834803,
+    0.47985139510060676
    ],
    "set": [
-    1790210623.36418,
-    18.38092763119537
+    1790210601.838688,
+    14.440009132581409
    ]
   },
   {
    "norad": 25544,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790216223.166033,
-    339.63246182055724
+    1790216230.825456,
+    341.0242744493953
    ],
    "max": [
-    1790216443.126457,
-    22.44018069564956,
-    5.700039629278661
+    1790216444.796173,
+    22.444284166217486,
+    5.2910273777959205
    ],
    "set": [
-    1790216662.171739,
-    65.23119040356154
+    1790216658.094915,
+    63.89275645088222
    ]
   },
   {
    "norad": 25544,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790221981.388592,
-    322.4305841356888
+    1790221985.510597,
+    323.17980299449545
    ],
    "max": [
-    1790222300.049869,
-    39.84567173296868,
-    34.31628061789172
+    1790222303.180691,
+    39.90730066272959,
+    32.77175390628228
    ],
    "set": [
-    1790222616.283318,
-    117.23262792606157
+    1790222618.327,
+    116.51766545043752
    ]
   },
   {
    "norad": 25544,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790227807.584067,
-    294.8793110599893
+    1790227809.809684,
+    295.483911650571
    ],
    "max": [
-    1790228092.895938,
-    233.26285910584426,
-    15.625773198744154
+    1790228096.861597,
+    233.20939205655142,
+    16.133451153453706
    ],
    "set": [
-    1790228376.968145,
-    171.29796979540902
+    1790228382.552665,
+    170.60948822718754
    ]
   },
   {
@@ -3264,139 +3264,139 @@
   {
    "norad": 48274,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790174734.22704,
-    212.27701868538554
+    1790174729.438814,
+    213.01336324970322
    ],
    "max": [
-    1790175026.924949,
-    142.5577621166434,
-    22.744911478752357
+    1790175023.410545,
+    142.6279886882392,
+    23.67863937839829
    ],
    "set": [
-    1790175321.179237,
-    73.12640259605489
+    1790175319.134267,
+    72.40143268347309
    ]
   },
   {
    "norad": 48274,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790180521.884563,
-    254.8857872999915
+    1790180520.284572,
+    255.67243952846943
    ],
    "max": [
-    1790180832.027278,
-    335.9924879597498,
-    43.576421803473735
+    1790180829.753261,
+    336.0900142006961,
+    41.10431257246197
    ],
    "set": [
-    1790181144.011585,
-    57.34728497103867
+    1790181140.810194,
+    56.497772524781695
    ]
   },
   {
    "norad": 48274,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790186391.320761,
-    287.5683471298353
+    1790186392.85992,
+    288.5637898560458
    ],
    "max": [
-    1790186675.787535,
-    352.47311323301136,
-    16.63817658123043
+    1790186674.753905,
+    352.44219366911955,
+    15.80900226343083
    ],
    "set": [
-    1790186960.784742,
-    57.35466863649437
+    1790186957.191239,
+    56.30504193330826
    ]
   },
   {
    "norad": 48274,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790192246.867717,
-    303.7075086284061
+    1790192249.897393,
+    304.7247612144792
    ],
    "max": [
-    1790192535.052475,
-    9.985056317098154,
-    17.81856305428264
+    1790192535.672628,
+    9.996023824005881,
+    16.91988401719604
    ],
    "set": [
-    1790192822.836148,
-    76.1861365101849
+    1790192820.97102,
+    75.16052143798689
    ]
   },
   {
    "norad": 48274,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790198059.721724,
-    301.3968412669127
+    1790198062.257176,
+    302.2401984273947
    ],
    "max": [
-    1790198374.05806,
-    25.950499627108396,
-    56.023128420870194
+    1790198376.125359,
+    26.1002483173798,
+    52.484096891166466
    ],
    "set": [
-    1790198687.14238,
-    110.48060746572976
+    1790198688.575203,
+    109.63828632672043
    ]
   },
   {
    "norad": 48274,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790203890.846,
-    283.23306274864456
+    1790203891.924328,
+    284.0207174549317
    ],
    "max": [
-    1790204173.785523,
-    218.9986814739117,
-    17.260353257771943
+    1790204176.886412,
+    218.91990689245534,
+    17.997609474413714
    ],
    "set": [
-    1790204455.770355,
-    154.51054488164596
+    1790204460.710944,
+    153.65216497045301
    ]
   },
   {
@@ -3540,116 +3540,116 @@
   {
    "norad": 20580,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790187004.541012,
-    212.06998419301553
+    1790186998.964378,
+    212.98478020038678
    ],
    "max": [
-    1790187294.038335,
-    156.36469805266597,
-    12.080278911823738
+    1790187291.720022,
+    156.33606682556695,
+    12.621872120800711
    ],
    "set": [
-    1790187583.93453,
-    100.73019315457877
+    1790187584.616079,
+    99.84119898004148
    ]
   },
   {
    "norad": 20580,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790192904.295654,
-    241.36838101720852
+    1790192901.43194,
+    242.1767586177581
    ],
    "max": [
-    1790193243.624773,
-    167.3418406991569,
-    31.581096275161514
+    1790193242.149504,
+    167.3263523526997,
+    33.16925726822577
    ],
    "set": [
-    1790193583.29358,
-    93.30872625269295
+    1790193583.157673,
+    92.48469351478299
    ]
   },
   {
    "norad": 20580,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790198858.043727,
-    259.8794825620169
+    1790198856.84663,
+    260.6924995136255
    ],
    "max": [
-    1790199206.277927,
-    179.94331442930758,
-    46.578313131501204
+    1790199206.067186,
+    179.79274629392853,
+    49.344186558782
    ],
    "set": [
-    1790199554.397544,
-    99.85068327544987
+    1790199554.881951,
+    99.01181162717006
    ]
   },
   {
    "norad": 20580,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790204829.156943,
-    266.68566783968737
+    1790204828.596415,
+    267.50903649467415
    ],
    "max": [
-    1790205169.141943,
-    192.45148130691214,
-    32.026826707324936
+    1790205169.984948,
+    192.41553351133985,
+    33.696752858670564
    ],
    "set": [
-    1790205508.432358,
-    118.14119945112951
+    1790205510.613155,
+    117.2857538263057
    ]
   },
   {
    "norad": 20580,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790210827.641849,
-    259.5816187727091
+    1790210826.20118,
+    260.4984370732179
    ],
    "max": [
-    1790211118.939202,
-    203.4582410509289,
-    12.368134499528383
+    1790211120.625212,
+    203.4657838108216,
+    12.952559757623039
    ],
    "set": [
-    1790211409.742654,
-    147.22270383318755
+    1790211414.76737,
+    146.24362135736737
    ]
   },
   {
@@ -3770,139 +3770,116 @@
   {
    "norad": 44714,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790162212.034892,
-    6.689428383442596
+    1790167822.007441,
+    336.9354378062696
    ],
    "max": [
-    1790162262.184087,
-    16.300875136262224,
-    0.243605107136038
+    1790168081.211426,
+    35.41171638097155,
+    11.973392271693408
    ],
    "set": [
-    1790162312.512038,
-    25.948121066654522
+    1790168339.663736,
+    93.87233383876736
    ]
   },
   {
    "norad": 44714,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790167816.411334,
-    335.9314191772605
+    1790173529.627498,
+    310.5814801276902
    ],
    "max": [
-    1790168078.532503,
-    35.407879983277844,
-    12.54762404601152
+    1790173830.792914,
+    230.00315076926168,
+    45.48106521304371
    ],
    "set": [
-    1790168339.67476,
-    94.80509477715395
+    1790174130.45369,
+    149.41714264829696
    ]
   },
   {
    "norad": 44714,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790173526.48517,
-    309.9500870494932
+    1790221647.053009,
+    135.86965410917568
    ],
    "max": [
-    1790173827.083539,
-    230.0584545901485,
-    43.38122896662351
+    1790221731.332656,
+    119.42589412078105,
+    0.753687056686229
    ],
    "set": [
-    1790174126.186322,
-    150.0752888640878
+    1790221815.717473,
+    102.99916158183471
    ]
   },
   {
    "norad": 44714,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790221659.71848,
-    134.21639739264438
+    1790227127.922335,
+    214.1643720764322
    ],
    "max": [
-    1790221736.07228,
-    119.3583603371718,
-    0.6135598713004166
+    1790227428.778196,
+    130.53439403052374,
+    56.35531798800631
    ],
    "set": [
-    1790221812.528072,
-    104.51109522404943
+    1790227731.311297,
+    47.45167629080936
    ]
   },
   {
    "norad": 44714,
    "observer": [
-    32.2226,
-    -110.9747,
-    730.0
+    31.90306,
+    -110.99861,
+    880.0
    ],
-   "observerName": "Tucson",
+   "observerName": "Titan Missile Museum",
    "fromUnix": 1790157600.0,
    "rise": [
-    1790227132.268479,
-    213.620618195427
+    1790232932.178762,
+    269.90644200263876
    ],
    "max": [
-    1790227432.693524,
-    130.7728453266597,
-    53.921535888234565
+    1790233182.068897,
+    325.6959997766071,
+    10.500912323904176
    ],
    "set": [
-    1790227735.071888,
-    48.030750483099
-   ]
-  },
-  {
-   "norad": 44714,
-   "observer": [
-    32.2226,
-    -110.9747,
-    730.0
-   ],
-   "observerName": "Tucson",
-   "fromUnix": 1790157600.0,
-   "rise": [
-    1790232932.568943,
-    269.0450217206652
-   ],
-   "max": [
-    1790233185.366043,
-    325.7852808048315,
-    10.986009641095988
-   ],
-   "set": [
-    1790233439.164988,
-    22.502103221385138
+    1790233433.048787,
+    21.50189260407748
    ]
   },
   {

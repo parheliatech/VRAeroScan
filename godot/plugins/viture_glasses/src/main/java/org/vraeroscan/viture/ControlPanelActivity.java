@@ -46,7 +46,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class ControlPanelActivity extends Activity {
 
-    /** Commands for the app, oldest first: "north", "star", "sky:<deg>", "tap", "drag:<fraction of pad width>:<fingers>", "drag_end". */
+    /** Commands for the app, oldest first: "north", "star", "shadow", "sky:<deg>", "tap", "drag:<fraction of pad width>:<fingers>", "drag_end". */
     static final ConcurrentLinkedQueue<String> COMMANDS = new ConcurrentLinkedQueue<>();
     /** Status line from the app. */
     static volatile String status = "starting…";
@@ -80,7 +80,8 @@ public class ControlPanelActivity extends Activity {
     private TextView statusView;
     private final Button[] satButtons = new Button[SAT_NAMES.length];
     private final Button[] airButtons = new Button[AIR_NAMES.length];
-    private Button surfaceButton, centreButton, starButton, identifyButton;
+    private Button surfaceButton, centreButton, starButton, shadowButton, identifyButton;
+    private static final String SHADOW_LABEL = "Sight your shadow (sunny day)";
     private static final String IDENTIFY_OFF = "◎  Identify: off — tap to aim a circle";
     private static final String IDENTIFY_ON = "◎  Identify: on — tap to turn off";
     /** Height of the drag/tap pad at the bottom of every tab. */
@@ -171,6 +172,11 @@ public class ControlPanelActivity extends Activity {
         // Optional: put the pole star in the glasses' circle and tap. Needs a clear sky.
         starButton = button(STAR_LABEL, "star");
         northPage.addView(starButton,
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(64)));
+
+        // Optional, by day: look along a shadow, which points directly away from the Sun.
+        shadowButton = button(SHADOW_LABEL, "shadow");
+        northPage.addView(shadowButton,
                 new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(64)));
 
         LinearLayout nudges = new LinearLayout(this);
@@ -384,6 +390,9 @@ public class ControlPanelActivity extends Activity {
             boolean sighting = "1".equals(kv.get("star"));
             starButton.setText(sighting ? "Cancel sighting" : STAR_LABEL);
             mark(starButton, sighting);
+            boolean shadowing = "1".equals(kv.get("shadow"));
+            shadowButton.setText(shadowing ? "Cancel sighting" : SHADOW_LABEL);
+            mark(shadowButton, shadowing);
             String view = kv.get("view");
             double km = Double.parseDouble(kv.get("alt"));
             boolean altitude = "altitude".equals(view);

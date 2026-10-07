@@ -48,7 +48,7 @@ enum Viewpoint { SURFACE, CENTRE, ALTITUDE }
 
 @export_group("Satellites")
 ## CelesTrak groups to load; see CelestrakService. "active" is every working satellite
-## (~16,600, Starlink's ~11,000 included — on by default, Kendel 2026-09-24: it is most
+## (~16,600, Starlink's ~11,000 included — on by default, owner 2026-09-24: it is most
 ## of what is up there); "visual" adds the bright spent rocket stages.
 @export var satellite_groups := PackedStringArray(["stations", "visual", "active"])
 ## Which kinds to draw. Each satellite has exactly one kind: see Satellite.
@@ -398,6 +398,14 @@ const CAPTURE_TIMEOUT_S := 30.0
 ## Waiting for a tap with the pole star in the circle (see PoleStar). Finding a star takes
 ## longer than facing a landmark, so it waits longer.
 var capturing_star := false
+## Waiting for a tap while looking along a shadow: a shadow points exactly away from the
+## Sun, and the app knows where the Sun is, so the gaze then gives north. The daytime pole
+## star, without ever looking at the Sun.
+var capturing_shadow := false
+## The Sun must be up, and not so high that shadows are too short to point anywhere.
+const SHADOW_MIN_SUN_DEG := 3.0
+const SHADOW_MAX_SUN_DEG := 75.0
+var _shadow_line: MeshInstance3D
 const STAR_CAPTURE_TIMEOUT_S := 120.0
 ## Below this the star is in the murk or behind the horizon: not worth trying.
 const STAR_MIN_ELEVATION_DEG := 3.0
@@ -435,6 +443,7 @@ var _panel_not_before := 0.0
 ##   star               sight the pole star (Polaris in the north, Sigma Octantis in the
 ##                      south) in the circle, then tap: sets north from where it is now
 ##   identify | identify:on | identify:off   the identify crosshair (bare: toggle)
+##   shadow             look along a shadow, then tap: sets north from the Sun's direction
 ##   cancel             stop sighting the star, or waiting to take north (Esc does too)
 ##   tap                the pad was tapped: open the menu, choose in it, or take north
 ##   menu               open or close the glasses menu
@@ -459,9 +468,15 @@ func run_command(command: String) -> void:
 		"identify":
 			var what := parts[1] if parts.size() > 1 else ""
 			identify_on = (not identify_on) if what.is_empty() else (what == "on")
+		"shadow":
+			if capturing_shadow:
+				run_command("cancel")
+			else:
+				start_shadow_capture()
 		"cancel":
 			capturing_north = false
 			capturing_star = false
+			capturing_shadow = false
 			_notice = ""
 		"sky":
 			horizon_control.rotate_sky(parts[1].to_float() if parts.size() > 1 else 0.0)
@@ -588,15 +603,16 @@ static func _toggle_group(mask: int, groups: Array, what: String, all: int) -> i
 ## "key=value;..." for the phone panel, so its buttons show what is on: view mode and
 ## altitude, satellite kinds and aircraft groups as bitmasks.
 func panel_state() -> String:
-	return "view=%s;alt=%d;sat=%d;air=%d;star=%d;labels=%s;identify=%d" % [
+	return "view=%s;alt=%d;sat=%d;air=%d;star=%d;labels=%s;identify=%d;shadow=%d" % [
 		Viewpoint.keys()[viewpoint].to_lower(), roundi(viewpoint_altitude_km),
 		satellite_types, aircraft_types, 1 if capturing_star else 0, label_size,
-		1 if identify_on else 0]
+		1 if identify_on else 0, 1 if capturing_shadow else 0]
 
 
 func open_menu() -> void:
 	capturing_north = false
 	capturing_star = false
+	capturing_shadow = false
 	_menu_page = "main"
 	quick_menu.open(-rig.camera.global_basis.z, _menu_items())
 	_menu_idle_until = _seconds() + MENU_IDLE_S
@@ -620,6 +636,7 @@ func _menu_items() -> Array[QuickMenu.Item]:
 			items.append(QuickMenu.Item.new(_heading_readout(), ""))
 			items.append(QuickMenu.Item.new("Face north, then tap…", "set_north"))
 			items.append(QuickMenu.Item.new("Sight pole star…", "star"))
+			items.append(QuickMenu.Item.new("Sight your shadow…", "shadow"))
 			items.append(QuickMenu.Item.new("Sky ← 1°", "sky:-1"))
 			items.append(QuickMenu.Item.new("Sky → 1°", "sky:1"))
 			items.append(QuickMenu.Item.new("Sky ← 0.1°", "sky:-0.1"))
@@ -679,6 +696,7 @@ func start_star_capture() -> void:
 		_notice_until = _seconds() + 6.0
 		return
 	capturing_north = false
+	capturing_shadow = false
 	capturing_star = true
 	_capture_until = _seconds() + STAR_CAPTURE_TIMEOUT_S
 	quick_menu.close()
@@ -697,6 +715,55 @@ func calibrate_on_star() -> void:
 	horizon_control.highlight()
 
 
+## Where the Sun is in the sky, from where you stand, now.
+func sun_look() -> LookAngles:
+	return Solar.sun_look_angles(GeoMath.local_frame(observer), Sgp4.unix_to_jd(unix_now()))
+
+
+## Begin a shadow sighting. Refuses, with a notice, when the Sun is down or so high that
+## shadows are too short to show a direction.
+func start_shadow_capture() -> void:
+	var sun := sun_look()
+	if sun.elevation_deg < SHADOW_MIN_SUN_DEG:
+		_notice = "The Sun is down: no shadows to sight. Use another way to set north"
+		_notice_until = _seconds() + 6.0
+		return
+	if sun.elevation_deg > SHADOW_MAX_SUN_DEG:
+		_notice = "The Sun is %d° up: shadows are too short. Try earlier or later" % roundi(sun.elevation_deg)
+		_notice_until = _seconds() + 6.0
+		return
+	capturing_north = false
+	capturing_star = false
+	capturing_shadow = true
+	_capture_until = _seconds() + STAR_CAPTURE_TIMEOUT_S
+	quick_menu.close()
+
+
+## The tap looking along the shadow: the gaze points away from the Sun. Looking straight
+## down gives no direction, so that tap is refused with a hint and the sighting goes on.
+func calibrate_on_shadow() -> void:
+	var forward := -rig.camera.global_basis.z
+	if forward.y < -0.97:  # within ~14° of straight down
+		_notice = "Look along the shadow towards its far end, not straight down"
+		_notice_until = _seconds() + 4.0
+		return
+	capturing_shadow = false
+	var sun := sun_look()
+	var shadow_az := GeoMath.wrap360(sun.azimuth_deg + 180.0)
+	var gaze_az := GeoMath.wrap360(rad_to_deg(atan2(forward.x, -forward.z)))
+	calibration.calibrate_from_gaze(shadow_az, gaze_az, CompassCalibration.Source.CELESTIAL)
+	print("VRAEROSCAN calibrated on a shadow (Sun az %.2f°, el %.1f°): offset %.1f°" % [
+			sun.azimuth_deg, sun.elevation_deg, calibration.heading_offset_deg])
+	horizon_control.highlight()
+
+
+func _shadow_prompt() -> String:
+	var sun := sun_look()
+	return "Look along your shadow, line it up, then tap\nSun %d° up in the %s: shadows point %s · never look at the Sun" % [
+			roundi(sun.elevation_deg), PassPredictor.compass_point(sun.azimuth_deg),
+			PassPredictor.compass_point(sun.azimuth_deg + 180.0)]
+
+
 ## What to say under the circle: where the star is, and how far up the head is now.
 func _star_prompt() -> String:
 	var target := PoleStar.for_latitude(observer.latitude_deg)
@@ -711,6 +778,9 @@ func _star_prompt() -> String:
 
 
 func _tap() -> void:
+	if capturing_shadow:
+		calibrate_on_shadow()
+		return
 	if capturing_star:
 		calibrate_on_star()
 		return
@@ -755,20 +825,23 @@ func update_controls() -> void:
 			quick_menu.set_text(0, _heading_readout())
 		if _seconds() > _menu_idle_until:
 			quick_menu.close()
-	if (capturing_north or capturing_star) and _seconds() > _capture_until:
+	if (capturing_north or capturing_star or capturing_shadow) and _seconds() > _capture_until:
 		capturing_north = false
 		capturing_star = false
+		capturing_shadow = false
 	var noticed := not _notice.is_empty() and _seconds() < _notice_until
-	_reticle.visible = quick_menu.is_open() or capturing_north or capturing_star or noticed
-	_prompt.visible = capturing_north or capturing_star or noticed
+	_reticle.visible = quick_menu.is_open() or capturing_north or capturing_star or capturing_shadow or noticed
+	_prompt.visible = capturing_north or capturing_star or capturing_shadow or noticed
 	_star_ring.visible = capturing_star
+	_shadow_line.visible = capturing_shadow
 	if _prompt.visible:
-		var text := _star_prompt() if capturing_star else (
-				"Face true north, then tap" if capturing_north else _notice)
+		var text := _notice if noticed and capturing_shadow else (
+				_shadow_prompt() if capturing_shadow else _star_prompt() if capturing_star else (
+				"Face true north, then tap" if capturing_north else _notice))
 		if _prompt.text != text:
 			_prompt.text = text
 		# Under the circle when there is one, else just under the cross.
-		_prompt.position.y = -10.0 * deg_to_rad(3.4 if capturing_star else 2.2)
+		_prompt.position.y = -10.0 * deg_to_rad(3.4 if capturing_star or capturing_shadow else 2.2)
 
 
 func _heading_readout() -> String:
@@ -790,6 +863,8 @@ func panel_status() -> String:
 		lines.append("FACE TRUE NORTH, THEN TAP THE PAD")
 	elif capturing_star:
 		lines.append("SIGHTING %s: CENTRE IT, TAP THE PAD" % PoleStar.for_latitude(observer.latitude_deg).name.to_upper())
+	elif capturing_shadow:
+		lines.append("LOOK ALONG YOUR SHADOW, TAP THE PAD")
 	elif not _notice.is_empty() and _seconds() < _notice_until:
 		lines.append(_notice)
 	elif identify_on:
@@ -875,6 +950,18 @@ func _build_reticle() -> void:
 	_star_ring.material_override = ArVisuals.additive_material(Color(1.0, 0.95, 0.7))
 	_star_ring.visible = false
 	_reticle.add_child(_star_ring)
+	# For a shadow sighting: a long line up the middle of the view, to lay along the shadow.
+	var reach := AT * deg_to_rad(3.0)
+	var shadow_lines: PackedVector3Array = []
+	for i in 6:  # dashed, above and below the cross
+		var a := AT * deg_to_rad(0.9) + i * reach / 6.0
+		var b := a + reach / 12.0
+		shadow_lines.append_array([Vector3(0, a, 0), Vector3(0, b, 0), Vector3(0, -a, 0), Vector3(0, -b, 0)])
+	_shadow_line = MeshInstance3D.new()
+	_shadow_line.mesh = ArVisuals.line_mesh(shadow_lines)
+	_shadow_line.material_override = ArVisuals.additive_material(Color(1.0, 0.95, 0.7))
+	_shadow_line.visible = false
+	_reticle.add_child(_shadow_line)
 	_prompt = ArVisuals.create_label(_reticle, "Face true north, then tap", AT * deg_to_rad(0.9),
 			Color(1.0, 0.95, 0.7))
 	_prompt.position = Vector3(0.0, -AT * deg_to_rad(2.2), 0.0)
@@ -1153,7 +1240,7 @@ func update_satellite_markers() -> void:
 ## within IdentifyCrosshair.RADIUS_DEG, and describe it. Hidden while the menu or a north
 ## sighting has the middle of the view.
 func update_identify() -> void:
-	identify.visible = identify_on and not quick_menu.is_open() and not capturing_star \
+	identify.visible = identify_on and not quick_menu.is_open() and not capturing_star and not capturing_shadow \
 			and not capturing_north
 	if not identify.visible:
 		identified = null
@@ -1207,7 +1294,7 @@ func update_gaze_labels() -> void:
 	# The middle of the view belongs to the glasses menu, the pole-star circle or the identify
 	# crosshair while they are up: labels there were drawn straight over the menu's rows
 	# (seen on the glasses), and the identify card says more than a label would.
-	if quick_menu.is_open() or capturing_star or identify_on:
+	if quick_menu.is_open() or capturing_star or capturing_shadow or identify_on:
 		for key: int in active_label_markers.keys():
 			_release(active_label_markers[key])
 			active_label_markers.erase(key)

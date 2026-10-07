@@ -76,7 +76,7 @@ You will see a faint **ghost N** on the horizon, with a dashed line climbing fro
 labelled ticks at 10°, 20°, 30°, 45° and 60° of elevation. E, S and W are fainter. The ghost N
 is your readout: when it sits on true north, the sky is aligned.
 
-There are four ways to set north. **None depends on another**, so use whichever the weather
+There are five ways to set north. **None depends on another**, so use whichever the weather
 and your surroundings allow.
 
 ### 3.1 Face something you know is north
@@ -115,10 +115,37 @@ which way you face. Head tilt does not matter.
 
 Expect to land within about a degree: the circle is about 1.5° in radius.
 
-### 3.4 From the glasses menu
+### 3.4 Sight your shadow (sunny day, optional)
+A shadow points directly away from the Sun, and the app knows exactly where the Sun is from
+your position and the time. So looking along a shadow tells it which way you face.
+
+> **Never look at the Sun, through the glasses or otherwise.** The glasses dim, but they are
+> not a solar filter. This method only ever has you look at the ground.
+
+1. Stand with the Sun behind you. On the **North** tab, tap **Sight your shadow (sunny day)**.
+2. A dashed line appears up the middle of the glasses, with a prompt saying where the Sun is
+   and which way shadows point.
+3. Look down along your shadow, or better the shadow of a pole, a lamppost or a wall's
+   vertical edge (straighter than a person's), and lay the dashed line along it.
+   Look towards the shadow's far end, not straight down at your feet.
+4. Tap the pad.
+
+- Head tilt does not matter; only the direction you look in counts.
+- It needs the Sun between 3° and 75° up. Below that there are no useful shadows; above it
+  (around midday in summer) shadows are too short to point anywhere, and the app says so.
+  Mid-morning and mid-afternoon are best.
+- Looking within about 14° of straight down gives no direction, so that tap is refused with
+  a hint and the sighting carries on.
+- **To cancel**, tap **Cancel sighting** (the same button), or press Esc. It times out after
+  two minutes.
+
+Expect a degree or two: the limit is how straight the shadow is and how well you line up with
+it. The app's Sun matches an independent astronomy library (Skyfield) to 0.006°.
+
+### 3.5 From the glasses menu
 Open the menu (§6) and choose **Set north ›**. That page has **Face north, then tap…** (the menu
-closes, you face true north, and you tap the pad), **Sight pole star…**, and the four sky
-nudges.
+closes, you face true north, and you tap the pad), **Sight pole star…**, **Sight your
+shadow…**, and the four sky nudges.
 
 After any fix, the panel's status line shows how it was set and how long ago
 (*Calibrated 40s ago*).
@@ -150,7 +177,8 @@ tab and the View tab. During a pole-star sighting the star button becomes **Canc
 (lit).*
 
 ### North tab: set north
-**I'm facing north**, **Sight the pole star (clear sky)**, and the four nudge buttons (§3).
+**I'm facing north**, **Sight the pole star (clear sky)**, **Sight your shadow (sunny day)**,
+and the four nudge buttons (§3).
 
 ### Show tab: what is drawn
 Tap a row to switch it on (☑) or off (☐).
@@ -365,7 +393,7 @@ Pages:
 | Page | Rows |
 |---|---|
 | **Main** | A live heading readout, **☐/☑ Identify** (choosing it turns the circle on and closes the menu), **Set north ›**, **Show ›**, **View from: … ›**, **Close** |
-| **Set north** | The heading readout, **Face north, then tap…**, **Sight pole star…**, **Sky ← 1°**, **Sky → 1°**, **Sky ← 0.1°**, **Sky → 0.1°**, **‹ Back** |
+| **Set north** | The heading readout, **Face north, then tap…**, **Sight pole star…**, **Sight your shadow…**, **Sky ← 1°**, **Sky → 1°**, **Sky ← 0.1°**, **Sky → 0.1°**, **‹ Back** |
 | **Show** | **Satellites ›**, **Aircraft ›**, **Labels: …** (tap to cycle Small / Medium / Large), **‹ Back** |
 | **Satellites** (under Show) | One ☑/☐ row per kind, **All on**, **All off**, **‹ Back** |
 | **Aircraft** (under Show) | One ☑/☐ row per group, **All on**, **All off**, **‹ Back** |
@@ -410,6 +438,8 @@ the glasses' view.
 | Satellites seem frozen after I move the altitude slider | They are re-positioning in batches; wait a moment. |
 | The pole star circle will not go away | Tap **Cancel sighting** on the phone (or Esc). See §3.3. |
 | Pole star prompt says the star is only a few degrees up | You are near the equator. Set north another way. |
+| "The Sun is down" or "shadows are too short" | The shadow method needs the Sun 3° to 75° up. Use another way, or wait. |
+| "Look along the shadow… not straight down" | Look further out along the shadow, towards its far end, and tap again. |
 
 ---
 
@@ -426,7 +456,7 @@ When run on a computer with no glasses, a mock head tracker is used.
 | **Space** | The pad's tap |
 | **M** | Open or close the glasses menu |
 | **I** | Turn the identify circle on or off |
-| **Esc** | Cancel a north or pole-star sighting |
+| **Esc** | Cancel a north, pole-star or shadow sighting |
 | **[** / **]** | Step the field of view, to match the glasses' optics |
 
 Over adb the same actions work as key events, for example `adb shell input keyevent KEYCODE_M`.
@@ -480,4 +510,4 @@ View the app's status line every five seconds with
 
 Accuracy is checked against independent references: look angles against live adsb.lol data,
 the satellite chain against Skyfield (0.0006°), pass times against Skyfield (0.2 s), and the
-pole star against Skyfield (0.0074°). The validation scripts are in `tools/validation/`.
+pole star against Skyfield (0.0074°), and the Sun against Skyfield (0.006°). The validation scripts are in `tools/validation/`.

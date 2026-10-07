@@ -1,0 +1,851 @@
+{
+ "cases": [
+  {
+   "observerName": "Titan Missile Museum",
+   "observer": [
+    31.90306,
+    -110.99861,
+    880.0
+   ],
+   "unix": 1791073020.0,
+   "azimuthDeg": 258.86664756153715,
+   "elevationDeg": 9.488514540259427
+  },
+  {
+   "observerName": "Titan Missile Museum",
+   "observer": [
+    31.90306,
+    -110.99861,
+    880.0
+   ],
+   "unix": 1791083820.0,
+   "azimuthDeg": 283.67008083892784,
+   "elevationDeg": -28.45365594987244
+  },
+  {
+   "observerName": "Titan Missile Museum",
+   "observer": [
+    31.90306,
+    -110.99861,
+    880.0
+   ],
+   "unix": 1791094620.0,
+   "azimuthDeg": 331.7253640070191,
+   "elevationDeg": -59.521517018495686
+  },
+  {
+   "observerName": "Titan Missile Museum",
+   "observer": [
+    31.90306,
+    -110.99861,
+    880.0
+   ],
+   "unix": 1791105420.0,
+   "azimuthDeg": 53.125489890296954,
+   "elevationDeg": -49.975112962215036
+  },
+  {
+   "observerName": "Titan Missile Museum",
+   "observer": [
+    31.90306,
+    -110.99861,
+    880.0
+   ],
+   "unix": 1791116220.0,
+   "azimuthDeg": 86.4125615391019,
+   "elevationDeg": -14.175072763789942
+  },
+  {
+   "observerName": "Titan Missile Museum",
+   "observer": [
+    31.90306,
+    -110.99861,
+    880.0
+   ],
+   "unix": 1791127020.0,
+   "azimuthDeg": 111.64785838723357,
+   "elevationDeg": 23.28498487797122
+  },
+  {
+   "observerName": "Titan Missile Museum",
+   "observer": [
+    31.90306,
+    -110.99861,
+    880.0
+   ],
+   "unix": 1791137820.0,
+   "azimuthDeg": 157.5191385787507,
+   "elevationDeg": 51.20391771176429
+  },
+  {
+   "observerName": "Titan Missile Museum",
+   "observer": [
+    31.90306,
+    -110.99861,
+    880.0
+   ],
+   "unix": 1791148620.0,
+   "azimuthDeg": 224.75672919877886,
+   "elevationDeg": 43.00214613019594
+  },
+  {
+   "observerName": "Titan Missile Museum",
+   "observer": [
+    31.90306,
+    -110.99861,
+    880.0
+   ],
+   "unix": 1813600800.0,
+   "azimuthDeg": 108.7063718075659,
+   "elevationDeg": 69.24945451382564
+  },
+  {
+   "observerName": "Titan Missile Museum",
+   "observer": [
+    31.90306,
+    -110.99861,
+    880.0
+   ],
+   "unix": 1829412000.0,
+   "azimuthDeg": 157.90152607272088,
+   "elevationDeg": 31.28513945719072
+  },
+  {
+   "observerName": "Titan Missile Museum",
+   "observer": [
+    31.90306,
+    -110.99861,
+    880.0
+   ],
+   "unix": 1805524200.0,
+   "azimuthDeg": 332.31860599208045,
+   "elevationDeg": -55.14426529584181
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "unix": 1791073020.0,
+   "azimuthDeg": 247.9891391470368,
+   "elevationDeg": 13.409592422315004
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "unix": 1791083820.0,
+   "azimuthDeg": 281.90913207422125,
+   "elevationDeg": -16.430637738055033
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "unix": 1791094620.0,
+   "azimuthDeg": 325.31904648668495,
+   "elevationDeg": -41.63868649493498
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "unix": 1791105420.0,
+   "azimuthDeg": 27.745206399208882,
+   "elevationDeg": -43.599975022489545
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "unix": 1791116220.0,
+   "azimuthDeg": 73.84533569589868,
+   "elevationDeg": -20.125110386679573
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "unix": 1791127020.0,
+   "azimuthDeg": 107.85936133415115,
+   "elevationDeg": 9.749109760701364
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "unix": 1791137820.0,
+   "azimuthDeg": 149.46282256586989,
+   "elevationDeg": 33.32358135312368
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "unix": 1791148620.0,
+   "azimuthDeg": 204.33186071548047,
+   "elevationDeg": 34.95759045376178
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "unix": 1813600800.0,
+   "azimuthDeg": 121.28137349189262,
+   "elevationDeg": 54.48846423073826
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "unix": 1829412000.0,
+   "azimuthDeg": 150.1831516490107,
+   "elevationDeg": 13.413820990653587
+  },
+  {
+   "observerName": "Seattle",
+   "observer": [
+    47.6,
+    -122.3,
+    100.0
+   ],
+   "unix": 1805524200.0,
+   "azimuthDeg": 325.6342923149805,
+   "elevationDeg": -37.25649545972062
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "unix": 1791073020.0,
+   "azimuthDeg": 342.9188145355715,
+   "elevationDeg": -29.162432238098745
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "unix": 1791083820.0,
+   "azimuthDeg": 33.93015138133014,
+   "elevationDeg": -26.359304486712194
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "unix": 1791094620.0,
+   "azimuthDeg": 78.42985369830427,
+   "elevationDeg": -10.388081121531593
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "unix": 1791105420.0,
+   "azimuthDeg": 119.29843234344084,
+   "elevationDeg": 8.556635951332199
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "unix": 1791116220.0,
+   "azimuthDeg": 164.1533218329856,
+   "elevationDeg": 20.487552253201855
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "unix": 1791127020.0,
+   "azimuthDeg": 211.71222102268405,
+   "elevationDeg": 17.757737151064205
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "unix": 1791137820.0,
+   "azimuthDeg": 254.6462723872143,
+   "elevationDeg": 2.2765359286410978
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "unix": 1791148620.0,
+   "azimuthDeg": 295.7480063330651,
+   "elevationDeg": -16.903891134888635
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "unix": 1813600800.0,
+   "azimuthDeg": 260.55270037850386,
+   "elevationDeg": 30.6854606316318
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "unix": 1829412000.0,
+   "azimuthDeg": 240.89426251776976,
+   "elevationDeg": -12.219969953111796
+  },
+  {
+   "observerName": "Reykjavik",
+   "observer": [
+    64.15,
+    -21.94,
+    20.0
+   ],
+   "unix": 1805524200.0,
+   "azimuthDeg": 75.31828369052705,
+   "elevationDeg": -7.255675945030907
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "unix": 1791073020.0,
+   "azimuthDeg": 265.4314914586244,
+   "elevationDeg": -18.499659937708717
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "unix": 1791083820.0,
+   "azimuthDeg": 260.0080363318263,
+   "elevationDeg": -63.21907690475355
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "unix": 1791094620.0,
+   "azimuthDeg": 103.9924689854438,
+   "elevationDeg": -70.88416060229768
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "unix": 1791105420.0,
+   "azimuthDeg": 95.02041939263101,
+   "elevationDeg": -26.30803430757674
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "unix": 1791116220.0,
+   "azimuthDeg": 94.65253595083325,
+   "elevationDeg": 18.557283764215413
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "unix": 1791127020.0,
+   "azimuthDeg": 99.72435508210346,
+   "elevationDeg": 63.28657659775239
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "unix": 1791137820.0,
+   "azimuthDeg": 256.4693249791177,
+   "elevationDeg": 70.88777177623669
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "unix": 1791148620.0,
+   "azimuthDeg": 264.94373360445286,
+   "elevationDeg": 26.289828875401632
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "unix": 1813600800.0,
+   "azimuthDeg": 336.2509315795665,
+   "elevationDeg": 64.0462599938507
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "unix": 1829412000.0,
+   "azimuthDeg": 205.81368210635068,
+   "elevationDeg": 63.97878609932702
+  },
+  {
+   "observerName": "Quito",
+   "observer": [
+    -0.18,
+    -78.47,
+    2850.0
+   ],
+   "unix": 1805524200.0,
+   "azimuthDeg": 91.3614032526127,
+   "elevationDeg": -72.86451283307238
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "unix": 1791073020.0,
+   "azimuthDeg": 142.78254093159515,
+   "elevationDeg": -44.87821267924804
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "unix": 1791083820.0,
+   "azimuthDeg": 104.81850914717828,
+   "elevationDeg": -13.572002567529381
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "unix": 1791094620.0,
+   "azimuthDeg": 78.93266863859354,
+   "elevationDeg": 23.476174204789313
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "unix": 1791105420.0,
+   "azimuthDeg": 35.88002865417638,
+   "elevationDeg": 55.366384005474664
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "unix": 1791116220.0,
+   "azimuthDeg": 315.55749462813907,
+   "elevationDeg": 52.2040011294936
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "unix": 1791127020.0,
+   "azimuthDeg": 277.2972166913836,
+   "elevationDeg": 18.66259871451261
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "unix": 1791137820.0,
+   "azimuthDeg": 251.2365808689758,
+   "elevationDeg": -18.17455748075289
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "unix": 1791148620.0,
+   "azimuthDeg": 209.34730236502776,
+   "elevationDeg": -47.30246764720257
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "unix": 1813600800.0,
+   "azimuthDeg": 281.1572081178814,
+   "elevationDeg": -27.18208015648488
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "unix": 1829412000.0,
+   "azimuthDeg": 240.2574735947512,
+   "elevationDeg": -1.4210717680556681
+  },
+  {
+   "observerName": "Cape Town",
+   "observer": [
+    -33.92,
+    18.42,
+    20.0
+   ],
+   "unix": 1805524200.0,
+   "azimuthDeg": 76.22999229213124,
+   "elevationDeg": 19.8762009149656
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "unix": 1791073020.0,
+   "azimuthDeg": 39.131734586887276,
+   "elevationDeg": 54.149620982984125
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "unix": 1791083820.0,
+   "azimuthDeg": 318.69089096217147,
+   "elevationDeg": 53.38613953304201
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "unix": 1791094620.0,
+   "azimuthDeg": 278.7467588929188,
+   "elevationDeg": 20.427842524516738
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "unix": 1791105420.0,
+   "azimuthDeg": 252.7989972941195,
+   "elevationDeg": -16.510817286887306
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "unix": 1791116220.0,
+   "azimuthDeg": 212.41857692954898,
+   "elevationDeg": -46.52210536024691
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "unix": 1791127020.0,
+   "azimuthDeg": 145.59733829179658,
+   "elevationDeg": -45.758405159077824
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "unix": 1791137820.0,
+   "azimuthDeg": 106.3349389237387,
+   "elevationDeg": -15.170258058186159
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "unix": 1791148620.0,
+   "azimuthDeg": 80.50676014595594,
+   "elevationDeg": 21.857221956335326
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "unix": 1813600800.0,
+   "azimuthDeg": 84.26210621228965,
+   "elevationDeg": -36.43175170622409
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "unix": 1829412000.0,
+   "azimuthDeg": 125.3336870101295,
+   "elevationDeg": -8.02347305034089
+  },
+  {
+   "observerName": "Sydney",
+   "observer": [
+    -33.87,
+    151.21,
+    40.0
+   ],
+   "unix": 1805524200.0,
+   "azimuthDeg": 283.2311947346915,
+   "elevationDeg": 19.21593434872193
+  },
+  {
+   "observerName": "Tokyo",
+   "observer": [
+    35.68,
+    139.69,
+    40.0
+   ],
+   "unix": 1791073020.0,
+   "azimuthDeg": 134.98375182690893,
+   "elevationDeg": 39.32513317429186
+  },
+  {
+   "observerName": "Tokyo",
+   "observer": [
+    35.68,
+    139.69,
+    40.0
+   ],
+   "unix": 1791083820.0,
+   "azimuthDeg": 197.82589717441462,
+   "elevationDeg": 48.509378370790564
+  },
+  {
+   "observerName": "Tokyo",
+   "observer": [
+    35.68,
+    139.69,
+    40.0
+   ],
+   "unix": 1791094620.0,
+   "azimuthDeg": 245.45221126528145,
+   "elevationDeg": 23.556508387754526
+  },
+  {
+   "observerName": "Tokyo",
+   "observer": [
+    35.68,
+    139.69,
+    40.0
+   ],
+   "unix": 1791105420.0,
+   "azimuthDeg": 273.2758822150064,
+   "elevationDeg": -12.12016668188624
+  },
+  {
+   "observerName": "Tokyo",
+   "observer": [
+    35.68,
+    139.69,
+    40.0
+   ],
+   "unix": 1791116220.0,
+   "azimuthDeg": 307.75003613994517,
+   "elevationDeg": -46.286010389742216
+  },
+  {
+   "observerName": "Tokyo",
+   "observer": [
+    35.68,
+    139.69,
+    40.0
+   ],
+   "unix": 1791127020.0,
+   "azimuthDeg": 21.928269483303776,
+   "elevationDeg": -56.999356886153876
+  },
+  {
+   "observerName": "Tokyo",
+   "observer": [
+    35.68,
+    139.69,
+    40.0
+   ],
+   "unix": 1791137820.0,
+   "azimuthDeg": 73.06857231632179,
+   "elevationDeg": -29.34161408477288
+  },
+  {
+   "observerName": "Tokyo",
+   "observer": [
+    35.68,
+    139.69,
+    40.0
+   ],
+   "unix": 1791148620.0,
+   "azimuthDeg": 100.686244415722,
+   "elevationDeg": 6.806808852946606
+  },
+  {
+   "observerName": "Tokyo",
+   "observer": [
+    35.68,
+    139.69,
+    40.0
+   ],
+   "unix": 1813600800.0,
+   "azimuthDeg": 45.938828190780505,
+   "elevationDeg": -14.754699503787242
+  },
+  {
+   "observerName": "Tokyo",
+   "observer": [
+    35.68,
+    139.69,
+    40.0
+   ],
+   "unix": 1829412000.0,
+   "azimuthDeg": 88.4035723581614,
+   "elevationDeg": -45.17707798937796
+  },
+  {
+   "observerName": "Tokyo",
+   "observer": [
+    35.68,
+    139.69,
+    40.0
+   ],
+   "unix": 1805524200.0,
+   "azimuthDeg": 247.80702977862072,
+   "elevationDeg": 27.39686379408002
+  }
+ ]
+}
