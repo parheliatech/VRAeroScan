@@ -29,3 +29,8 @@ class AndroidExportPlugin extends EditorExportPlugin:
 	func _get_android_libraries(_platform: EditorExportPlatform, debug: bool) -> PackedStringArray:
 		# Relative to res://addons.
 		return PackedStringArray(["viture_glasses/bin/viture_glasses-%s.aar" % ("debug" if debug else "release")])
+
+
+	# Google Mobile Ads (with the consent SDK it brings): used only by the phone-side control panel.
+	func _get_android_dependencies(_platform: EditorExportPlatform, _debug: bool) -> PackedStringArray:
+		return PackedStringArray(["com.google.android.gms:play-services-ads:25.5.0"])

@@ -40,4 +40,9 @@ android {
 dependencies {
     // Provided at runtime by the Godot app itself; must match the engine version exactly.
     compileOnly 'org.godotengine:godot:4.7.2.stable'
+
+    // Banner ad on the phone's control panel (AdBanner) and Google's consent form. compileOnly:
+    // the export adds the same artifacts to the app (see the addon's editor plugin), so they
+    // are not packaged in the AAR twice. Keep the two versions identical.
+    compileOnly 'com.google.android.gms:play-services-ads:25.5.0'
 }

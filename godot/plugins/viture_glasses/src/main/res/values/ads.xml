@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AdMob identifiers. These are Google's public TEST ids: they show labelled test ads and
+     earn nothing. Replace both with the ids from your own AdMob account before a release
+     (AdMob > Apps > App settings gives the app id; Ad units gives the banner id). Ids are
+     not secrets: every APK carries them. -->
+<resources>
+    <string name="admob_app_id" translatable="false">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="admob_banner_id" translatable="false">ca-app-pub-3940256099942544/9214589741</string>
+</resources>

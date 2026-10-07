@@ -11,6 +11,10 @@
 
     <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
 
+    <!-- Ads on the phone's control panel only (AdBanner); never on the glasses display. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application>
         <!-- The app's only icon (Godot's own launcher entry is turned off in the export
              preset): starts the app on the glasses, or on the phone without them. See the
@@ -38,6 +42,10 @@
             android:excludeFromRecents="true"
             android:resizeableActivity="true"
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar" />
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/admob_app_id" />
 
         <!-- Godot v2 plugin registration: name → class. -->
         <meta-data

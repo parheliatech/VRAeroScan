@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
@@ -69,7 +70,7 @@ public class ControlPanelActivity extends Activity {
     /** Finger travel, in pixels, before a touch counts as a drag rather than a tap. */
     private static final float DRAG_THRESHOLD_PX = 24f;
     /** Lines the status always takes, so the buttons below it never move (used by feel). */
-    private static final int STATUS_LINES = 7;
+    private static final int STATUS_LINES = 6;
     /** Button colours: what is on is lit, the rest is the default grey. */
     private static final int ON_COLOR = Color.rgb(40, 112, 150);
     private static final int OFF_COLOR = Color.rgb(70, 74, 82);
@@ -85,6 +86,16 @@ public class ControlPanelActivity extends Activity {
     private static final String IDENTIFY_ON = "◎  Identify: on — tap to turn off";
     /** Height of the drag/tap pad at the bottom of every tab. */
     private static final int PAD_DP = 150;
+    private static final int PAD_MIN_DP = 90;
+    /** The pad takes this share of the screen height, up to PAD_DP: a short phone keeps room for the controls. */
+    private static final float PAD_SHARE = 0.17f;
+    /** Below this height (dp) the ad is left out and the controls are compacted. */
+    private static final int SHORT_SCREEN_DP = 740;
+    private boolean shortScreen;
+    /** Gap between the pad and the ad, and the ad's reserved height (a 320 dp-wide banner is 50-60). */
+    private static final int AD_GAP_DP = 24;
+    private static final int AD_SLOT_DP = 60;
+    private AdBanner ads;
     private final Button[] tabButtons = new Button[3];
     private final Button[] labelButtons = new Button[LABEL_SIZES.length];
     private static final String STAR_LABEL = "Sight the pole star (clear sky)";
@@ -97,6 +108,8 @@ public class ControlPanelActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        float heightDp = getResources().getDisplayMetrics().heightPixels / getResources().getDisplayMetrics().density;
+        shortScreen = heightDp < SHORT_SCREEN_DP;
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -119,7 +132,7 @@ public class ControlPanelActivity extends Activity {
 
         statusView = new TextView(this);
         statusView.setTextColor(Color.rgb(180, 220, 255));
-        statusView.setTextSize(15);
+        statusView.setTextSize(shortScreen ? 13 : 15);
         statusView.setTypeface(Typeface.MONOSPACE);
         statusView.setPadding(0, 0, 0, dp(8));
         statusView.setLines(STATUS_LINES);
@@ -129,18 +142,21 @@ public class ControlPanelActivity extends Activity {
         // Identify is used while looking around, not set once: on every tab, above them.
         identifyButton = button(IDENTIFY_OFF, "identify");
         identifyButton.setTextSize(19);
-        root.addView(identifyButton, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(64)));
+        root.addView(identifyButton, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(shortScreen ? 52 : 64)));
 
         LinearLayout tabs = new LinearLayout(this);
         tabs.setOrientation(LinearLayout.HORIZONTAL);
-        root.addView(tabs, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(56)));
+        root.addView(tabs, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(shortScreen ? 46 : 56)));
 
         // One page at a time under the tabs: North (set it), Show (what is drawn, how big),
         // View (where from). The pad is under all three.
-        LinearLayout northPage = page();
+        // North and View scroll like Show: the ad and the pad take the room a short phone needs.
+        LinearLayout northOuter = page();
         LinearLayout showPage = page();
-        LinearLayout viewPage = page();
-        LinearLayout[] pages = {northPage, showPage, viewPage};
+        LinearLayout viewOuter = page();
+        LinearLayout northPage = scrollInto(northOuter);
+        LinearLayout viewPage = scrollInto(viewOuter);
+        LinearLayout[] pages = {northOuter, showPage, viewOuter};
         String[] tabNames = {"North", "Show", "View"};
         for (int i = 0; i < pages.length; i++) {
             final int shown = i;
@@ -191,11 +207,25 @@ public class ControlPanelActivity extends Activity {
         padView.setOnTouchListener(new PadListener());
         // On every tab: the glasses menu is a tap away whatever page is showing.
         LinearLayout.LayoutParams padParams =
-                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(PAD_DP));
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        dp(Math.max(PAD_MIN_DP, Math.min(PAD_DP, Math.round(heightDp * PAD_SHARE)))));
         padParams.topMargin = dp(12);
         root.addView(padView, padParams);
 
+        // The ad: below the pad with a gap, so a drag or tap on the pad can never land on it.
+        // Its height is reserved from the start so nothing above it moves when it loads.
+        // On a short screen there is no ad at all: the controls come first.
+        FrameLayout adSlot = new FrameLayout(this);
+        if (!shortScreen) {
+            LinearLayout.LayoutParams adParams =
+                    new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(AD_SLOT_DP));
+            adParams.topMargin = dp(AD_GAP_DP);
+            root.addView(adSlot, adParams);
+            ads = new AdBanner(this, adSlot);
+        }
+
         setContentView(root);
+        if (ads != null) adSlot.post(ads::start);
 
         // The app may have been started on the glasses without location permission (from a
         // computer, say): its own prompt would be on the glasses, so ask here.
@@ -211,12 +241,29 @@ public class ControlPanelActivity extends Activity {
     protected void onResume() {
         super.onResume();
         handler.post(refresh);
+        if (ads != null) ads.resume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         handler.removeCallbacks(refresh);
+        if (ads != null) ads.pause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (ads != null) ads.destroy();
+        super.onDestroy();
+    }
+
+    /** A scrolling column filling outer; returns the column to build into. */
+    private LinearLayout scrollInto(LinearLayout outer) {
+        LinearLayout inner = page();
+        ScrollView scroll = new ScrollView(this);
+        scroll.addView(inner);
+        outer.addView(scroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        return inner;
     }
 
     private LinearLayout page() {
@@ -277,20 +324,19 @@ public class ControlPanelActivity extends Activity {
 
     /** Where to view the sky from: the ground, the Earth's centre, or any height up to GEO. */
     private void buildViewPage(LinearLayout page) {
-        page.addView(heading("View the sky from"));
         LinearLayout modes = new LinearLayout(this);
         modes.setOrientation(LinearLayout.HORIZONTAL);
         surfaceButton = button("Surface", "view:surface");
         centreButton = button("Earth centre", "view:centre");
         modes.addView(surfaceButton, weight());
         modes.addView(centreButton, weight());
-        page.addView(modes, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(64)));
+        page.addView(modes, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(56)));
 
         altitudeView = new TextView(this);
         altitudeView.setTextColor(Color.rgb(180, 220, 255));
         altitudeView.setTextSize(18);
         altitudeView.setTypeface(Typeface.MONOSPACE);
-        altitudeView.setPadding(0, dp(16), 0, dp(4));
+        altitudeView.setPadding(0, dp(8), 0, 0);
         page.addView(altitudeView);
 
         altitudeBar = new SeekBar(this);
@@ -319,21 +365,20 @@ public class ControlPanelActivity extends Activity {
                 COMMANDS.add(String.format(Locale.US, "view:%.0f", sliderToKm(bar.getProgress())));
             }
         });
-        page.addView(altitudeBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(56)));
+        page.addView(altitudeBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)));
 
         LinearLayout steps = new LinearLayout(this);
         steps.setOrientation(LinearLayout.HORIZONTAL);
         steps.addView(button("▼ Lower", "view:down"), weight());
         steps.addView(button("▲ Higher", "view:up"), weight());
-        page.addView(steps, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(64)));
+        page.addView(steps, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(56)));
 
-        page.addView(heading("Presets"));
         LinearLayout presets = new LinearLayout(this);
         presets.setOrientation(LinearLayout.HORIZONTAL);
         presets.addView(button("400 km", "view:400"), weight());
         presets.addView(button("20,200", "view:20200"), weight());
         presets.addView(button("GEO", "view:35786"), weight());
-        page.addView(presets, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(64)));
+        page.addView(presets, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(56)));
 
     }
 
