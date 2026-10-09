@@ -14,10 +14,10 @@
 Never click your own live ads: AdMob can ban the account. Use test ids while developing.
 
 ## One-time account setup
-1. **Play Console**: https://play.google.com/console — $25 fee, identity verification.
-   A *personal* account made after Nov 2023 must run a **closed test with at least 12 testers
-   opted in for 14 continuous days** before it can apply for production (confirm the current
-   rule in the Console). An organisation account skips that.
+1. **Play Console**: https://play.google.com/console — $25 fee, identity verification. Register as
+   an **Organization** (needs the company's D-U-N-S number; name and address must match it exactly).
+   Organization accounts are not subject to the personal-account rule of a closed test with 12
+   testers for 14 days, so you can go straight to production (confirm the current rule in the Console).
 2. **AdMob**: https://admob.google.com — same Google account. Add app (Android), create a
    *Banner* ad unit, add payment/tax details. The app can be added before it is published and
    linked after.
@@ -48,9 +48,11 @@ Console > Create app: name, English, App, **Free**, accept declarations. Then:
 - Advertising ID declaration (Policy > App content): yes, used for advertising.
 
 ## Upload and test
-1. Testing > **Closed testing** > create track > upload `vraeroscan.aab` > add testers (email
-   list or a Google Group) > send the opt-in link. Accept **Play App Signing** when asked.
-2. After 14 days with ≥12 testers: Dashboard > *Apply for production*, then Production > release.
+1. Testing > **Internal testing** (or Closed testing) > create a release > upload `vraeroscan.aab` >
+   add your own Google account as a tester > install from the opt-in link on a real phone and check it.
+   Accept **Play App Signing** when asked.
+2. When the dashboard tasks are complete: Production > Create new release > upload the bundle >
+   submit for review.
 3. Updates: raise `version/code`, rebuild, upload to the track, roll out.
 
 ## Risks to keep in mind
