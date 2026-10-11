@@ -1,9 +1,9 @@
 # VRAeroScan privacy policy
 
-*Last updated: 2026-10-06*
+*Last updated: 2026-10-10*
 
-VRAeroScan is an Android app that shows aircraft and satellites in the sky on AR glasses.
-It has no accounts and no server of its own. This page says what leaves your phone.
+VRAeroScan is an Android app published by **Parhelia Technology, LLC** ("we", "us") that shows
+aircraft and satellites in the sky on AR glasses. It has no accounts and no server of its own. This page says what leaves your phone.
 
 ## What the app uses
 
@@ -43,5 +43,8 @@ The app is not directed at children under 13.
 
 ## Changes and contact
 
-If this policy changes, the date above changes. Questions: open an issue at
+If this policy changes, the date above changes. Questions: email
+info@parheliatech.com, or open an issue at
 https://github.com/parheliatech/VRAeroScan/issues .
+
+Parhelia Technology, LLC
