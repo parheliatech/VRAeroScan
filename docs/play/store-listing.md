@@ -2,6 +2,7 @@
 
 **App name** (30): `VRAeroScan: Sky Tracker`
 **Short description** (80): `Aircraft and satellites labelled in your sky, on Viture AR glasses.`
+**Developer:** Parhelia Technology, LLC — **Support email:** info@parheliatech.com
 **Category:** Tools (or Education). **Tags:** astronomy, flight tracker, AR.
 
 ## Full description (4000)
@@ -27,6 +28,7 @@ for a look around.
 
 Free, with a banner ad on the phone's control panel. Nothing is ever shown on the glasses.
 Open source (MIT): github.com/parheliatech/VRAeroScan
+Published by Parhelia Technology, LLC. Support: info@parheliatech.com
 
 Data: aircraft positions from adsb.lol, orbits from CelesTrak. Not affiliated with Viture.
 Never look at the Sun through glasses or optics.
